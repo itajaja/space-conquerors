@@ -4,7 +4,7 @@ export type ResourceAmount = {
   [P in Resource]?: number;
 }
 
-export type ItemKind = 'building' | 'unit' | 'tech'
+export type ItemKind = 'building' | 'unit' | 'tech' | 'techFamily'
 
 export interface IItem {
   kind: ItemKind
@@ -21,6 +21,8 @@ export interface IPurchaseable {
 }
 
 export interface IBuildingType extends IItem, IPurchaseable {
+  kind: 'building'
+
   maxPerPlanet?: number
   maxPerPlayer?: number
   maxPerSystem?: number
@@ -45,6 +47,8 @@ export const enum ArmoringType {
 }
 
 export interface IUnitType extends IItem, IPurchaseable {
+  kind: 'unit'
+
   unitType: UnitClass
   armoringType: ArmoringType
 
@@ -57,8 +61,12 @@ export interface IUnitType extends IItem, IPurchaseable {
 }
 
 export interface ITechnology extends IItem, IPurchaseable {
+  kind: 'tech'
+
   level: number
   family: string
 }
 
-export interface ITechnologyFamily extends IItem { }
+export interface ITechnologyFamily extends IItem {
+  kind: 'techFamily'
+}
