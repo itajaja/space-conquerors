@@ -1,12 +1,6 @@
 import { ItemKind } from './definitions'
 
-export type IActionKind = 'produce' | 'move'
-
-export interface IAction {
-  kind: IActionKind
-}
-
-export interface IProduceAction extends IAction {
+export interface IProduceAction {
   kind: 'produce'
 
   itemKind: ItemKind
@@ -14,10 +8,14 @@ export interface IProduceAction extends IAction {
   locationId?: string
 }
 
-export interface IMovementAction extends IAction {
+export interface IMovementAction {
+  kind: 'move'
+
   unitId: string
 
   path: string[]
 
   speed: number
 }
+
+export type Action = IProduceAction | IMovementAction
