@@ -1,14 +1,15 @@
 import * as _ from 'lodash'
+import uuid from 'uuid/v4'
 
 import * as ax from './actions'
 import buildingTypes from './buildings'
 import * as dx from './definitions'
-import { IMap, ICell } from './map'
+import { IMap } from './map'
 import * as sx from './state'
 import { IGameState } from './state'
 import technologyTypes from './technologies'
 import unitTypes from './units'
-import { lcm } from "./utils/index";
+import { lcm } from './utils/index'
 
 const items: { [idx: string]: dx.PurchaseableItem } = {
   ...buildingTypes,
@@ -110,10 +111,9 @@ export default class GameEngine {
 
   moveUnits(actions: ax.IMovementAction[]) {
     const steps = actions.reduce((prev, curr) => lcm(prev, curr.speed), 0)
-    const unitStates = _.keyBy(this.state.units, 'id')
 
     const unitActions = actions.map(action => {
-      const unit = unitStates[action.unitId]
+      const unit = this.state.units[action.unitId]
       return {
         action,
         unit,
@@ -140,8 +140,46 @@ export default class GameEngine {
   }
 
   produceResources() {
+    const buildingsByUser = _.groupBy(_.values(this.state.buildings), l => l.playerId)
+
+    _.forOwn(this.state.players, (p, id) => {
+      p.resourcesAmount = buildingsByUser[id!].reduce(
+        (prev, cur) => {
+          const buildingType = buildingTypes[cur.buildingTypeId]
+          // TODO factor in planet type
+          return buildingType.resourceYield
+            ? this.addResources(p.resourcesAmount, buildingType.resourceYield)
+            : p.resourcesAmount
+      }, p.resourcesAmount)
+    })
   }
 
   updateProduction() {
+    _.forOwn(this.state.players, (player, playerId: string) => {
+      const remainingProductions: sx.IProductionStatus[] = []
+      for (const p of player.productionStatuses) {
+        p.remainingTurns--
+
+        if (p.remainingTurns === 0) {
+          if (unitTypes[p.itemId]) {
+            this.state.units[uuid()] = {
+              locationId: p.locationId!,
+              playerId,
+              unitTypeId: p.itemId,
+            }
+          } else if (buildingTypes[p.itemId]) {
+            this.state.buildings[uuid()] = {
+              locationId: p.locationId!,
+              playerId,
+              buildingTypeId: p.itemId,
+            }
+          } else { // must be technology
+            player.technologies[p.itemId] = true
+          }
+        } else {
+          remainingProductions.push(p)
+        }
+      }
+    })
   }
 }

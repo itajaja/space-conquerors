@@ -1,4 +1,5 @@
 export type Resource = 'gold' | 'iron' | 'gas' | 'darkMatter'
+export const resources: Resource[] = ['gold', 'iron', 'gas', 'darkMatter']
 
 export type ResourceAmount = {
   [P in Resource]: number;
@@ -31,8 +32,7 @@ export interface IBuildingType extends IItem, IPurchaseable {
   maxPerPlayer?: number
   maxPerSystem?: number
 
-  resourceYield?: ResourceAmount[]
-  resourceMultiplier?: ResourceAmount[]
+  resourceYield?: ResourceAmount
 }
 
 export const enum UnitClass {

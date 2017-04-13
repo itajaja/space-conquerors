@@ -32,8 +32,6 @@ export interface IBuildingState {
   buildingTypeId: string
   playerId: string
 
-  level: number
-
   locationId: string
 }
 
