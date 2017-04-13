@@ -1,28 +1,28 @@
 import * as _ from 'lodash'
 
 import * as ax from './actions'
-import buildings from './buildings'
+import buildingTypes from './buildings'
 import * as dx from './definitions'
+import { IMap, ICell } from './map'
 import * as sx from './state'
 import { IGameState } from './state'
-import technologies from './technologies'
-import units from './units'
+import technologyTypes from './technologies'
+import unitTypes from './units'
+import { lcm } from "./utils/index";
 
 const items: { [idx: string]: dx.PurchaseableItem } = {
-  ...buildings,
-  ...technologies,
-  ...units,
+  ...buildingTypes,
+  ...technologyTypes,
+  ...unitTypes,
 }
 
 /**
  * GameEngine contains all the logic to manipulate the game state
  */
 export default class GameEngine {
-  constructor(public state: IGameState) { }
+  constructor(public state: IGameState, public map: IMap) { }
 
-  subtractResources(
-    a: dx.ResourceAmount, b: dx.ResourceAmount,
-  ): dx.ResourceAmount {
+  subtractResources(a: dx.ResourceAmount, b: dx.ResourceAmount): dx.ResourceAmount {
     return {
       gold: a.gold - b.gold,
       iron: a.iron - b.iron,
@@ -61,10 +61,7 @@ export default class GameEngine {
     return true
   }
 
-  schedulePlayerProduction(
-    player: sx.IPlayerState,
-    actions: ax.IProduceAction[],
-  ) {
+  schedulePlayerProduction(player: sx.IPlayerState, actions: ax.IProduceAction[]) {
     for (const a of actions) {
       const item = items[a.itemId]
 
@@ -91,7 +88,55 @@ export default class GameEngine {
     })
   }
 
+  edgeId(l1: string, l2: string) {
+    return [l1, l2].map(l => l).sort().join('::')
+  }
+
+  executeStep(action: ax.IMovementAction, unit: sx.IUnitState, speed: number, step: number) {
+    const pathIndex = Math.min(Math.floor(step / speed))
+    const isInTransit = !!(step % speed)
+
+    const from = action.path[pathIndex]
+    const to = action.path[pathIndex + 1]
+
+    if (!to || !isInTransit) {
+      // means it's either arrived or on a planet
+      unit.locationId = from
+      return from
+    }
+
+    return this.edgeId(from, to)
+  }
+
   moveUnits(actions: ax.IMovementAction[]) {
+    const steps = actions.reduce((prev, curr) => lcm(prev, curr.speed), 0)
+    const unitStates = _.keyBy(this.state.units, 'id')
+
+    const unitActions = actions.map(action => {
+      const unit = unitStates[action.unitId]
+      return {
+        action,
+        unit,
+        speed: steps / unitTypes[unit.unitTypeId].speed,
+      }
+    })
+
+    for (let step = 0; step <= steps; ++step) {
+      const locations = _.groupBy(unitActions, ({ action, unit, speed }) => (
+        this.executeStep(action, unit, speed, step)
+      ))
+
+
+      _.forOwn(locations, units => {
+        const playersInvolved = _.keys(_.groupBy(units, u => u.unit.playerId))
+        // TODO: check allies and such
+        if (playersInvolved.length > 1) {
+          // TODO: BATTLE
+          // TODO: make sure to handle destroyed units
+        }
+      })
+
+    }
   }
 
   produceResources() {

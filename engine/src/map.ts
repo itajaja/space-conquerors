@@ -1,37 +1,36 @@
 /**
- * Represent the map of a game. The Map contains data that doesn't
- * change over time.
+ * Represent the immutable map of a game
  */
 import { Resource, ResourceAmount } from './definitions'
 
 export interface IMap {
-  cells: ICell[]
+  readonly cells: ICell[]
 
-  systems: ISystem[]
+  readonly systems: ISystem[]
 
-  gameId: string
+  readonly gameId: string
 }
 
 export interface ICell {
-  id: string
+  readonly id: string
 
-  name: string
+  readonly name: string
 
-  systemId: string
+  readonly systemId: string
 
-  planet?: IPlanet
+  readonly planet?: IPlanet
 
-  edges: { [idx: string]: true }
+  readonly edges: { [idx: string]: true }
 }
 
 export interface ISystem {
-  id: string
+  readonly id: string
 
-  name: string
+  readonly name: string
 }
 
 export interface IPlanet {
-  resourceTypeDefinition: Resource
+  readonly resourceTypeDefinition: Resource
 
-  resourceYield: ResourceAmount[]
+  readonly resourceYield: ResourceAmount[]
 }

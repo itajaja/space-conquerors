@@ -34,7 +34,7 @@ export function applyTurn(
   })
 
   const newState = deepClone(state)
-  const engine = new GameEngine(newState)
+  const engine = new GameEngine(newState, map)
 
   // produce
   engine.scheduleProduction(produceActions)
