@@ -4,7 +4,7 @@ export function deepClone<T>(obj: T): T {
 }
 
 // taken from josdejong/mathjs
-export function lcm (a: number, b: number) {
+export function lcm(a: number, b: number) {
   if (!Number.isInteger(a) || !Number.isInteger(b)) {
     throw new Error('Parameters in function lcm must be integer numbers')
   }
@@ -16,7 +16,7 @@ export function lcm (a: number, b: number) {
   // http://en.wikipedia.org/wiki/Euclidean_algorithm
   // evaluate lcm here inline to reduce overhead
   let t
-  let prod = a * b
+  const prod = a * b
   while (b !== 0) {
     t = b
     b = a % t

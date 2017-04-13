@@ -126,7 +126,6 @@ export default class GameEngine {
         this.executeStep(action, unit, speed, step)
       ))
 
-
       _.forOwn(locations, units => {
         const playersInvolved = _.keys(_.groupBy(units, u => u.unit.playerId))
         // TODO: check allies and such

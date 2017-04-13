@@ -18,8 +18,8 @@ export interface IGame {
 export function applyTurn(
   state: IGameState, map: IMap, actions: ax.Action[],
 ): IGameState {
-  let produceActions: ax.IProduceAction[] = []
-  let moveActions: ax.IMovementAction[] = []
+  const produceActions: ax.IProduceAction[] = []
+  const moveActions: ax.IMovementAction[] = []
 
   actions.forEach(a => {
     switch (a.kind) {
@@ -52,4 +52,3 @@ export function applyTurn(
 
   return newState
 }
-
