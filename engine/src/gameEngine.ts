@@ -3,6 +3,7 @@ import uuid from 'uuid/v4'
 
 import * as ax from './actions'
 import buildingTypes from './buildings'
+import CombatEngine from './combatEngine'
 import * as dx from './definitions'
 import { IMap } from './map'
 import * as sx from './state'
@@ -112,12 +113,14 @@ export default class GameEngine {
   moveUnits(actions: ax.IMovementAction[]) {
     const steps = actions.reduce((prev, curr) => lcm(prev, curr.speed), 0)
 
-    const unitActions = actions.map(action => {
+    let unitActions = actions.map(action => {
       const unit = this.state.units[action.unitId]
+      const unitType = unitTypes[unit.unitTypeId]
       return {
         action,
-        unit,
-        speed: steps / unitTypes[unit.unitTypeId].speed,
+        unit: { ...unit, id: action.unitId },
+        unitType,
+        speed: steps / unitType.speed,
       }
     })
 
@@ -130,8 +133,13 @@ export default class GameEngine {
         const playersInvolved = _.keys(_.groupBy(units, u => u.unit.playerId))
         // TODO: check allies and such
         if (playersInvolved.length > 1) {
-          // TODO: BATTLE
-          // TODO: make sure to handle destroyed units
+          const combatUnits = units.map(u => ({ ...u.unit, hp: u.unitType.endurance }))
+          const survivors = new CombatEngine(combatUnits).start()
+
+          // remove dead units
+          const dead = _.difference(combatUnits.map(u => u.id), survivors.map(u => u.id))
+          dead.forEach(deadId => delete this.state.units[deadId])
+          unitActions = unitActions.filter(u => !this.state.units[u.unit.id])
         }
       })
 

@@ -56,8 +56,13 @@ export interface IUnitType extends IItem, IPurchaseable {
   unitType: UnitClass
   armoringType: ArmoringType
 
+  shootingSpeed: number
   firePower: number
+  strategicCaliber: number
+  accuracy: number
+  endurance: number
   speed: number
+
   gasConsumption: number
   foodConsumption: number
 
