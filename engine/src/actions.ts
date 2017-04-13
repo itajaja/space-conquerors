@@ -1,9 +1,8 @@
-import { ItemKind } from './definitions'
-
 export interface IProduceAction {
   kind: 'produce'
 
-  itemKind: ItemKind
+  playerId: string
+
   itemId: string
   locationId?: string
 }
@@ -11,10 +10,10 @@ export interface IProduceAction {
 export interface IMovementAction {
   kind: 'move'
 
+  playerId: string
+
   unitId: string
-
   path: string[]
-
   speed: number
 }
 

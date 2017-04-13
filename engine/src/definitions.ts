@@ -1,7 +1,11 @@
 export type Resource = 'gold' | 'iron' | 'gas' | 'darkMatter'
 
 export type ResourceAmount = {
-  [P in Resource]?: number;
+  [P in Resource]: number;
+}
+
+export function zeroResources(): ResourceAmount {
+  return { gold: 0, iron: 0, gas: 0, darkMatter: 0 }
 }
 
 export type ItemKind = 'building' | 'unit' | 'tech' | 'techFamily'
@@ -16,7 +20,7 @@ export interface IItem {
 
 export interface IPurchaseable {
   cost: ResourceAmount,
-  techRequirements: string[]
+  techRequirements: { [idx: string]: true }
   productionTime: number
 }
 
@@ -70,3 +74,6 @@ export interface ITechnology extends IItem, IPurchaseable {
 export interface ITechnologyFamily extends IItem {
   kind: 'techFamily'
 }
+
+export type Item = IBuildingType | IUnitType | ITechnology | ITechnologyFamily
+export type PurchaseableItem = IBuildingType | IUnitType | ITechnology

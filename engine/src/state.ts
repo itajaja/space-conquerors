@@ -5,20 +5,20 @@ export enum PlayerStatus {
   Alive,
 }
 
-export interface IProductionQueueItem {
+export interface IProductionStatus {
   remainingTurns: number
   itemId: string
-  targetLocation?: string
+  locationId?: string
 }
 
 export interface IPlayerState {
   status: PlayerStatus
 
-  resourcesAmount: ResourceAmount[]
+  resourcesAmount: ResourceAmount
 
-  productionQueue: IProductionQueueItem[]
+  productionStatuses: IProductionStatus[]
 
-  technologies: string[]
+  technologies: { [idx: string]: true }
 }
 
 export interface IUnitState {
