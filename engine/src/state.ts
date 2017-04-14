@@ -5,6 +5,10 @@ export enum PlayerStatus {
   Alive,
 }
 
+export interface ILocatable {
+  locationId: string
+}
+
 export interface IProductionStatus {
   remainingTurns: number
   itemId: string
@@ -37,10 +41,12 @@ export interface IBuildingState {
 
 export interface IPlanetState {
   ownerPlayerId?: string
+
+  locationId: string
 }
 
 export interface IGameState {
-  players: {[idx: string]: IPlayerState}
+  players: { [idx: string]: IPlayerState }
 
   planets: { [idx: string]: IPlanetState }
 

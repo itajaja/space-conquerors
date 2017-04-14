@@ -4,9 +4,9 @@
 import { Resource, ResourceAmount } from './definitions'
 
 export interface IMap {
-  readonly cells: ICell[]
+  readonly cells: { [idx: string]: ICell }
 
-  readonly systems: ISystem[]
+  readonly systems: { [idx: string]: ISystem }
 
   readonly gameId: string
 }
