@@ -44,7 +44,7 @@ export default class GameEngine {
 
   hasEnoughResources(a: dx.ResourceAmount, b: dx.ResourceAmount) {
     const result = this.subtractResources(a, b)
-    Object.keys(k => result[k] >= 0)
+    return _.values(result).every(k => result[k] >= 0)
   }
 
   canProduceItem(player: sx.IPlayerState, item: dx.PurchaseableItem) {
@@ -118,7 +118,7 @@ export default class GameEngine {
       const unitType = unitTypes[unit.unitTypeId]
       return {
         action,
-        unit: { ...unit, id: action.unitId },
+        unit,
         unitType,
         speed: steps / unitType.speed,
       }
@@ -149,8 +149,8 @@ export default class GameEngine {
   produceResources() {
     const buildingsByUser = _.groupBy(_.values(this.state.buildings), l => l.playerId)
 
-    _.forOwn(this.state.players, (p, id) => {
-      p.resourcesAmount = buildingsByUser[id!].reduce(
+    _.forOwn(this.state.players, p => {
+      p.resourcesAmount = buildingsByUser[p.id].reduce(
         (prev, cur) => {
           const buildingType = buildingTypes[cur.buildingTypeId]
           // TODO factor in planet type
@@ -169,13 +169,17 @@ export default class GameEngine {
 
         if (p.remainingTurns === 0) {
           if (unitTypes[p.itemId]) {
-            this.state.units[uuid()] = {
+            const id = uuid()
+            this.state.units[id] = {
+              id,
               locationId: p.locationId!,
               playerId,
               unitTypeId: p.itemId,
             }
           } else if (buildingTypes[p.itemId]) {
-            this.state.buildings[uuid()] = {
+            const id = uuid()
+            this.state.buildings[id] = {
+              id,
               locationId: p.locationId!,
               playerId,
               buildingTypeId: p.itemId,

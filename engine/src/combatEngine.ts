@@ -4,7 +4,6 @@ import * as sx from './state'
 import unitTypes from './units'
 
 interface IUnit extends sx.IUnitState {
-  id: string
   hp: number
 }
 

@@ -16,7 +16,7 @@ export function getStateforPlayer(
   const playerUnits = _.values(state.units).filter(u => u.playerId === playerId)
   // the locations the player is on
   const baseLocations = [...playerPlanets, ...playerUnits].map(i => i.locationId)
-  // + the neighboring locations
+  // ... + the neighboring locations
   const visibleLocations = _.merge({}, baseLocations.map(l => ({
     [l]: true,
     ...map.cells[l].edges,
@@ -32,7 +32,8 @@ export function getStateforPlayer(
     planets: filterVisibles(state.planets),
     units: filterVisibles(state.units),
     player: state.players[playerId],
-    players: Object.keys(state.players)
-      .filter(p => state.players[p].status === sx.PlayerStatus.Alive),
+    players: _.values(state.players)
+      .filter(p => p.status === sx.PlayerStatus.Alive)
+      .map(p => p.id),
   }
 }

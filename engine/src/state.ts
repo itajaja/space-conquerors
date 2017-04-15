@@ -9,13 +9,17 @@ export interface ILocatable {
   locationId: string
 }
 
+export interface IId {
+  id: string
+}
+
 export interface IProductionStatus {
   remainingTurns: number
   itemId: string
   locationId?: string
 }
 
-export interface IPlayerState {
+export interface IPlayerState extends IId {
   status: PlayerStatus
 
   resourcesAmount: ResourceAmount
@@ -25,21 +29,21 @@ export interface IPlayerState {
   technologies: { [idx: string]: true }
 }
 
-export interface IUnitState {
+export interface IUnitState extends IId {
   unitTypeId: string
   playerId: string
 
   locationId: string
 }
 
-export interface IBuildingState {
+export interface IBuildingState extends IId {
   buildingTypeId: string
   playerId: string
 
   locationId: string
 }
 
-export interface IPlanetState {
+export interface IPlanetState extends IId {
   ownerPlayerId?: string
 
   locationId: string
