@@ -1,3 +1,4 @@
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path')
 const merge = require('webpack-merge');
@@ -32,6 +33,9 @@ let config = {
       favicon: 'src/assets/favicon.png',
       inject: true,
     }),
+    new CopyWebpackPlugin([
+      { from: 'semantic/dist/semantic.min.css' }
+    ]),
   ],
 
   devtool: '#cheap-module-inline-source-map',

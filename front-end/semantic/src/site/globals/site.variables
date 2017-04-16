@@ -1,0 +1,8 @@
+/*******************************
+     User Global Variables
+*******************************/
+
+@fontName : 'Play';
+
+@primaryColor: #19404F; // petrol
+@secondaryColor: #596869; // grey
