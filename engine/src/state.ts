@@ -43,7 +43,7 @@ export interface IBuildingState extends IId {
   locationId: string
 }
 
-export interface IPlanetState extends IId {
+export interface IPlanetState {
   ownerPlayerId?: string
 
   locationId: string

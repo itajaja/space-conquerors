@@ -7,8 +7,6 @@ export interface IMap {
   readonly cells: { [idx: string]: ICell }
 
   readonly systems: { [idx: string]: ISystem }
-
-  readonly gameId: string
 }
 
 export interface ICell {
@@ -32,5 +30,5 @@ export interface ISystem {
 export interface IPlanet {
   readonly resourceTypeDefinition: Resource
 
-  readonly resourceYield: ResourceAmount[]
+  readonly resourceYield: ResourceAmount
 }

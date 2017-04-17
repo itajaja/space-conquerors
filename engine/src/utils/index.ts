@@ -24,3 +24,18 @@ export function lcm(a: number, b: number) {
   }
   return Math.abs(prod / a)
 }
+
+/**
+ * pick a random element from an array
+ */
+export function pickRandom<T>(array: T[]): T {
+  return array[Math.floor(Math.random() * array.length)]
+}
+
+/**
+ * retrieve an item from an array with modulo index
+ */
+export function getItemCircular<T>(array: T[], index: number) {
+  const n = array.length
+  return array[((index % n) + n) % n]
+}
