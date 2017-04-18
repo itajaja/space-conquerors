@@ -4,7 +4,7 @@ import { IMap } from './map'
 import * as sx from './state'
 
 type VisibleState = Pick<sx.IGameState, 'buildings' | 'marketState' | 'planets' | 'units'>
-interface IVisibleState extends VisibleState {
+export interface IVisibleState extends VisibleState {
   player: sx.IPlayerState,
   players: string[],
 }

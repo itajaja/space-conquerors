@@ -34,7 +34,8 @@ let config = {
       inject: true,
     }),
     new CopyWebpackPlugin([
-      { from: 'semantic/dist/semantic.min.css' }
+      { from: 'semantic/dist/semantic.min.css' },
+      { from: 'semantic/dist/themes/default/assets/fonts', 'to': './' },
     ]),
   ],
 
