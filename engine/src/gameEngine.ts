@@ -1,5 +1,5 @@
 import * as _ from 'lodash'
-import uuid from 'uuid/v4'
+import * as uuid from 'uuid/v4'
 
 import * as ax from './actions'
 import buildingTypes from './buildings'

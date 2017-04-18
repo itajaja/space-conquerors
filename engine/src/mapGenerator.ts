@@ -1,5 +1,5 @@
 import * as _ from 'lodash'
-import uuid from 'uuid/v4'
+import * as uuid from 'uuid/v4'
 
 import * as mx from './map'
 import RandomNameGenerator from './randomNameGenerator'
@@ -59,7 +59,7 @@ export default class MapGenerator {
     return { system, cells }
   }
 
-  generateCluster() {
+  generateCluster = () => {
     const systems = [
       this.generateSystem(),
       this.generateSystem(),
@@ -77,7 +77,7 @@ export default class MapGenerator {
 
   generate(numPlayers: number): mx.IMap & { origins: mx.ICell[] } {
     const clusters = _.range(numPlayers).map(this.generateCluster)
-    const origins = clusters.map(cluster => cluster[0].cells[0])
+    const origins = clusters.map(cluster => cluster[0].cells[1])
 
     clusters.forEach((cluster, idx) => {
       const nextCluster = getItemCircular(clusters, idx + 1)
