@@ -1,28 +1,42 @@
-// import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
-// import { Button } from 'semantic-ui-react'
 
-import IApi from '../api'
-
-// const styles = StyleSheet.create({
-//   root: {
-//     paddingTop: 20,
-//     textAlign: 'center',
-//   },
-//   button: {
-//     marginBottom: 10,
-//   },
-// })
+import IApi, { Game } from '../api'
+import MapView from './mapView'
 
 export type Props = {
   api: IApi,
   gameId: string,
 }
 
-export default class GameView extends React.Component<Props, {}> {
+export type State = {
+  game: Game | null,
+}
+
+export default class GameView extends React.Component<Props, State> {
+  constructor(props, ctx) {
+    super(props, ctx)
+
+    this.state = {
+      game: null,
+    }
+    this.fetchGame()
+  }
+
+  async fetchGame() {
+    const game = await this.props.api.getGame(this.props.gameId)
+    this.setState({ game })
+  }
+
   render() {
+    const { game } = this.state
+    if (!game) {
+      return null
+    }
+
     return (
-      <div>test</div>
+      <MapView map={game.map} />
     )
   }
 }
+
+// HIGH WATERMARK?

@@ -18,10 +18,10 @@ const styles = StyleSheet.create({
 
 export default function App() {
   return (
-    <div className={css(styles.root)}>
-      <DialogController>
+    <DialogController>
+      <div className={css(styles.root)}>
         <Router defaultView={MainPage} />
-      </DialogController>
-    </div>
+      </div>
+    </DialogController>
   )
 }

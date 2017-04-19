@@ -14,7 +14,7 @@ interface IApi {
 
   getGame(gameId: string): Promise<Game | null>
 
-  gatGameState(gameId: string): Promise<IVisibleState | null>
+  getGameState(gameId: string): Promise<IVisibleState | null>
 
   getActions(gameId: string): Promise<Action[]>
 

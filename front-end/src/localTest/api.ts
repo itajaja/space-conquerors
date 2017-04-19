@@ -72,7 +72,7 @@ export default class TestApi implements IApi {
     return this.game
   }
 
-  async gatGameState(gameId: string): Promise<IVisibleState | null> {
+  async getGameState(gameId: string): Promise<IVisibleState | null> {
     if (!this.gameState || !this.game) {
       return null
     }
