@@ -3,6 +3,7 @@ import * as React from 'react'
 
 import DialogController from './DialogController'
 import MainPage from './localTest/mainPage'
+import Router from './router'
 import style from './style'
 
 const styles = StyleSheet.create({
@@ -19,7 +20,7 @@ export default function App() {
   return (
     <div className={css(styles.root)}>
       <DialogController>
-        <MainPage />
+        <Router defaultView={MainPage} />
       </DialogController>
     </div>
   )

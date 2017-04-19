@@ -63,6 +63,8 @@ export default class TestApi implements IApi {
       players,
     }
 
+    this.save()
+
     return GAME_ID
   }
 
@@ -85,5 +87,18 @@ export default class TestApi implements IApi {
   async submitActions(gameId: string, actions: Action[]): Promise<void> {
     // TODO
     return
+  }
+
+  private save() {
+    if (!this.game || !this.gameState) {
+      return
+    }
+
+    storage.save({
+      currentTurnNumber: this.game.currentTurnNumber,
+      map: this.game.map,
+      players: this.game.players,
+      state: this.gameState,
+    })
   }
 }
