@@ -5,6 +5,7 @@ import { Button } from 'semantic-ui-react'
 import { Game } from '../api'
 import Layout from '../components/layout'
 import { DialogContext } from '../DialogController'
+import Router from '../router'
 import Api from './api'
 import SelectPlayerModal from './selectPlayerModal'
 import StartGameModal from './StartGameModal'
@@ -19,16 +20,16 @@ const styles = StyleSheet.create({
   },
 })
 
-export default class MainPage extends React.Component<{}, {}> {
+type Props = {
+  router: Router,
+}
+
+export default class MainPage extends React.Component<Props, {}> {
   static contextTypes = {
     dialog: React.PropTypes.object,
   }
 
   api = new Api()
-
-  onContinueGame = () => {
-    // TODO
-  }
 
   async startGame(game: Game) {
     const dialog: DialogContext = this.context.dialog
@@ -38,7 +39,26 @@ export default class MainPage extends React.Component<{}, {}> {
       return
     }
 
-    // TODO
+    this.api.playerId = player.result
+
+    this.props.router.game({ gameId: game.id, api: this.api })
+  }
+
+  onContinueGame = async () => {
+    const game = await this.api.getGame('')
+    if (!game) {
+      return
+    }
+
+    const dialog: DialogContext = this.context.dialog
+    const player = await dialog.prompt(SelectPlayerModal, { players: game.players })
+    if (!player) {
+      return
+    }
+
+    this.api.playerId = player.result
+
+    this.props.router.game({ gameId: game.id, api: this.api })
   }
 
   onStartGame = async () => {
@@ -53,7 +73,6 @@ export default class MainPage extends React.Component<{}, {}> {
   }
 
   render() {
-
     return (
       <div className={css(styles.root)}>
         <h1>
