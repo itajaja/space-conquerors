@@ -10,6 +10,8 @@ export type Game = {
 }
 
 interface IApi {
+  playerId: string
+
   createGame(players: string[]): Promise<string>
 
   getGame(gameId: string): Promise<Game | null>

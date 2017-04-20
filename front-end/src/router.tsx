@@ -1,5 +1,5 @@
 import * as React from 'react'
-import GameView, { Props as GameViewProps } from './gameView/index'
+import GameView, { Props as GameViewProps } from './gameView'
 
 type Props = {
   defaultView: React.ComponentClass<{ router?: Router }>,

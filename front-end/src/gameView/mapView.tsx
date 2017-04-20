@@ -1,15 +1,17 @@
 import * as d3Force from 'd3-force'
 import * as _ from 'lodash'
 import * as React from 'react'
-import {ReactSVGPanZoom} from 'react-svg-pan-zoom';
-
+import {ReactSVGPanZoom} from 'react-svg-pan-zoom'
 import { IMap } from 'sco-engine/src/map'
 
-export type Props = {
-  map: IMap,
+import Cell from './cell'
+import Store from './store'
+
+type Props = {
+  store: Store,
 }
 
-export type State = {
+type State = {
   shift: boolean,
 }
 
@@ -55,9 +57,9 @@ export default class MapView extends React.Component<Props, State> {
   oldKeyPress: any
   oldKeyUp: any
 
-  constructor(props, ctx) {
+  constructor(props: Props, ctx) {
     super(props, ctx)
-    this.layout = generateMapLayout(props.map)
+    this.layout = generateMapLayout(props.store.state.game.map)
     this.state = {
       shift: false,
     }
@@ -89,18 +91,12 @@ export default class MapView extends React.Component<Props, State> {
   }
 
   render() {
+    const { store } = this.props
     const { cells, edges } = this.layout
 
-    const cellComponents = cells.map(({ x, y, name, systemId, planet }) => (
-      <g transform={`translate(${x},${y})`} key={name}>
-        {planet && <circle r="20" />}
-        <text
-          fontSize="7"
-          fill="white"
-          textAnchor="middle"
-        >
-          {name}
-        </text>
+    const cellComponents = cells.map(({ x, y, name, systemId, planet, id }) => (
+      <g transform={`translate(${x},${y})`} key={id}>
+        <Cell cell={store.state.game.map.cells[id]} store={store} />
       </g>
     ))
     const cellLinks = edges.map((l, i) => (
