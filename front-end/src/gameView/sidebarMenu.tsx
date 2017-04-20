@@ -2,9 +2,11 @@ import { css, StyleSheet } from 'aphrodite'
 import * as _ from 'lodash'
 import * as React from 'react'
 import buildings from 'sco-engine/src/buildings'
+import { IBuildingType, IUnitType } from 'sco-engine/src/definitions'
 import { ICell } from 'sco-engine/src/map'
 import { IBuildingState } from 'sco-engine/src/state'
-import { Button, Header } from 'semantic-ui-react'
+import units from 'sco-engine/src/units'
+import { Button, Header, List, Modal } from 'semantic-ui-react'
 
 import style from '../style'
 import Store from './store'
@@ -27,6 +29,14 @@ type Props = {
 }
 
 export default class SidebarMenu extends React.Component<Props, never> {
+  renderBuildingDescription(building: IBuildingType) {
+    return <List.Item key={building.id} >{building.name}</List.Item>
+  }
+
+  renderUnitDescription(unit: IUnitType) {
+    return <List.Item key={unit.id} >{unit.name}</List.Item>
+  }
+
   renderActions(cell: ICell) {
     const { state } = this.props.store
     const planetState = state.gameState.planets[cell.id]
@@ -37,9 +47,21 @@ export default class SidebarMenu extends React.Component<Props, never> {
     }
 
     return (
-      <Button>
-        Build
-      </Button>
+      <Modal trigger={<Button>Build</Button>}>
+        <Modal.Header>Planet {cell.name} - Build</Modal.Header>
+        <Modal.Content>
+          <Modal.Description>
+            <Header>Buildings</Header>
+            <List>
+              {_.values(buildings).map(this.renderBuildingDescription)}
+            </List>
+            <Header>Units</Header>
+            <List>
+              {_.values(units).map(this.renderUnitDescription)}
+            </List>
+          </Modal.Description>
+        </Modal.Content>
+      </Modal>
     )
   }
 
