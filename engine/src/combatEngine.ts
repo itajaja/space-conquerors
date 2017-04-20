@@ -66,7 +66,7 @@ export default class CombatEngine {
     const targetType = unitTypes[target.unitTypeId]
 
     const x = Math.random() * 1000 / unitType.accuracy
-    const σ = 100 / targetType.accuracy
+    const σ = 100 / targetType.evasion
     const exp = - (x * x) / (2 * σ * σ)
     const damage = unitType.firePower * Math.exp(exp)
 

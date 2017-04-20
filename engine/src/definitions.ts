@@ -5,8 +5,8 @@ export type ResourceAmount = {
   [P in Resource]: number;
 }
 
-export function zeroResources(): ResourceAmount {
-  return { gold: 0, iron: 0, gas: 0, darkMatter: 0 }
+export function zeroResources(r: Partial<ResourceAmount> = {}): ResourceAmount {
+  return { gold: 0, iron: 0, gas: 0, darkMatter: 0, ...r }
 }
 
 export type ItemKind = 'building' | 'unit' | 'tech' | 'techFamily'
@@ -53,13 +53,14 @@ export const enum ArmoringType {
 export interface IUnitType extends IItem, IPurchaseable {
   kind: 'unit'
 
-  unitType: UnitClass
+  unitClass: UnitClass
   armoringType: ArmoringType
 
   shootingSpeed: number
   firePower: number
   strategicCaliber: number
   accuracy: number
+  evasion: number
   endurance: number
   speed: number
 
