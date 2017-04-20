@@ -17,7 +17,7 @@ export function getStateforPlayer(
   // the locations the player is on
   const baseLocations = [...playerPlanets, ...playerUnits].map(i => i.locationId)
   // ... + the neighboring locations
-  const visibleLocations = _.merge({}, baseLocations.map(l => ({
+  const visibleLocations = _.merge({}, ...baseLocations.map(l => ({
     [l]: true,
     ...map.cells[l].edges,
   })))
