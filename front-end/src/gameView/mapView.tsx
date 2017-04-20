@@ -9,7 +9,16 @@ export type Props = {
   map: IMap,
 }
 
-function generateMapLayout(map: IMap) {
+export type State = {
+  shift: boolean,
+}
+
+type Layout = {
+  cells: any,
+  edges: any,
+}
+
+function generateMapLayout(map: IMap): Layout {
   const width = 1000
   const height = 1000
 
@@ -41,10 +50,46 @@ function generateMapLayout(map: IMap) {
   }
 }
 
-export default class MapView extends React.Component<Props, {}> {
+export default class MapView extends React.Component<Props, State> {
+  layout: Layout
+  oldKeyPress: any
+  oldKeyUp: any
+
+  constructor(props, ctx) {
+    super(props, ctx)
+    this.layout = generateMapLayout(props.map)
+    this.state = {
+      shift: false,
+    }
+  }
+
+  componentDidMount() {
+    this.oldKeyPress = document.onkeydown
+    document.onkeydown = this.onKeyDown
+    this.oldKeyUp = document.onkeyup
+    document.onkeyup = this.onKeyUp
+  }
+
+  onKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Shift' && !this.state.shift) {
+      return this.setState({ shift: true })
+    } else if (e.key !== 'Shift' && this.state.shift) {
+      return this.setState({ shift: false })
+    }
+  }
+
+  onKeyUp = (e: KeyboardEvent) => {
+    if (this.state.shift) {
+      return this.setState({ shift: false })
+    }
+  }
+
+  componentWillUnmount() {
+    document.onkeypress = this.oldKeyPress
+  }
+
   render() {
-    const { map } = this.props
-    const { cells, edges } = generateMapLayout(map)
+    const { cells, edges } = this.layout
 
     const cellComponents = cells.map(({ x, y, name, systemId, planet }) => (
       <g transform={`translate(${x},${y})`} key={name}>
@@ -59,7 +104,14 @@ export default class MapView extends React.Component<Props, {}> {
       </g>
     ))
     const cellLinks = edges.map((l, i) => (
-      <line x1={l.source.x} y1={l.source.y} x2={l.target.x} y2={l.target.y} key={i} stroke="black"/>
+      <line
+        x1={l.source.x}
+        y1={l.source.y}
+        x2={l.target.x}
+        y2={l.target.y}
+        key={i}
+        stroke="black"
+      />
     ))
 
     return (
@@ -67,7 +119,7 @@ export default class MapView extends React.Component<Props, {}> {
         width="100%"
         height="100%"
         toolbarPosition="none"
-        tool="pan"
+        tool={this.state.shift ? 'pan' : 'else'}
         background="transparent"
         SVGBackground="transparent"
       >
