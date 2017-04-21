@@ -18,57 +18,57 @@ const items: { [idx: string]: dx.PurchaseableItem } = {
   ...unitTypes,
 }
 
+function subtractResources(a: dx.ResourceAmount, b: dx.ResourceAmount): dx.ResourceAmount {
+  return {
+    gold: a.gold - b.gold,
+    iron: a.iron - b.iron,
+    gas: a.gas - b.gas,
+    darkMatter: a.darkMatter - b.darkMatter,
+  }
+}
+
+function addResources(a: dx.ResourceAmount, b: dx.ResourceAmount): dx.ResourceAmount {
+  return {
+    gold: a.gold + b.gold,
+    iron: a.iron + b.iron,
+    gas: a.gas + b.gas,
+    darkMatter: a.darkMatter + b.darkMatter,
+  }
+}
+
+function hasEnoughResources(a: dx.ResourceAmount, b: dx.ResourceAmount) {
+  const result = subtractResources(a, b)
+  return _.values(result).every(r => r >= 0)
+}
+
+export function canProduceItem(player: sx.IPlayerState, item: dx.PurchaseableItem) {
+  // check if enough resources
+  if (!hasEnoughResources(player.resourcesAmount, item.cost)) {
+    return false
+  }
+  // check if tech present
+  const techRequirements = Object.keys(item.techRequirements)
+  if (techRequirements.some(t => !player.technologies[t])) {
+    return false
+  }
+
+  // TODO: if building, check if exceeding caps
+
+  return true
+}
+
 /**
  * GameEngine contains all the logic to manipulate the game state
  */
 export default class GameEngine {
   constructor(public state: IGameState, public map: IMap) { }
 
-  subtractResources(a: dx.ResourceAmount, b: dx.ResourceAmount): dx.ResourceAmount {
-    return {
-      gold: a.gold - b.gold,
-      iron: a.iron - b.iron,
-      gas: a.gas - b.gas,
-      darkMatter: a.darkMatter - b.darkMatter,
-    }
-  }
-
-  addResources(a: dx.ResourceAmount, b: dx.ResourceAmount): dx.ResourceAmount {
-    return {
-      gold: a.gold + b.gold,
-      iron: a.iron + b.iron,
-      gas: a.gas + b.gas,
-      darkMatter: a.darkMatter + b.darkMatter,
-    }
-  }
-
-  hasEnoughResources(a: dx.ResourceAmount, b: dx.ResourceAmount) {
-    const result = this.subtractResources(a, b)
-    return _.values(result).every(k => result[k] >= 0)
-  }
-
-  canProduceItem(player: sx.IPlayerState, item: dx.PurchaseableItem) {
-    // check if enough resources
-    if (!this.hasEnoughResources(player.resourcesAmount, item.cost)) {
-      return false
-    }
-    // check if tech present
-    const techRequirements = Object.keys(item.techRequirements)
-    if (techRequirements.some(t => !player.technologies[t])) {
-      return false
-    }
-
-    // TODO: if building, check if exceeding caps
-
-    return true
-  }
-
   schedulePlayerProduction(player: sx.IPlayerState, actions: ax.IProduceAction[]) {
     for (const a of actions) {
       const item = items[a.itemId]
 
-      if (this.canProduceItem(player, item)) {
-        player.resourcesAmount = this.subtractResources(
+      if (canProduceItem(player, item)) {
+        player.resourcesAmount = subtractResources(
           player.resourcesAmount, item.cost,
         )
         player.productionStatuses.push({
@@ -155,7 +155,7 @@ export default class GameEngine {
           const buildingType = buildingTypes[cur.buildingTypeId]
           // TODO factor in planet type
           return buildingType.resourceYield
-            ? this.addResources(p.resourcesAmount, buildingType.resourceYield)
+            ? addResources(p.resourcesAmount, buildingType.resourceYield)
             : p.resourcesAmount
       }, p.resourcesAmount)
     })

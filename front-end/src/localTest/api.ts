@@ -33,7 +33,7 @@ export default class TestApi implements IApi {
     const playerStates: sx.IPlayerState[] = players.map(p => ({
       id: p,
       status: sx.PlayerStatus.Alive,
-      resourcesAmount: dx.zeroResources(),
+      resourcesAmount: dx.zeroResources({ gold: 200, iron: 30 }),
       productionStatuses: [],
       technologies: {},
     }))

@@ -2,7 +2,7 @@ import { css, StyleSheet } from 'aphrodite'
 import * as _ from 'lodash'
 import * as React from 'react'
 import buildings from 'sco-engine/src/buildings'
-import { IBuildingType, IUnitType } from 'sco-engine/src/definitions'
+import * as dx from 'sco-engine/src/definitions'
 import { ICell } from 'sco-engine/src/map'
 import { IBuildingState } from 'sco-engine/src/state'
 import units from 'sco-engine/src/units'
@@ -29,12 +29,37 @@ type Props = {
 }
 
 export default class SidebarMenu extends React.Component<Props, never> {
-  renderBuildingDescription(building: IBuildingType) {
-    return <List.Item key={building.id} >{building.name}</List.Item>
+  onPurchase(item: dx.IItem & dx.PurchaseableItem) {
+    this.props.store.makePurchase(item)
   }
 
-  renderUnitDescription(unit: IUnitType) {
-    return <List.Item key={unit.id} >{unit.name}</List.Item>
+  renderCost(amount: dx.ResourceAmount) {
+    return _.toPairs(amount)
+      .filter(([, cost]) => cost !== 0)
+      .map(([resource, cost]) => `${resource}: ${cost}`)
+      .join(', ')
+  }
+
+  renderItem(item: dx.IItem & dx.PurchaseableItem) {
+    return (
+      <List.Item key={item.id}>
+        <List.Content floated="left">
+          <List.Header>{item.name}</List.Header>
+          <List.Description>{this.renderCost(item.cost)}</List.Description>
+        </List.Content>
+        <Button floated="right" onClick={() => this.onPurchase(item)}>
+          Purchase
+        </Button>
+      </List.Item>
+    )
+  }
+
+  renderBuildingDescription = (building: dx.IBuildingType) => {
+    return this.renderItem(building)
+  }
+
+  renderUnitDescription = (unit: dx.IUnitType) => {
+    return this.renderItem(unit)
   }
 
   renderActions(cell: ICell) {
@@ -52,11 +77,11 @@ export default class SidebarMenu extends React.Component<Props, never> {
         <Modal.Content>
           <Modal.Description>
             <Header>Buildings</Header>
-            <List>
+            <List divided relaxed>
               {_.values(buildings).map(this.renderBuildingDescription)}
             </List>
             <Header>Units</Header>
-            <List>
+            <List divided relaxed>
               {_.values(units).map(this.renderUnitDescription)}
             </List>
           </Modal.Description>

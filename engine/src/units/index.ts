@@ -11,4 +11,3 @@ const unitList: IUnitType[] = [
 ]
 
 export default  _.keyBy(unitList, 'id')
-
