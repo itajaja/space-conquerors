@@ -1,3 +1,4 @@
+import { Action } from 'sco-engine/src/actions'
 import { IMap } from 'sco-engine/src/map'
 import { IGameState } from 'sco-engine/src/state'
 import * as store from 'store'
@@ -9,6 +10,7 @@ export interface IStorageData {
   players: string[],
   currentTurnNumber: number,
   map: IMap,
+  actions: {[idx: string]: Action[]}
 }
 
 export function load(): IStorageData | null {

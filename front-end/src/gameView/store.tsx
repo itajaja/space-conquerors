@@ -10,9 +10,22 @@ export type State = {
   gameState: IVisibleState,
   selectedLocationId?: string,
   actions?: Action[],
+  view: 'map' | 'overview' | 'turn',
 }
 
 export default class Store extends BaseStore<State> {
+  showMap = () => {
+    this.set({ view: 'map' })
+  }
+
+  showOverwiew = () => {
+    this.set({ view: 'overview' })
+  }
+
+  showTurn = () => {
+    this.set({ view: 'turn' })
+  }
+
   selectPlanet(selectedLocationId: string) {
     this.set({ selectedLocationId })
   }

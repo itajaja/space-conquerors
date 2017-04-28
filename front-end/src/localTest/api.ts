@@ -13,11 +13,14 @@ const GAME_ID = 'test game'
 export default class TestApi implements IApi {
   game: Game | null = null
   gameState: sx.IGameState | null = null
+  actions: {[idx: string]: Action[]}
 
   playerId: string
 
   constructor() {
     const data = storage.load()
+    this.actions = {}
+
     if (data) {
       this.gameState = data.state
       this.game = {
@@ -26,6 +29,7 @@ export default class TestApi implements IApi {
         map: data.map,
         players: data.players,
       }
+      this.actions = data.actions
     }
   }
 
@@ -63,6 +67,8 @@ export default class TestApi implements IApi {
       players,
     }
 
+    this.actions = {}
+
     this.save()
 
     return GAME_ID
@@ -80,13 +86,13 @@ export default class TestApi implements IApi {
   }
 
   async getActions(gameId: string): Promise<Action[]> {
-    // TODO
-    return []
+    return this.actions[this.playerId] || []
   }
 
   async submitActions(gameId: string, actions: Action[]): Promise<void> {
-    // TODO
-    return
+    this.actions[this.playerId] = actions
+
+    this.save()
   }
 
   private save() {
@@ -99,6 +105,7 @@ export default class TestApi implements IApi {
       map: this.game.map,
       players: this.game.players,
       state: this.gameState,
+      actions: this.actions,
     })
   }
 }
