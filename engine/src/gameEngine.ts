@@ -12,7 +12,7 @@ import technologyTypes from './technologies'
 import unitTypes from './units'
 import { lcm } from './utils/index'
 
-const items: { [idx: string]: dx.PurchaseableItem } = {
+export const items: { [idx: string]: dx.PurchaseableItem } = {
   ...buildingTypes,
   ...technologyTypes,
   ...unitTypes,
@@ -27,7 +27,7 @@ function subtractResources(a: dx.ResourceAmount, b: dx.ResourceAmount): dx.Resou
   }
 }
 
-function addResources(a: dx.ResourceAmount, b: dx.ResourceAmount): dx.ResourceAmount {
+export function addResources(a: dx.ResourceAmount, b: dx.ResourceAmount): dx.ResourceAmount {
   return {
     gold: a.gold + b.gold,
     iron: a.iron + b.iron,
@@ -50,6 +50,17 @@ export function canProduceItem(player: sx.IPlayerState, item: dx.PurchaseableIte
   const techRequirements = Object.keys(item.techRequirements)
   if (techRequirements.some(t => !player.technologies[t])) {
     return false
+  }
+  if (item.kind === 'tech') {
+    // check that there is a purchased tech from previous level
+    const requirement = item.level === 1
+      ? true
+      : _.keys(player.technologies).map(t => technologyTypes[t])
+        .some(t => t.family === item.family && t.level === item.level - 1)
+
+    if (player.technologies[item.id] || !requirement) {
+      return false
+    }
   }
 
   // TODO: if building, check if exceeding caps
@@ -152,11 +163,9 @@ export default class GameEngine {
     _.forOwn(this.state.players, p => {
       p.resourcesAmount = buildingsByUser[p.id].reduce(
         (prev, cur) => {
-          const buildingType = buildingTypes[cur.buildingTypeId]
+          const { resourceYield } = buildingTypes[cur.buildingTypeId]
           // TODO factor in planet type
-          return buildingType.resourceYield
-            ? addResources(p.resourcesAmount, buildingType.resourceYield)
-            : p.resourcesAmount
+          return resourceYield ? addResources(prev, resourceYield) : prev
       }, p.resourcesAmount)
     })
   }
