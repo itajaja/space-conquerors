@@ -9,6 +9,7 @@ import units from 'sco-engine/src/units'
 import { Button, Header, List, Modal } from 'semantic-ui-react'
 
 import style from '../style'
+import ResourceAmountSegment from './ResourceAmountSegment'
 import Store from './store'
 
 const styles = StyleSheet.create({
@@ -33,19 +34,14 @@ export default class SidebarMenu extends React.Component<Props, never> {
     this.props.store.makePurchase(item)
   }
 
-  renderCost(amount: dx.ResourceAmount) {
-    return _.toPairs(amount)
-      .filter(([, cost]) => cost !== 0)
-      .map(([resource, cost]) => `${resource}: ${cost}`)
-      .join(', ')
-  }
-
   renderItem(item: dx.IItem & dx.PurchaseableItem) {
     return (
       <List.Item key={item.id}>
         <List.Content floated="left">
           <List.Header>{item.name}</List.Header>
-          <List.Description>{this.renderCost(item.cost)}</List.Description>
+          <List.Description>
+            {item.description} - (<ResourceAmountSegment amount={item.cost} />)
+          </List.Description>
         </List.Content>
         <Button floated="right" onClick={() => this.onPurchase(item)}>
           Purchase

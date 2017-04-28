@@ -1,7 +1,7 @@
 import * as d3Force from 'd3-force'
 import * as _ from 'lodash'
 import * as React from 'react'
-import {ReactSVGPanZoom} from 'react-svg-pan-zoom'
+import { ReactSVGPanZoom } from 'react-svg-pan-zoom'
 import { IMap } from 'sco-engine/src/map'
 
 import Cell from './cell'

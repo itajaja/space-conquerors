@@ -15,15 +15,15 @@ export type State = {
 
 export default class Store extends BaseStore<State> {
   showMap = () => {
-    this.set({ view: 'map' })
+    this.set({ view: 'map', selectedLocationId: undefined })
   }
 
   showOverwiew = () => {
-    this.set({ view: 'overview' })
+    this.set({ view: 'overview', selectedLocationId: undefined })
   }
 
   showTurn = () => {
-    this.set({ view: 'turn' })
+    this.set({ view: 'turn', selectedLocationId: undefined })
   }
 
   selectPlanet(selectedLocationId: string) {

@@ -3,6 +3,8 @@ import * as React from 'react'
 
 import IApi from '../api'
 import MapView from './mapView'
+import Navbar from './Navbar'
+import OverviewView from './overviewView'
 import SidebarMenu from './sidebarMenu'
 import Store, { State } from './store'
 
@@ -34,7 +36,21 @@ export default class GameView extends React.Component<Props, State> {
   async fetchGame() {
     const game = await this.props.api.getGame(this.props.gameId)
     const gameState = await this.props.api.getGameState(this.props.gameId)
-    this.setState({ game: game!, gameState: gameState! })
+    const actions = await this.props.api.getActions(this.props.gameId)
+    this.setState({ game: game!, gameState: gameState!, actions, view: 'map' })
+  }
+
+  renderView() {
+    switch (this.state.view) {
+      case 'map':
+        return <MapView store={this.store} />
+      case 'overview':
+        return <OverviewView store={this.store} />
+      case 'turn':
+        return <TurnView store={this.store} />
+      default:
+        return null
+    }
   }
 
   render() {
@@ -45,7 +61,8 @@ export default class GameView extends React.Component<Props, State> {
 
     return (
       <div className={css(styles.root)}>
-        <MapView store={this.store} />
+        <Navbar store={this.store} />
+        {this.renderView()}
         <SidebarMenu store={this.store} />
       </div>
     )
