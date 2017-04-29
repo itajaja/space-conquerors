@@ -3,6 +3,7 @@ import { Action } from 'sco-engine/src/actions'
 import * as dx from 'sco-engine/src/definitions'
 import MapGenerator from 'sco-engine/src/mapGenerator'
 import * as sx from 'sco-engine/src/state'
+import { deepClone } from 'sco-engine/src/utils'
 import { getStateforPlayer, IVisibleState } from 'sco-engine/src/visibility'
 
 import IApi, { Game } from '../api'
@@ -75,22 +76,22 @@ export default class TestApi implements IApi {
   }
 
   async getGame(gameId: string): Promise<Game | null> {
-    return this.game
+    return deepClone(this.game)
   }
 
   async getGameState(gameId: string): Promise<IVisibleState | null> {
     if (!this.gameState || !this.game) {
       return null
     }
-    return getStateforPlayer(this.playerId, this.gameState, this.game.map)
+    return deepClone(getStateforPlayer(this.playerId, this.gameState, this.game.map))
   }
 
   async getActions(gameId: string): Promise<Action[]> {
-    return this.actions[this.playerId] || []
+    return deepClone(this.actions[this.playerId]) || []
   }
 
   async submitActions(gameId: string, actions: Action[]): Promise<void> {
-    this.actions[this.playerId] = actions
+    this.actions[this.playerId] = deepClone(actions)
 
     this.save()
   }

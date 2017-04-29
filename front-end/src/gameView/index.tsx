@@ -7,6 +7,7 @@ import Navbar from './Navbar'
 import OverviewView from './overviewView'
 import SidebarMenu from './sidebarMenu'
 import Store, { State } from './store'
+import TurnView from './turnView'
 
 const styles = StyleSheet.create({
   root: {
@@ -47,7 +48,7 @@ export default class GameView extends React.Component<Props, State> {
       case 'overview':
         return <OverviewView store={this.store} />
       case 'turn':
-        return <TurnView store={this.store} />
+        return <TurnView store={this.store} api={this.props.api} />
       default:
         return null
     }
