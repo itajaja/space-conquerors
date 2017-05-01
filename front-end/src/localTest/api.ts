@@ -38,7 +38,7 @@ export default class TestApi implements IApi {
     const playerStates: sx.IPlayerState[] = players.map(p => ({
       id: p,
       status: sx.PlayerStatus.Alive,
-      resourcesAmount: dx.zeroResources({ gold: 200, iron: 30 }),
+      resourcesAmount: dx.zeroResources({ gold: 2000, iron: 300 }),
       productionStatuses: [],
       technologies: {},
     }))
@@ -87,7 +87,7 @@ export default class TestApi implements IApi {
   }
 
   async getActions(gameId: string): Promise<Action[]> {
-    return deepClone(this.actions[this.playerId]) || []
+    return deepClone(this.actions[this.playerId] || [])
   }
 
   async submitActions(gameId: string, actions: Action[]): Promise<void> {

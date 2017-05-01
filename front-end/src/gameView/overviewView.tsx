@@ -1,7 +1,7 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as _ from 'lodash'
 import * as React from 'react'
-import * as buildingTypes from 'sco-engine/src/buildings'
+import buildingTypes from 'sco-engine/src/buildings'
 import * as dx from 'sco-engine/src/definitions'
 import { addResources, items } from 'sco-engine/src/gameEngine'
 import * as sx from 'sco-engine/src/state'

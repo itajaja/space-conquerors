@@ -38,6 +38,10 @@ export default class MainPage extends React.Component<Props, {}> {
     if (!player) {
       return
     }
+    if (player.result === '%%admin%%') {
+      this.props.router.admin()
+      return
+    }
 
     this.api.playerId = player.result
 
@@ -49,16 +53,7 @@ export default class MainPage extends React.Component<Props, {}> {
     if (!game) {
       return
     }
-
-    const dialog: DialogContext = this.context.dialog
-    const player = await dialog.prompt(SelectPlayerModal, { players: game.players })
-    if (!player) {
-      return
-    }
-
-    this.api.playerId = player.result
-
-    this.props.router.game({ gameId: game.id, api: this.api })
+    this.startGame(game!)
   }
 
   onStartGame = async () => {

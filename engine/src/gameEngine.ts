@@ -161,7 +161,7 @@ export default class GameEngine {
     const buildingsByUser = _.groupBy(_.values(this.state.buildings), l => l.playerId)
 
     _.forOwn(this.state.players, p => {
-      p.resourcesAmount = buildingsByUser[p.id].reduce(
+      p.resourcesAmount = (buildingsByUser[p.id] || []).reduce(
         (prev, cur) => {
           const { resourceYield } = buildingTypes[cur.buildingTypeId]
           // TODO factor in planet type
@@ -200,6 +200,7 @@ export default class GameEngine {
           remainingProductions.push(p)
         }
       }
+      player.productionStatuses = remainingProductions
     })
   }
 }

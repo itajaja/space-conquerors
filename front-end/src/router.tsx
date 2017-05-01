@@ -1,5 +1,7 @@
 import * as React from 'react'
+
 import GameView, { Props as GameViewProps } from './gameView'
+import AdminView from './localTest/adminPage'
 
 type Props = {
   defaultView: React.ComponentClass<{ router?: Router }>,
@@ -19,6 +21,14 @@ export default class Router extends React.Component<Props, State> {
 
   game(props: GameViewProps) {
     this.setState({ currentView: <GameView {...props } /> })
+  }
+
+  admin() {
+    this.setState({ currentView: <AdminView />})
+  }
+
+  main() {
+    this.setState({ currentView: null })
   }
 
   render() {

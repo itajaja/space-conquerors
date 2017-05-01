@@ -17,7 +17,7 @@ export default  _.keyBy(techList, 'id')
 
 const techFamilyList: ITechnologyFamily[] = [
   { kind: 'techFamily', description: 'Civil', id: 'tech_family_civil', name: 'Civil' },
-  { kind: 'techFamily', description: 'Military', id: 'tech_family_civil', name: 'Military' },
+  { kind: 'techFamily', description: 'Military', id: 'tech_family_military', name: 'Military' },
 ]
 
 export const technologyFamilies = _.keyBy(techFamilyList, 'id')

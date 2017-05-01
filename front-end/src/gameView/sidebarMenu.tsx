@@ -30,8 +30,9 @@ type Props = {
 }
 
 export default class SidebarMenu extends React.Component<Props, never> {
-  onPurchase(item: dx.IItem & dx.PurchaseableItem) {
-    this.props.store.makePurchase(item)
+  onPurchase = (item: dx.IItem & dx.PurchaseableItem) => {
+    const { store } = this.props
+    store.makePurchase(item, store.state.selectedLocationId)
   }
 
   renderItem(item: dx.IItem & dx.PurchaseableItem) {
@@ -86,11 +87,11 @@ export default class SidebarMenu extends React.Component<Props, never> {
     )
   }
 
-  renderBuilding(building: IBuildingState) {
+  renderBuilding(building: IBuildingState, idx: number) {
     const buildingType = buildings[building.buildingTypeId]
 
     return (
-      <p>{buildingType.name}</p>
+      <p key={idx}>{buildingType.name}</p>
     )
   }
 

@@ -48,10 +48,9 @@ export default class SelectPlayerModal extends React.Component<Props, State> {
             ))}
             <Form.Field>
               <Radio
-                disabled
                 label="Play as Admin"
-                value="%%admin__"
-                checked={this.state.selectedPlayer === '__admin__'}
+                value="%%admin%%"
+                checked={this.state.selectedPlayer === '%%admin%%'}
                 onChange={this.onChange}
               />
           </Form.Field>
