@@ -1,5 +1,6 @@
 import { Action } from 'sco-engine/src/actions'
 import { IMap } from 'sco-engine/src/map'
+import { MapLayout } from 'sco-engine/src/mapLayout'
 import { IVisibleState } from 'sco-engine/src/visibility'
 
 export type Game = {
@@ -7,6 +8,7 @@ export type Game = {
   players: string[],
   currentTurnNumber: number,
   map: IMap,
+  mapLayout: MapLayout,
 }
 
 interface IApi {

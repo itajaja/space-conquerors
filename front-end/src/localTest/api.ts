@@ -2,6 +2,7 @@ import * as _ from 'lodash'
 import { Action } from 'sco-engine/src/actions'
 import * as dx from 'sco-engine/src/definitions'
 import MapGenerator from 'sco-engine/src/mapGenerator'
+import * as mapLayout from 'sco-engine/src/mapLayout'
 import * as sx from 'sco-engine/src/state'
 import { deepClone } from 'sco-engine/src/utils'
 import { getStateforPlayer, IVisibleState } from 'sco-engine/src/visibility'
@@ -29,6 +30,7 @@ export default class TestApi implements IApi {
         id: GAME_ID,
         map: data.map,
         players: data.players,
+        mapLayout: data.mapLayout,
       }
       this.actions = data.actions
     }
@@ -66,6 +68,7 @@ export default class TestApi implements IApi {
       currentTurnNumber: 0,
       map,
       players,
+      mapLayout: mapLayout.generate(map),
     }
 
     this.actions = {}
@@ -107,6 +110,7 @@ export default class TestApi implements IApi {
       players: this.game.players,
       state: this.gameState,
       actions: this.actions,
+      mapLayout: this.game.mapLayout,
     })
   }
 }
