@@ -81,11 +81,21 @@ export default class OverviewView extends React.Component<Props, State> {
 
   render() {
     const { submittedActions } = this.state
-    const { actions } = this.props.store.state
+    const { actions, log } = this.props.store.state
 
     return (
       <Grid columns={3} divided className={css(styles.root)}>
         <Grid.Row>
+          <Grid.Column>
+            <Header as="h2" textAlign="center" inverted>
+              Previous Turn Report
+            </Header>
+            {log.map(l => (
+              <p>
+                {l.message}
+              </p>
+            ))}
+          </Grid.Column>
           <Grid.Column>
             <Header as="h2" textAlign="center" inverted>
               Current Turn Actions

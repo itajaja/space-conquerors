@@ -1,6 +1,7 @@
 import * as _ from 'lodash'
 import { Action } from 'sco-engine/src/actions'
 import * as dx from 'sco-engine/src/definitions'
+import { ITurnLogEntry } from 'sco-engine/src/gameEngine'
 import MapGenerator from 'sco-engine/src/mapGenerator'
 import * as mapLayout from 'sco-engine/src/mapLayout'
 import * as sx from 'sco-engine/src/state'
@@ -15,13 +16,15 @@ const GAME_ID = 'test game'
 export default class TestApi implements IApi {
   game: Game | null = null
   gameState: sx.IGameState | null = null
-  actions: {[idx: string]: Action[]}
+  actions: { [idx: string]: Action[] }
+  log: ITurnLogEntry[]
 
   playerId: string
 
   constructor() {
     const data = storage.load()
     this.actions = {}
+    this.log = []
 
     if (data) {
       this.gameState = data.state
@@ -33,6 +36,7 @@ export default class TestApi implements IApi {
         mapLayout: data.mapLayout,
       }
       this.actions = data.actions
+      this.log = data.log
     }
   }
 
@@ -73,6 +77,8 @@ export default class TestApi implements IApi {
 
     this.actions = {}
 
+    this.log = []
+
     this.save()
 
     return GAME_ID
@@ -99,6 +105,11 @@ export default class TestApi implements IApi {
     this.save()
   }
 
+  async getLog(gameId: string): Promise<ITurnLogEntry[]> {
+    return this.log.filter(l => l.player === this.playerId)
+  }
+
+
   private save() {
     if (!this.game || !this.gameState) {
       return
@@ -111,6 +122,7 @@ export default class TestApi implements IApi {
       state: this.gameState,
       actions: this.actions,
       mapLayout: this.game.mapLayout,
+      log: this.log,
     })
   }
 }

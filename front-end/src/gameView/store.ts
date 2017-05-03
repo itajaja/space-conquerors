@@ -1,6 +1,7 @@
 import * as _ from 'lodash'
 import { Action, IProduceAction } from 'sco-engine/src/actions'
 import * as dx from 'sco-engine/src/definitions'
+import { ITurnLogEntry } from 'sco-engine/src/gameEngine'
 import { IUnitState } from 'sco-engine/src/state'
 import unitTypes from 'sco-engine/src/units'
 import { IVisibleState } from 'sco-engine/src/visibility'
@@ -16,6 +17,7 @@ export type State = {
   selectedDestinations?: { [idx: string]: true },
   selectedPath?: string[],
   actions?: Action[],
+  log: ITurnLogEntry[],
   view: 'map' | 'overview' | 'turn',
 }
 
@@ -80,7 +82,10 @@ export default class Store extends BaseStore<State> {
     })
 
     const from = units[0].locationId
-    if (units.every(u => u.locationId === from)) {
+    if (units.every(u =>
+      u.locationId === from // all from same location
+      && u.playerId === this.state.gameState.player.id, // all owned by player
+    )) {
       this.selectPossibleDestinations(from)
       this.set({
         selectedPath: [from],

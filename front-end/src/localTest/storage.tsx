@@ -1,4 +1,5 @@
 import { Action } from 'sco-engine/src/actions'
+import { ITurnLogEntry } from 'sco-engine/src/gameEngine'
 import { IMap } from 'sco-engine/src/map'
 import { MapLayout } from 'sco-engine/src/mapLayout'
 import { IGameState } from 'sco-engine/src/state'
@@ -13,6 +14,7 @@ export interface IStorageData {
   map: IMap,
   mapLayout: MapLayout,
   actions: { [idx: string]: Action[] }
+  log: ITurnLogEntry[],
 }
 
 export function load(): IStorageData | null {

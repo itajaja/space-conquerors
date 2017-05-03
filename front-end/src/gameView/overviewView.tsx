@@ -112,8 +112,8 @@ export default class OverviewView extends React.Component<Props, never> {
               </Table.Header>
 
               <Table.Body>
-                {player.productionStatuses.map(s => (
-                  <Table.Row>
+                {player.productionStatuses.map((s, idx) => (
+                  <Table.Row key={idx}>
                     <Table.Cell>
                       {items[s.itemId].name} ({items[s.itemId].kind.toLowerCase()})
                     </Table.Cell>
@@ -140,8 +140,8 @@ export default class OverviewView extends React.Component<Props, never> {
               </Table.Header>
 
               <Table.Body>
-                {_.values(unitsByType).map(u => (
-                  <Table.Row>
+                {_.values(unitsByType).map((u, idx) => (
+                  <Table.Row key={idx}>
                     <Table.Cell>
                       {items[u[0].unitTypeId].name}
                     </Table.Cell>

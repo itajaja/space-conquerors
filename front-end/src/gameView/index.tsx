@@ -38,7 +38,14 @@ export default class GameView extends React.Component<Props, State> {
     const game = await this.props.api.getGame(this.props.gameId)
     const gameState = await this.props.api.getGameState(this.props.gameId)
     const actions = await this.props.api.getActions(this.props.gameId)
-    this.setState({ game: game!, gameState: gameState!, actions, view: 'map' })
+    const log = await this.props.api.getLog(this.props.gameId)
+    this.setState({
+      game: game!,
+      gameState: gameState!,
+      actions,
+      view: 'map',
+      log,
+    })
   }
 
   renderView() {

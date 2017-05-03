@@ -49,7 +49,7 @@ export default class AdminPage extends React.Component<never, State> {
       actions: {},
       map: data.map,
       players: data.players,
-      state: this.nextTurn(),
+      ...this.nextTurn(),
       mapLayout: data.mapLayout,
     })
     this.setState({
@@ -59,6 +59,7 @@ export default class AdminPage extends React.Component<never, State> {
 
   render() {
     const { actions, state, currentTurnNumber } = this.state.data
+    const nextTurn = this.nextTurn()
 
     return (
       <div className={css(styles.root)}>
@@ -81,7 +82,9 @@ export default class AdminPage extends React.Component<never, State> {
             </Grid.Column>
             <Grid.Column>
               <h2>Next Game State</h2>
-              {this.renderJson(this.nextTurn())}
+              {this.renderJson(nextTurn.state)}
+              <h2>Next Log</h2>
+              {this.renderJson(nextTurn.log)}
             </Grid.Column>
           </Grid.Row>
         </Grid>

@@ -1,4 +1,5 @@
 import { Action } from 'sco-engine/src/actions'
+import { ITurnLogEntry } from 'sco-engine/src/gameEngine'
 import { IMap } from 'sco-engine/src/map'
 import { MapLayout } from 'sco-engine/src/mapLayout'
 import { IVisibleState } from 'sco-engine/src/visibility'
@@ -23,6 +24,8 @@ interface IApi {
   getActions(gameId: string): Promise<Action[]>
 
   submitActions(gameId: string, actions: Action[]): Promise<void>
+
+  getLog(gameId: string): Promise<ITurnLogEntry[]>
 }
 
 export default IApi
