@@ -46,10 +46,11 @@ export default class AdminPage extends React.Component<never, State> {
 
     storage.save({
       currentTurnNumber: data.currentTurnNumber + 1,
-      actions: [] as any,
+      actions: {},
       map: data.map,
       players: data.players,
       state: this.nextTurn(),
+      mapLayout: data.mapLayout,
     })
     this.setState({
       data: storage.load()!,

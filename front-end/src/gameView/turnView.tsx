@@ -32,13 +32,14 @@ export default class OverviewView extends React.Component<Props, State> {
   }
 
   renderAction(a: Action, props = {}) {
-    const { game } = this.props.store.state
+    const { game, gameState } = this.props.store.state
     let content
 
     if (a.kind === 'move') {
-      const unit = items[a.unitId]
+      const unit = gameState.units[a.unitId]
+      const unitType = items[unit.unitTypeId]
       content = {
-        header: `Move ${unit.name}`,
+        header: `Move ${unitType.name}`,
         description: a.path.map(p => game.map.cells[p].name).join(' -> '),
       }
     } else if (a.kind === 'produce') {

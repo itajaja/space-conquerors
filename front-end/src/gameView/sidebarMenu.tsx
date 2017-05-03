@@ -10,6 +10,7 @@ import { Button, Header, List, Modal } from 'semantic-ui-react'
 
 import style from '../style'
 import ResourceAmountSegment from './ResourceAmountSegment'
+import SelectedUnitsSidebarMenu from './selectedUnitsSidebarMenu'
 import Store from './store'
 
 const styles = StyleSheet.create({
@@ -136,6 +137,14 @@ export default class SidebarMenu extends React.Component<Props, never> {
 
   render() {
     const { state } = this.props.store
+    if (state.selectedUnits) {
+      return (
+        <div className={css(styles.root)}>
+          <SelectedUnitsSidebarMenu store={this.props.store} />
+        </div>
+      )
+    }
+
     if (!state.selectedLocationId) {
       return null
     }
