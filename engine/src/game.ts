@@ -41,6 +41,7 @@ export function applyTurn(
 
   // move
   engine.moveUnits(moveActions)
+  engine.conquerPlanets()
 
   // tick turn
 

@@ -1,11 +1,14 @@
 import * as d3Force from 'd3-force'
 import * as _ from 'lodash'
 
-import { IMap } from './map'
+import { ICell, IMap } from './map'
+
+export type MapLayoutCell = ICell & {x: number, y: number}
+export type MapLayoutEdge = { target: MapLayoutCell, source: MapLayoutCell }
 
 export type MapLayout = {
-  cells: any,
-  edges: any,
+  cells: MapLayoutCell[],
+  edges: MapLayoutEdge[],
 }
 
 export function generate(map: IMap): MapLayout {

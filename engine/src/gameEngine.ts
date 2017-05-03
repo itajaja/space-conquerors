@@ -112,9 +112,14 @@ export default class GameEngine {
     const from = action.path[pathIndex]
     const to = action.path[pathIndex + 1]
 
+    if (!from) {
+      return unit.locationId
+    }
+
     if (!to || !isInTransit) {
+      // XXX mutation!
       // means it's either arrived or on a planet
-      unit.locationId = from
+      this.state.units[unit.id].locationId = from
       return from
     }
 
@@ -122,7 +127,7 @@ export default class GameEngine {
   }
 
   moveUnits(actions: ax.IMovementAction[]) {
-    const steps = actions.reduce((prev, curr) => lcm(prev, curr.speed), 0)
+    const steps = actions.reduce((prev, curr) => lcm(prev, curr.speed * 2), 1)
 
     let unitActions = actions.map(action => {
       const unit = this.state.units[action.unitId]
@@ -135,7 +140,8 @@ export default class GameEngine {
       }
     })
 
-    for (let step = 0; step <= steps; ++step) {
+    // + 2 to take into account that the first step is the initial cell
+    for (let step = 0; step < steps + 2; ++step) {
       const locations = _.groupBy(unitActions, ({ action, unit, speed }) => (
         this.executeStep(action, unit, speed, step)
       ))
@@ -155,6 +161,14 @@ export default class GameEngine {
       })
 
     }
+  }
+
+  conquerPlanets() {
+    _.values(this.state.units).forEach(u => {
+      if (this.map.cells[u.locationId].planet) {
+        this.state.planets[u.locationId].ownerPlayerId = u.playerId
+      }
+    })
   }
 
   produceResources() {
