@@ -12,7 +12,6 @@ const techList: ITechnology[] = [
   { kind: 'tech', id: 'tech_anti_armor_laser', name: 'Anti-Armor Lasers', cost: zeroResources({ gold: 400 }), productionTime: 1, description: 'Allows to produce Ships with Anti-Armor Lasers', techRequirements: {}, level: 1, family: 'tech_family_military' },
 ]
 
-
 export default  _.keyBy(techList, 'id')
 
 const techFamilyList: ITechnologyFamily[] = [

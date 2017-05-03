@@ -1,7 +1,7 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
-import { Action } from 'sco-engine/src/actions'
-import { items } from 'sco-engine/src/gameEngine'
+import { Action } from 'sco-engine/actions'
+import { items } from 'sco-engine/gameEngine'
 import { Button, Grid, Header, List } from 'semantic-ui-react'
 
 import IApi from '../api'

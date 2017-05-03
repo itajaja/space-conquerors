@@ -1,9 +1,9 @@
 import * as _ from 'lodash'
 import * as React from 'react'
 import { ReactSVGPanZoom } from 'react-svg-pan-zoom'
-import { MapLayoutCell } from 'sco-engine/src/mapLayout'
+import { MapLayoutCell } from 'sco-engine/mapLayout'
 
-import { IMovementAction } from 'sco-engine/src/actions'
+import { IMovementAction } from 'sco-engine/actions'
 import Cell from './cell'
 import Store from './store'
 

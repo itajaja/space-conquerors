@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { IMovementAction } from 'sco-engine/src/actions'
-import units from 'sco-engine/src/units'
+import { IMovementAction } from 'sco-engine/actions'
+import units from 'sco-engine/units'
 import { Button, Header, List } from 'semantic-ui-react'
 
 import Store from './store'
@@ -35,7 +35,6 @@ export default class SelectedUnitsSidebarMenu extends React.Component<Props, nev
     const path = movement
       ? movement.path.map(p => state.game.map.cells[p].name).join(' -> ')
       : `Stationing on ${state.game.map.cells[unit.locationId].name}`
-
 
     return (
       <List.Item key={unitId}>

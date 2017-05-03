@@ -5,6 +5,7 @@
     "strictNullChecks": true,
     "sourceMap": true,
     "noUnusedLocals": true,
+    "declaration": true,
     "lib": [
       "es2015"
     ]

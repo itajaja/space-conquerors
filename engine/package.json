@@ -5,7 +5,8 @@
   "scripts": {
     "build": "tsc",
     "lint": "tslint --project tsconfig.json",
-    "test": "npm run lint"
+    "test": "npm run lint",
+    "postinstall": "mv lib/* ."
   },
   "author": "Giacomo Tagliabue",
   "license": "MIT",

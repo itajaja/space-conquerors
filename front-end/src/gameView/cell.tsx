@@ -2,8 +2,8 @@ import { css, StyleSheet } from 'aphrodite'
 import * as _ from 'lodash'
 import * as React from 'react'
 
-import { ICell } from 'sco-engine/src/map'
-import { IUnitState } from 'sco-engine/src/state'
+import { ICell } from 'sco-engine/map'
+import { IUnitState } from 'sco-engine/state'
 import Store from './store'
 
 type Props = {
@@ -44,7 +44,6 @@ const styles = StyleSheet.create({
     pointerEvents: 'none',
   },
 })
-
 
 export default class Cell extends React.Component<Props, State> {
   onPlanetClick = () => {

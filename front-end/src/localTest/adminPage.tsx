@@ -3,7 +3,7 @@ import * as _ from 'lodash'
 import * as React from 'react'
 import { Button, Grid } from 'semantic-ui-react'
 
-import { applyTurn } from 'sco-engine/src/game'
+import { applyTurn } from 'sco-engine/game'
 import * as storage from './storage'
 
 const styles = StyleSheet.create({

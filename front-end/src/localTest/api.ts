@@ -1,12 +1,12 @@
 import * as _ from 'lodash'
-import { Action } from 'sco-engine/src/actions'
-import * as dx from 'sco-engine/src/definitions'
-import { ITurnLogEntry } from 'sco-engine/src/gameEngine'
-import MapGenerator from 'sco-engine/src/mapGenerator'
-import * as mapLayout from 'sco-engine/src/mapLayout'
-import * as sx from 'sco-engine/src/state'
-import { deepClone } from 'sco-engine/src/utils'
-import { getStateforPlayer, IVisibleState } from 'sco-engine/src/visibility'
+import { Action } from 'sco-engine/actions'
+import * as dx from 'sco-engine/definitions'
+import { ITurnLogEntry } from 'sco-engine/gameEngine'
+import MapGenerator from 'sco-engine/mapGenerator'
+import * as mapLayout from 'sco-engine/mapLayout'
+import * as sx from 'sco-engine/state'
+import { deepClone } from 'sco-engine/utils'
+import { getStateforPlayer, IVisibleState } from 'sco-engine/visibility'
 
 import IApi, { Game } from '../api'
 import * as storage from './storage'
@@ -108,7 +108,6 @@ export default class TestApi implements IApi {
   async getLog(gameId: string): Promise<ITurnLogEntry[]> {
     return this.log.filter(l => l.player === this.playerId)
   }
-
 
   private save() {
     if (!this.game || !this.gameState) {

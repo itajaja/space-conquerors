@@ -1,8 +1,8 @@
-import { Action } from 'sco-engine/src/actions'
-import { ITurnLogEntry } from 'sco-engine/src/gameEngine'
-import { IMap } from 'sco-engine/src/map'
-import { MapLayout } from 'sco-engine/src/mapLayout'
-import { IGameState } from 'sco-engine/src/state'
+import { Action } from 'sco-engine/actions'
+import { ITurnLogEntry } from 'sco-engine/gameEngine'
+import { IMap } from 'sco-engine/map'
+import { MapLayout } from 'sco-engine/mapLayout'
+import { IGameState } from 'sco-engine/state'
 import * as store from 'store'
 
 const KEY = 'sco:gameState'

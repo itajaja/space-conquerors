@@ -3,7 +3,7 @@ import * as _ from 'lodash'
 import { IMap } from './map'
 import * as sx from './state'
 
-type VisibleState = Pick<sx.IGameState, 'buildings' | 'marketState' | 'planets' | 'units'>
+export type VisibleState = Pick<sx.IGameState, 'buildings' | 'marketState' | 'planets' | 'units'>
 export interface IVisibleState extends VisibleState {
   player: sx.IPlayerState,
   players: string[],

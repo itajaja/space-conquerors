@@ -3,7 +3,7 @@ import * as _ from 'lodash'
 import * as sx from './state'
 import unitTypes from './units'
 
-interface IUnit extends sx.IUnitState {
+export interface IUnit extends sx.IUnitState {
   hp: number
 }
 

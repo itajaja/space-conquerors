@@ -1,6 +1,6 @@
 import * as _ from 'lodash'
 import * as React from 'react'
-import * as dx from 'sco-engine/src/definitions'
+import * as dx from 'sco-engine/definitions'
 
 type Props = {
   amount: dx.ResourceAmount,

@@ -1,8 +1,8 @@
-import { Action } from 'sco-engine/src/actions'
-import { ITurnLogEntry } from 'sco-engine/src/gameEngine'
-import { IMap } from 'sco-engine/src/map'
-import { MapLayout } from 'sco-engine/src/mapLayout'
-import { IVisibleState } from 'sco-engine/src/visibility'
+import { Action } from 'sco-engine/actions'
+import { ITurnLogEntry } from 'sco-engine/gameEngine'
+import { IMap } from 'sco-engine/map'
+import { MapLayout } from 'sco-engine/mapLayout'
+import { IVisibleState } from 'sco-engine/visibility'
 
 export type Game = {
   id: string,
