@@ -72,16 +72,19 @@ export default class MapGenerator {
     this.assignEdge(systems[1].cells[0], systems[3].cells[0])
     this.assignEdge(systems[2].cells[0], systems[3].cells[0])
 
-    return systems
+    return {
+      systems,
+      connectingSystem: systems[3],
+    }
   }
 
   generate(numPlayers: number): mx.IMap & { origins: mx.ICell[] } {
     const clusters = _.range(numPlayers).map(this.generateCluster)
-    const origins = clusters.map(cluster => cluster[0].cells[1])
+    const origins = clusters.map(cluster => cluster.systems[0].cells[1])
 
     clusters.forEach((cluster, idx) => {
       const nextCluster = getItemCircular(clusters, idx + 1)
-      this.assignEdge(cluster[1].cells[0], nextCluster[2].cells[0])
+      this.assignEdge(cluster.systems[1].cells[0], nextCluster.systems[2].cells[0])
     })
 
     let currentLayer = clusters
@@ -92,19 +95,25 @@ export default class MapGenerator {
           return c1
         }
         const connectingSystem = this.generateSystem()
-        clusters.push([connectingSystem])
+        clusters.push({
+          connectingSystem,
+          systems: [connectingSystem],
+        })
 
-        this.assignEdge(connectingSystem.cells[0], c1[3].cells[0])
-        this.assignEdge(connectingSystem.cells[0], c2[3].cells[0])
+        this.assignEdge(connectingSystem.cells[0], c1.connectingSystem.cells[0])
+        this.assignEdge(connectingSystem.cells[0], c2.connectingSystem.cells[0])
         if (c3) {
-          this.assignEdge(connectingSystem.cells[0], c3[3].cells[0])
+          this.assignEdge(connectingSystem.cells[0], c3.connectingSystem.cells[0])
         }
 
-        return [connectingSystem]
+        return {
+          systems: [connectingSystem],
+          connectingSystem,
+        }
       })
     }
 
-    const systems = _.flatten(clusters)
+    const systems = _.flatMap(clusters, c => c.systems)
     const cells = _.flatMap(systems, s => s.cells)
 
     return {

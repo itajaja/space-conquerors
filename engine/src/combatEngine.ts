@@ -26,7 +26,7 @@ export default class CombatEngine {
 
       const survivingPlayers = _.keys(_.keyBy(_.values(this.units), u => u.playerId))
 
-      if (survivingPlayers.length === 0) {
+      if (survivingPlayers.length <= 1) {
         return this.computeSurvivors()
       }
     }
@@ -48,17 +48,16 @@ export default class CombatEngine {
     const draw = Math.random() * sum
 
     let acc = 0
-    for (const [i, value] of Array.from(items.entries())) {
+    return items.findIndex((value, i) => {
       acc += value
-      if (acc > draw) {
-        return i
-      }
-    }
-
-    throw new Error('Unreachable')
+      return acc > draw
+    })
   }
 
   shoot(unit: IUnit, targets: IUnit[]) {
+    if (!targets.length) {
+      return
+    }
     const targetCalibers =  targets.map(u => unitTypes[u.unitTypeId].strategicCaliber)
     const targetIndex = this.weightedRandomPick(targetCalibers)
     const target = targets[targetIndex]

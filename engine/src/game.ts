@@ -1,5 +1,5 @@
 import * as ax from './actions'
-import GameEngine from './gameEngine'
+import GameEngine, { ITurnLogEntry } from './gameEngine'
 import { IMap } from './map'
 import { IGameState } from './state'
 import { deepClone } from './utils/index'
@@ -17,7 +17,7 @@ export interface IGame {
  */
 export function applyTurn(
   state: IGameState, map: IMap, actions: ax.Action[],
-): IGameState {
+): { state: IGameState, log: ITurnLogEntry[] } {
   const produceActions: ax.IProduceAction[] = []
   const moveActions: ax.IMovementAction[] = []
 
@@ -51,5 +51,8 @@ export function applyTurn(
   // update production queue
   engine.updateProduction()
 
-  return newState
+  return {
+    state: newState,
+    log: engine.getLog(),
+  }
 }
