@@ -7,4 +7,4 @@
 @primaryColor: #19404F; // petrol
 @secondaryColor: #596869; // grey
 
-@fontPath: './';
+@fontPath: '.';
