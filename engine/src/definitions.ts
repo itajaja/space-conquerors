@@ -21,7 +21,7 @@ export interface IItem {
 
 export interface IPurchaseable {
   cost: ResourceAmount,
-  techRequirements: { [idx: string]: true }
+  technologyRequirements: { [idx: string]: true }
   productionTime: number
 }
 
@@ -35,7 +35,7 @@ export interface IBuildingType extends IItem, IPurchaseable {
   resourceYield?: ResourceAmount
 }
 
-export const enum UnitClass {
+export enum UnitClass {
   // TODO need more explanation about this values...
   P,
   M,
@@ -44,7 +44,7 @@ export const enum UnitClass {
   NONE,
 }
 
-export const enum ArmoringType {
+export enum ArmoringType {
   BASIC,
   PIERCING,
   BOMB,

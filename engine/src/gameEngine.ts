@@ -47,7 +47,7 @@ export function canProduceItem(player: sx.IPlayerState, item: dx.PurchaseableIte
     return false
   }
   // check if tech present
-  const techRequirements = Object.keys(item.techRequirements)
+  const techRequirements = Object.keys(item.technologyRequirements)
   if (techRequirements.some(t => !player.technologies[t])) {
     return false
   }
