@@ -70,16 +70,17 @@ export interface IUnitType extends IItem, IPurchaseable {
   specials?: any // TBD
 }
 
+export enum TechnologyFamily {
+  CIVIL,
+  MILITARY,
+}
+
 export interface ITechnology extends IItem, IPurchaseable {
   kind: 'tech'
 
   level: number
-  family: string
+  family: TechnologyFamily
 }
 
-export interface ITechnologyFamily extends IItem {
-  kind: 'techFamily'
-}
-
-export type Item = IBuildingType | IUnitType | ITechnology | ITechnologyFamily
+export type Item = IBuildingType | IUnitType | ITechnology
 export type PurchaseableItem = IBuildingType | IUnitType | ITechnology
