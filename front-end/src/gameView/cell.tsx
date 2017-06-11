@@ -1,9 +1,9 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as _ from 'lodash'
 import * as React from 'react'
+import { ICell } from 'sco-engine/lib/map'
+import { IUnitState } from 'sco-engine/lib/state'
 
-import { ICell } from 'sco-engine/map'
-import { IUnitState } from 'sco-engine/state'
 import Store from './store'
 
 type Props = {
@@ -15,17 +15,6 @@ type Props = {
 type State = {
   shift: boolean,
 }
-
-const PLAYER_COLORS = [
-  'red',
-  'blue',
-  'green',
-  'gold',
-  'purple',
-  'pink',
-  'aqua',
-  'greenyellow',
-]
 
 const styles = StyleSheet.create({
   planet: {
@@ -60,21 +49,16 @@ export default class Cell extends React.Component<Props, State> {
     store.moveUnits(cell.id)
   }
 
-  playerColor(player: string) {
-    const playerIndex = this.props.store.state.game.players.indexOf(player)
-    return PLAYER_COLORS[playerIndex]
-  }
-
   renderPlanet() {
     const { cell, store } = this.props
     if (!cell.planet) {
       return null
     }
     let fill = 'black'
-    const planetState = store.state.gameState.planets[cell.id]
+    const planetState = store.game.state.planets[cell.id]
     if (planetState) {
       fill = planetState.ownerPlayerId
-        ? this.playerColor(planetState.ownerPlayerId)
+        ? store.game.players[planetState.ownerPlayerId].color
         : 'grey'
     }
 
@@ -118,7 +102,7 @@ export default class Cell extends React.Component<Props, State> {
           onClick={() => this.onUnitsClick(units)}
           className={css(styles.unit)}
           d="M16 48 L32 40 L48 48 L32 16 Z"
-          fill={this.playerColor(units[0].playerId)}
+          fill={this.props.store.game.players[units[0].playerId].color}
         />
       </g>
     )

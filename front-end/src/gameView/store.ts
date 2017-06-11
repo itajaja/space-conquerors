@@ -1,45 +1,27 @@
 import * as _ from 'lodash'
-import { Action, IProduceAction } from 'sco-engine/actions'
-import * as dx from 'sco-engine/definitions'
-import { ITurnLogEntry } from 'sco-engine/gameEngine'
-import { IUnitState } from 'sco-engine/state'
-import unitTypes from 'sco-engine/units'
-import { IVisibleState } from 'sco-engine/visibility'
+import { IUnitState } from 'sco-engine/lib/state'
+import unitTypes from 'sco-engine/lib/units'
 
-import { Game } from '../api'
 import BaseStore from '../store'
-
-export type State = {
-  game: Game,
-  gameState: IVisibleState,
-  selectedLocationId?: string,
-  selectedUnits?: string[],
-  selectedDestinations?: { [idx: string]: true },
-  selectedPath?: string[],
-  actions?: Action[],
-  log: ITurnLogEntry[],
-  view: 'map' | 'overview' | 'turn',
-}
+import GameView from './index'
 
 const EMPTY_SELECTION = {
   selectedPath: undefined,
   selectedDestinations: undefined,
   selectedLocationId: undefined,
-  selectedUnits: undefined,
+  selectedUnits: [],
 }
 
-export default class Store extends BaseStore<State> {
-  showMap = () => {
-    this.set({ view: 'map', ...EMPTY_SELECTION })
+export default class Store extends BaseStore<GameView> {
+  get game() {
+    return this.component.props.data!.game
   }
 
-  showOverwiew = () => {
-    this.set({ view: 'overview', ...EMPTY_SELECTION })
-  }
+  showMap = () => this.set({ view: 'map', ...EMPTY_SELECTION })
 
-  showTurn = () => {
-    this.set({ view: 'turn', ...EMPTY_SELECTION })
-  }
+  showOverwiew = () => this.set({ view: 'overview', ...EMPTY_SELECTION })
+
+  showTurn = () => this.set({ view: 'turn', ...EMPTY_SELECTION })
 
   selectPlanet(selectedLocationId: string) {
     this.set({ ...EMPTY_SELECTION, selectedLocationId })
@@ -54,8 +36,8 @@ export default class Store extends BaseStore<State> {
       ? [...this.state.selectedPath, to]
       : [to]
 
-    const speeds = this.state.selectedUnits!
-      .map(u => this.state.gameState.units[u])
+    const speeds = this.state.selectedUnits
+      .map(u => this.game.state.units[u])
       .map(u => unitTypes[u.unitTypeId].speed)
 
     if (selectedPath.length > _.min(speeds)) {
@@ -71,7 +53,7 @@ export default class Store extends BaseStore<State> {
 
   selectPossibleDestinations(locationId: string) {
     this.set({
-      selectedDestinations: this.state.game.map.cells[locationId].edges,
+      selectedDestinations: this.game.map.cells[locationId].edges,
     })
   }
 
@@ -81,10 +63,14 @@ export default class Store extends BaseStore<State> {
       selectedUnits: units.map(u => u.id),
     })
 
+    if (!units.length) {
+      return
+    }
+
     const from = units[0].locationId
     if (units.every(u =>
       u.locationId === from // all from same location
-      && u.playerId === this.state.gameState.player.id, // all owned by player
+      && u.playerId === this.game.state.player.id, // all owned by player
     )) {
       this.selectPossibleDestinations(from)
       this.set({
@@ -93,55 +79,56 @@ export default class Store extends BaseStore<State> {
     }
   }
 
-  makePurchase(item: dx.IItem, locationId?: string) {
-    const newAction: IProduceAction = {
-      kind: 'produce',
-      playerId: this.state.gameState.player.id,
-      itemId: item.id,
-      locationId,
-    }
+  // This is deprecated, the mutations should be moved to GQL server
+  // makePurchase(item: dx.IItem, locationId?: string) {
+  //   const newAction: IProduceAction = {
+  //     kind: 'produce',
+  //     playerId: this.state.gameState.player.id,
+  //     itemId: item.id,
+  //     locationId,
+  //   }
 
-    this.addActions([newAction])
-  }
+  //   this.addActions([newAction])
+  // }
 
-  makeUnitMovement(units: string[], path: string[]) {
-    const speeds = units
-      .map(u => this.state.gameState.units[u])
-      .map(u => unitTypes[u.unitTypeId].speed)
+  // makeUnitMovement(units: string[], path: string[]) {
+  //   const speeds = units
+  //     .map(u => this.state.gameState.units[u])
+  //     .map(u => unitTypes[u.unitTypeId].speed)
 
-    const indexedUnits = new Set(units)
+  //   const indexedUnits = new Set(units)
 
-    const oldActions = (this.state.actions || [])
-      .filter(a => {
-        if (a.kind === 'move' && indexedUnits.has(a.unitId)) {
-          return false
-        }
-        return true
-      })
+  //   const oldActions = (this.state.actions || [])
+  //     .filter(a => {
+  //       if (a.kind === 'move' && indexedUnits.has(a.unitId)) {
+  //         return false
+  //       }
+  //       return true
+  //     })
 
-    const newActions = units.map(a => ({
-      kind: 'move' as 'move',
-      path,
-      playerId: this.state.gameState.player.id,
-      speed: _.min(speeds),
-      unitId: a,
-    }))
+  //   const newActions = units.map(a => ({
+  //     kind: 'move' as 'move',
+  //     path,
+  //     playerId: this.state.gameState.player.id,
+  //     speed: _.min(speeds),
+  //     unitId: a,
+  //   }))
 
-    this.set({ actions: [...oldActions, ...newActions] })
+  //   this.set({ actions: [...oldActions, ...newActions] })
 
-    this.set(EMPTY_SELECTION)
-  }
+  //   this.set(EMPTY_SELECTION)
+  // }
 
-  removeAction(index: number) {
-    const { actions } = this.state
-    actions!.splice(index, 1)
+  // removeAction(index: number) {
+  //   const { actions } = this.state
+  //   actions!.splice(index, 1)
 
-    this.set({ actions })
-  }
+  //   this.set({ actions })
+  // }
 
-  addActions(newActions: Action[]) {
-    const actions = [...(this.state.actions || []), ...newActions]
+  // addActions(newActions: Action[]) {
+  //   const actions = [...(this.state.actions || []), ...newActions]
 
-    this.set({ actions })
-  }
+  //   this.set({ actions })
+  // }
 }

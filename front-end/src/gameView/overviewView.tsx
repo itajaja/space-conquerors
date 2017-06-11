@@ -1,11 +1,11 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as _ from 'lodash'
 import * as React from 'react'
-import buildingTypes from 'sco-engine/buildings'
-import * as dx from 'sco-engine/definitions'
-import { addResources, items } from 'sco-engine/gameEngine'
-import * as sx from 'sco-engine/state'
-import technologies, { technologyFamilies } from 'sco-engine/technologies'
+import buildingTypes from 'sco-engine/lib/buildings'
+import * as dx from 'sco-engine/lib/definitions'
+import { addResources, items } from 'sco-engine/lib/gameEngine'
+import * as sx from 'sco-engine/lib/state'
+import technologies from 'sco-engine/lib/technologies'
 import { Button, Grid, Header, Icon, List, Table } from 'semantic-ui-react'
 
 import ResourceAmountSegment from './ResourceAmountSegment'
@@ -47,12 +47,12 @@ export default class OverviewView extends React.Component<Props, never> {
   }
 
   onPurchase(item: dx.IItem & dx.PurchaseableItem) {
-    this.props.store.makePurchase(item)
+    throw new Error('Unimplemented: add mutation')
   }
 
   render() {
-    const { game, gameState } = this.props.store.state
-    const { buildings, player, planets, units } = gameState
+    const { game } = this.props.store
+    const { buildings, player, planets, units } = game.state
     const playerPlanets = _.values(planets).filter(p => p.ownerPlayerId === player.id)
     const playerUnits = _.values(units).filter(u => u.playerId === player.id)
     const playerBuildings = _.values(buildings).filter(b => b.playerId === player.id)
@@ -121,7 +121,7 @@ export default class OverviewView extends React.Component<Props, never> {
                       {s.remainingTurns}
                     </Table.Cell>
                     <Table.Cell>
-                      {s.locationId ? game.map.cells[s.locationId] : '—'}
+                      {s.locationId ? game.map.cells[s.locationId].name : '—'}
                     </Table.Cell>
                   </Table.Row>
                 ))}
@@ -170,7 +170,8 @@ export default class OverviewView extends React.Component<Props, never> {
                 {_.values(orderedTechnologies).map(t => (
                   <Table.Row key={t.id}>
                     <Table.Cell>
-                      {technologyFamilies[t.family].name}
+                      {/*{TODO: use friendly name}*/}
+                      {t.family}
                     </Table.Cell>
                     <Table.Cell>
                       {t.level}
@@ -191,7 +192,7 @@ export default class OverviewView extends React.Component<Props, never> {
                   <List.Content floated="left">
                     <List.Header>
                       {t.name}{' '}
-                      ({technologyFamilies[t.family].name} level {t.level})
+                      ({t.family} level {t.level})
                     </List.Header>
                     <List.Description>
                       {t.description} - (<ResourceAmountSegment amount={t.cost} />)

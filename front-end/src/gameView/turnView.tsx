@@ -1,10 +1,9 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
-import { Action } from 'sco-engine/actions'
-import { items } from 'sco-engine/gameEngine'
+import { Action } from 'sco-engine/lib/actions'
+import { items } from 'sco-engine/lib/gameEngine'
 import { Button, Grid, Header, List } from 'semantic-ui-react'
 
-import IApi from '../api'
 import Store from './store'
 
 const styles = StyleSheet.create({
@@ -14,29 +13,16 @@ const styles = StyleSheet.create({
 })
 
 type Props = {
-  api: IApi,
   store: Store,
 }
 
-type State = {
-  submittedActions: Action[],
-}
-
-export default class OverviewView extends React.Component<Props, State> {
-  constructor(props, ctx) {
-    super(props, ctx)
-    this.state = {
-      submittedActions: [],
-    }
-    this.getSubmittedActions()
-  }
-
+export default class OverviewView extends React.Component<Props, never> {
   renderAction(a: Action, props = {}) {
-    const { game, gameState } = this.props.store.state
+    const { game } = this.props.store
     let content
 
     if (a.kind === 'move') {
-      const unit = gameState.units[a.unitId]
+      const unit = game.state.units[a.unitId]
       const unitType = items[unit.unitTypeId]
       content = {
         header: `Move ${unitType.name}`,
@@ -61,30 +47,14 @@ export default class OverviewView extends React.Component<Props, State> {
   }
 
   removeAction = (idx: number) => {
-    this.props.store.removeAction(idx)
-  }
-
-  confirmActions = async () => {
-    const { api, store } = this.props
-    await api.submitActions(store.state.game.id, store.state.actions || [])
-    this.getSubmittedActions()
-  }
-
-  async getSubmittedActions() {
-    const { api, store } = this.props
-    const submittedActions = await api.getActions(store.state.game.id)
-
-    this.setState({
-      submittedActions,
-    })
+    throw new Error('Unimplemented: Add mutation')
   }
 
   render() {
-    const { submittedActions } = this.state
-    const { actions, log } = this.props.store.state
+    const { actions, log } = this.props.store.game
 
     return (
-      <Grid columns={3} divided className={css(styles.root)}>
+      <Grid columns={2} divided className={css(styles.root)}>
         <Grid.Row>
           <Grid.Column>
             <Header as="h2" textAlign="center" inverted>
@@ -106,20 +76,6 @@ export default class OverviewView extends React.Component<Props, State> {
                 <List.Item key={idx}>
                   {this.renderAction(a, {floated: 'left'})}
                   <Button floated="right" icon="trash" onClick={() => this.removeAction(idx)} />
-                </List.Item>
-              ))}
-            </List>
-            <Button onClick={this.confirmActions}>Confirm Actions</Button>
-          </Grid.Column>
-          <Grid.Column>
-            <Header as="h2" textAlign="center" inverted>
-              Saved Turn Actions
-            </Header>
-
-            <List divided relaxed inverted>
-              {(submittedActions).map((a, idx) => (
-                <List.Item key={idx}>
-                  {this.renderAction(a)}
                 </List.Item>
               ))}
             </List>

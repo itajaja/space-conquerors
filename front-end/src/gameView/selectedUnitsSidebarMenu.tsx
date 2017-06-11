@@ -1,6 +1,6 @@
 import * as React from 'react'
-import { IMovementAction } from 'sco-engine/actions'
-import units from 'sco-engine/units'
+import { IMovementAction } from 'sco-engine/lib/actions'
+import units from 'sco-engine/lib/units'
 import { Button, Header, List } from 'semantic-ui-react'
 
 import Store from './store'
@@ -14,27 +14,22 @@ export default class SelectedUnitsSidebarMenu extends React.Component<Props, nev
     const { store } = this.props
     const selectedUnits = [...store.state.selectedUnits!]
     selectedUnits.splice(idx, 1)
-    store.selectUnits(selectedUnits.map(u => store.state.gameState.units[u]))
+    store.selectUnits(selectedUnits.map(u => store.game.state.units[u]))
   }
 
   submitPath = () => {
-    const { store } = this.props
-
-    store.makeUnitMovement(
-      store.state.selectedUnits!,
-      store.state.selectedPath!,
-    )
+    throw new Error('not implemented: add mutation')
   }
 
   renderUnit = (unitId: string, idx: number) => {
-    const { state } = this.props.store
-    const unit = state.gameState.units[unitId]
+    const { game } = this.props.store
+    const unit = game.state.units[unitId]
     const unitType = units[unit.unitTypeId]
-    const movement = state.actions && state.actions
+    const movement = game.actions && game.actions
       .find(a => a.kind === 'move' && a.unitId === unitId) as IMovementAction
     const path = movement
-      ? movement.path.map(p => state.game.map.cells[p].name).join(' -> ')
-      : `Stationing on ${state.game.map.cells[unit.locationId].name}`
+      ? movement.path.map(p => game.map.cells[p].name).join(' -> ')
+      : `Stationing on ${game.map.cells[unit.locationId].name}`
 
     return (
       <List.Item key={unitId}>
@@ -58,7 +53,7 @@ export default class SelectedUnitsSidebarMenu extends React.Component<Props, nev
           Selected units
         </Header>
         <List divided relaxed>
-          {state.selectedUnits!.map(this.renderUnit)}
+          {state.selectedUnits.map(this.renderUnit)}
         </List>
         {state.selectedPath && state.selectedPath.length > 1 && (
           <Button onClick={this.submitPath}>Submit Path</Button>

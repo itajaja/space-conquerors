@@ -13,7 +13,8 @@ let config = {
 
   output: {
     path: path.resolve('./build'),
-    publicPath: './',
+    // publicPath: './',
+    publicPath: '/static/',
     filename: 'bundle.js',
   },
 
@@ -47,6 +48,12 @@ let config = {
       index: '/static/',
     },
     port: 4999,
+    proxy: {
+      '/graphql': {
+        target: 'http://localhost:4998',
+        changeOrigin: true,
+      },
+    },
     noInfo: true,
   },
 };

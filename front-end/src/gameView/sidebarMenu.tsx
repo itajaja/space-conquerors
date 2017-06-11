@@ -1,11 +1,11 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as _ from 'lodash'
 import * as React from 'react'
-import buildings from 'sco-engine/buildings'
-import * as dx from 'sco-engine/definitions'
-import { ICell } from 'sco-engine/map'
-import { IBuildingState } from 'sco-engine/state'
-import units from 'sco-engine/units'
+import buildings from 'sco-engine/lib/buildings'
+import * as dx from 'sco-engine/lib/definitions'
+import { ICell } from 'sco-engine/lib/map'
+import { IBuildingState } from 'sco-engine/lib/state'
+import units from 'sco-engine/lib/units'
 import { Button, Header, List, Modal } from 'semantic-ui-react'
 
 import style from '../style'
@@ -32,8 +32,7 @@ type Props = {
 
 export default class SidebarMenu extends React.Component<Props, never> {
   onPurchase = (item: dx.IItem & dx.PurchaseableItem) => {
-    const { store } = this.props
-    store.makePurchase(item, store.state.selectedLocationId)
+    new Error('not implemented: add mutation')
   }
 
   renderItem(item: dx.IItem & dx.PurchaseableItem) {
@@ -61,9 +60,9 @@ export default class SidebarMenu extends React.Component<Props, never> {
   }
 
   renderActions(cell: ICell) {
-    const { state } = this.props.store
-    const planetState = state.gameState.planets[cell.id]
-    const thisPlayerId = state.gameState.player.id
+    const { game } = this.props.store
+    const planetState = game.state.planets[cell.id]
+    const thisPlayerId = game.state.player.id
 
     if (!planetState || planetState.ownerPlayerId !== thisPlayerId) {
       return
@@ -97,8 +96,8 @@ export default class SidebarMenu extends React.Component<Props, never> {
   }
 
   renderPlanetState(cell: ICell) {
-    const { state } = this.props.store
-    const planetState = state.gameState.planets[cell.id]
+    const { game } = this.props.store
+    const planetState = game.state.planets[cell.id]
 
     if (!planetState) {
       return (
@@ -122,8 +121,8 @@ export default class SidebarMenu extends React.Component<Props, never> {
       return
     }
 
-    const { state } = this.props.store
-    const buildings = _.values(state.gameState.buildings)
+    const { game } = this.props.store
+    const buildings = _.values(game.state.buildings)
       .filter(b => b.locationId === cell.id)
 
     return (
@@ -136,8 +135,8 @@ export default class SidebarMenu extends React.Component<Props, never> {
   }
 
   render() {
-    const { state } = this.props.store
-    if (state.selectedUnits) {
+    const { game, state } = this.props.store
+    if (state.selectedUnits.length) {
       return (
         <div className={css(styles.root)}>
           <SelectedUnitsSidebarMenu store={this.props.store} />
@@ -149,8 +148,8 @@ export default class SidebarMenu extends React.Component<Props, never> {
       return null
     }
 
-    const cell = state.game.map.cells[state.selectedLocationId]
-    const system = state.game.map.systems[cell.systemId]
+    const cell = game.map.cells[state.selectedLocationId]
+    const system = game.map.systems[cell.systemId]
 
     return (
       <div className={css(styles.root)}>

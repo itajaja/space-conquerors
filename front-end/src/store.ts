@@ -1,9 +1,9 @@
 import * as React from 'react'
 
-export default class Store<S extends object> {
-  constructor(private component: React.Component<any, S>) {}
+export default class Store<T extends React.Component<any, object>> {
+  constructor(protected component: T) {}
 
-  get state() {
+  get state(): T['state'] {
     return this.component.state
   }
 
@@ -11,7 +11,10 @@ export default class Store<S extends object> {
     this.set({})
   }
 
-  protected set<K extends keyof S>(state: Pick<S, K>, cb?: () => any) {
+  protected set<K extends keyof T['state']>(
+    state: Pick<T['state'], K>,
+    cb?: () => any,
+  ) {
     this.component.setState(state, cb)
   }
 }

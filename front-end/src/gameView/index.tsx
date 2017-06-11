@@ -1,12 +1,13 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
+import { gql, graphql, InjectedGraphQLProps } from 'react-apollo'
 
-import IApi from '../api'
+import { Game } from '../gqlTypes'
+import shortcircuit from '../shortcircuit'
 import MapView from './mapView'
 import Navbar from './Navbar'
 import OverviewView from './overviewView'
-import SidebarMenu from './sidebarMenu'
-import Store, { State } from './store'
+import Store from './store'
 import TurnView from './turnView'
 
 const styles = StyleSheet.create({
@@ -15,37 +16,54 @@ const styles = StyleSheet.create({
   },
 })
 
-export type Props = {
-  api: IApi,
+export type Routes = 'map' | 'overview' | 'turn'
+
+export type State = {
+  selectedLocationId?: string,
+  selectedUnits: string[],
+  selectedDestinations?: { [idx: string]: true },
+  selectedPath?: string[],
+  view: Routes,
+}
+
+export type Props = InjectedGraphQLProps<{game: Game, viewer: any}> & {
   gameId: string,
 }
 
+const Query = gql`
+  query GameView($gameId: String!) {
+    game(gameId: $gameId) {
+      id
+      name
+      createdAt
+      currentTurnNumber
+      players
+      map
+      mapLayout
+      state
+      actions
+      log
+    }
+    viewer {
+      user { id }
+    }
+  }
+`
+
+@graphql(Query, {
+  options: ({ gameId }) => ({
+    variables: { gameId },
+  }),
+})
+@shortcircuit(p => p.data.game && p.data.viewer)
 export default class GameView extends React.Component<Props, State> {
   store: Store
 
   constructor(props, ctx) {
     super(props, ctx)
 
+    this.state = { view: 'map', selectedUnits: [] }
     this.store = new Store(this)
-    this.state = {
-      game: null,
-      gameState: null,
-    } as any
-    this.fetchGame()
-  }
-
-  async fetchGame() {
-    const game = await this.props.api.getGame(this.props.gameId)
-    const gameState = await this.props.api.getGameState(this.props.gameId)
-    const actions = await this.props.api.getActions(this.props.gameId)
-    const log = await this.props.api.getLog(this.props.gameId)
-    this.setState({
-      game: game!,
-      gameState: gameState!,
-      actions,
-      view: 'map',
-      log,
-    })
   }
 
   renderView() {
@@ -55,23 +73,23 @@ export default class GameView extends React.Component<Props, State> {
       case 'overview':
         return <OverviewView store={this.store} />
       case 'turn':
-        return <TurnView store={this.store} api={this.props.api} />
+        return <TurnView store={this.store} />
       default:
         return null
     }
   }
 
+  goTo = (view: Routes) => {
+    this.setState({ view })
+  }
+
   render() {
-    const { game, gameState } = this.state
-    if (!game || !gameState) {
-      return null
-    }
+    const { viewer } = this.props.data!
 
     return (
       <div className={css(styles.root)}>
-        <Navbar store={this.store} />
+        <Navbar store={this.store} userId={viewer.user.id} />
         {this.renderView()}
-        <SidebarMenu store={this.store} />
       </div>
     )
   }

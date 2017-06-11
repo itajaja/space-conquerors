@@ -1,10 +1,19 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
+import { ApolloClient, ApolloProvider, createBatchingNetworkInterface } from 'react-apollo'
 
 import DialogController from './DialogController'
 import MainPage from './localTest/mainPage'
 import Router from './router'
 import style from './style'
+
+const client = new ApolloClient({
+  queryDeduplication: true,
+  networkInterface: createBatchingNetworkInterface({
+    uri: '/graphql',
+    batchInterval: 10,
+  }),
+})
 
 const styles = StyleSheet.create({
   root: {
@@ -18,10 +27,12 @@ const styles = StyleSheet.create({
 
 export default function App() {
   return (
-    <DialogController>
-      <div className={css(styles.root)}>
-        <Router defaultView={MainPage} />
-      </div>
-    </DialogController>
+    <ApolloProvider client={client}>
+      <DialogController>
+        <div className={css(styles.root)}>
+          <Router defaultView={MainPage} />
+        </div>
+      </DialogController>
+    </ApolloProvider>
   )
 }

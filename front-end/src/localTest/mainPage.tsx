@@ -1,13 +1,13 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
+import { gql, graphql, InjectedGraphQLProps } from 'react-apollo'
 import { Button } from 'semantic-ui-react'
 
-import { Game } from '../api'
 import Layout from '../components/layout'
 import { DialogContext } from '../DialogController'
+import { Game } from '../gqlTypes'
 import Router from '../router'
-import Api from './api'
-import SelectPlayerModal from './selectPlayerModal'
+import shortcircuit from '../shortcircuit'
 import StartGameModal from './StartGameModal'
 
 const styles = StyleSheet.create({
@@ -20,40 +20,35 @@ const styles = StyleSheet.create({
   },
 })
 
-type Props = {
+type Props = InjectedGraphQLProps<{viewer: any}> & {
   router: Router,
 }
 
+const Query = gql`query MainPage {
+  viewer {
+    games {
+      id
+      name
+      createdAt
+      currentTurnNumber
+      players
+    }
+  }
+}`
+
+@graphql(Query)
+@shortcircuit(p => p.data.viewer)
 export default class MainPage extends React.Component<Props, {}> {
   static contextTypes = {
     dialog: React.PropTypes.object,
   }
 
-  api = new Api()
-
-  async startGame(game: Game) {
-    const dialog: DialogContext = this.context.dialog
-    const player = await dialog.prompt(SelectPlayerModal, { players: game.players })
-
-    if (!player) {
-      return
-    }
-    if (player.result === '%%admin%%') {
-      this.props.router.admin()
-      return
-    }
-
-    this.api.playerId = player.result
-
-    this.props.router.game({ gameId: game.id, api: this.api })
+  async startGame(gameId: string) {
+    this.props.router.game({ gameId })
   }
 
-  onContinueGame = async () => {
-    const game = await this.api.getGame('')
-    if (!game) {
-      return
-    }
-    this.startGame(game!)
+  onContinueGame = async (gameId: string) => {
+    this.startGame(gameId)
   }
 
   onStartGame = async () => {
@@ -62,12 +57,25 @@ export default class MainPage extends React.Component<Props, {}> {
     if (!players) {
       return
     }
-    const gameId = await this.api.createGame(players.result)
-    const game = await this.api.getGame(gameId)
-    this.startGame(game!)
+  }
+
+  renderGame = (game: Game) => {
+    const numPlayers = Object.keys(game).length
+    return (
+      <Button
+        size="big"
+        className={css(styles.button)}
+        onClick={() => this.onContinueGame(game.id)}
+        key={game.id}
+      >
+        Continue game {game.name} ({numPlayers} players, turn #{game.currentTurnNumber})
+      </Button>
+    )
   }
 
   render() {
+    const { games } = this.props.data!.viewer
+
     return (
       <div className={css(styles.root)}>
         <h1>
@@ -79,15 +87,9 @@ export default class MainPage extends React.Component<Props, {}> {
             className={css(styles.button)}
             onClick={this.onStartGame}
           >
-            Start New Game
+            Start new game
           </Button>
-          <Button
-            size="big"
-            className={css(styles.button)}
-            onClick={this.onContinueGame}
-          >
-            Continue Game
-          </Button>
+          {games.map(this.renderGame as any)}
         </Layout>
       </div>
     )

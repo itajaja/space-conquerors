@@ -1,0 +1,42 @@
+scalar JSON
+
+# There isn't really an advantage in making these JSON types
+# The main rationale for doing this is that then the engine lib can be used
+# in the client as well since it uses the actual ts type defs instead of the
+# GraphQL ones
+
+type Game {
+  id: String!
+
+  name: String!
+  createdAt: String!
+  currentTurnNumber: Int!
+
+  players: JSON!
+  map: JSON!
+  mapLayout: JSON!
+  state: JSON!
+  actions: [JSON]!
+  log: [JSON]!
+}
+
+type User {
+  id: String!
+  name: String!
+}
+
+type Viewer {
+  id: ID!
+
+  user: User!
+  games: [Game]!
+}
+
+type Query {
+  viewer: Viewer!
+  game(gameId: String!): Game
+}
+
+schema {
+  query: Query
+}
