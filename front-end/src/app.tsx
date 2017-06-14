@@ -1,19 +1,14 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
-import { ApolloClient, ApolloProvider, createBatchingNetworkInterface } from 'react-apollo'
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
 
+import AuthCallback from './authCallback'
+import AuthProvider from './authProvider'
+import CheckLogin from './checkLogin'
 import DialogController from './DialogController'
-import MainPage from './localTest/mainPage'
-import Router from './router'
+import GameView from './gameView'
+import MainView from './mainView'
 import style from './style'
-
-const client = new ApolloClient({
-  queryDeduplication: true,
-  networkInterface: createBatchingNetworkInterface({
-    uri: '/graphql',
-    batchInterval: 10,
-  }),
-})
 
 const styles = StyleSheet.create({
   root: {
@@ -27,12 +22,22 @@ const styles = StyleSheet.create({
 
 export default function App() {
   return (
-    <ApolloProvider client={client}>
-      <DialogController>
-        <div className={css(styles.root)}>
-          <Router defaultView={MainPage} />
-        </div>
-      </DialogController>
-    </ApolloProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <DialogController>
+          <div className={css(styles.root)}>
+            <Switch>
+              <Route exact path="/auth/callback" component={AuthCallback} />
+              <CheckLogin>
+                <Switch>
+                  <Route exact path="/" component={MainView} />
+                  <Route path="/games/:gameId" component={GameView} />
+                </Switch>
+              </CheckLogin>
+            </Switch>
+          </div>
+        </DialogController>
+      </AuthProvider>
+    </BrowserRouter>
   )
 }

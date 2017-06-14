@@ -1,6 +1,7 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
 import { gql, graphql, InjectedGraphQLProps } from 'react-apollo'
+import { Redirect, Route, RouteComponentProps, Switch } from 'react-router-dom'
 
 import { Game } from '../gqlTypes'
 import shortcircuit from '../shortcircuit'
@@ -12,23 +13,20 @@ import TurnView from './turnView'
 
 const styles = StyleSheet.create({
   root: {
-    height: '100%',
+    position: 'fixed',
+    left: 0, top: 0, right: 0, bottom: 0,
   },
 })
-
-export type Routes = 'map' | 'overview' | 'turn'
 
 export type State = {
   selectedLocationId?: string,
   selectedUnits: string[],
   selectedDestinations?: { [idx: string]: true },
   selectedPath?: string[],
-  view: Routes,
 }
 
-export type Props = InjectedGraphQLProps<{game: Game, viewer: any}> & {
-  gameId: string,
-}
+export type Props = InjectedGraphQLProps<{game: Game, viewer: any}> &
+  RouteComponentProps<any>
 
 const Query = gql`
   query GameView($gameId: String!) {
@@ -51,8 +49,8 @@ const Query = gql`
 `
 
 @graphql(Query, {
-  options: ({ gameId }) => ({
-    variables: { gameId },
+  options: ({ match }) => ({
+    variables: { gameId: match.params.gameId },
   }),
 })
 @shortcircuit(p => p.data.game && p.data.viewer)
@@ -62,25 +60,8 @@ export default class GameView extends React.Component<Props, State> {
   constructor(props, ctx) {
     super(props, ctx)
 
-    this.state = { view: 'map', selectedUnits: [] }
+    this.state = { selectedUnits: [] }
     this.store = new Store(this)
-  }
-
-  renderView() {
-    switch (this.state.view) {
-      case 'map':
-        return <MapView store={this.store} />
-      case 'overview':
-        return <OverviewView store={this.store} />
-      case 'turn':
-        return <TurnView store={this.store} />
-      default:
-        return null
-    }
-  }
-
-  goTo = (view: Routes) => {
-    this.setState({ view })
   }
 
   render() {
@@ -89,7 +70,25 @@ export default class GameView extends React.Component<Props, State> {
     return (
       <div className={css(styles.root)}>
         <Navbar store={this.store} userId={viewer.user.id} />
-        {this.renderView()}
+        <Switch>
+          <Route
+            path={`${this.props.match.url}/map`}
+            render={() => <MapView store={this.store} />}
+          />
+          <Route
+            path={`${this.props.match.url}/overview`}
+            render={() => <OverviewView store={this.store} />}
+          />
+          <Route
+            path={`${this.props.match.url}/turn`}
+            render={() => <TurnView store={this.store} />}
+          />
+          <Redirect
+            exact
+            from={this.props.match.url}
+            to={`${this.props.match.url}/map`}
+          />
+        </Switch>
       </div>
     )
   }

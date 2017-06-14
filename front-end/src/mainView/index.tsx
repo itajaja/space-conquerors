@@ -1,12 +1,12 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
 import { gql, graphql, InjectedGraphQLProps } from 'react-apollo'
+import { RouteComponentProps } from 'react-router-dom'
 import { Button } from 'semantic-ui-react'
 
 import Layout from '../components/layout'
 import { DialogContext } from '../DialogController'
 import { Game } from '../gqlTypes'
-import Router from '../router'
 import shortcircuit from '../shortcircuit'
 import StartGameModal from './StartGameModal'
 
@@ -20,9 +20,7 @@ const styles = StyleSheet.create({
   },
 })
 
-type Props = InjectedGraphQLProps<{viewer: any}> & {
-  router: Router,
-}
+type Props = RouteComponentProps<any> & InjectedGraphQLProps<{viewer: any}>
 
 const Query = gql`query MainPage {
   viewer {
@@ -38,13 +36,16 @@ const Query = gql`query MainPage {
 
 @graphql(Query)
 @shortcircuit(p => p.data.viewer)
-export default class MainPage extends React.Component<Props, {}> {
+export default class MainView extends React.Component<Props, {}> {
   static contextTypes = {
+    auth: React.PropTypes.object,
     dialog: React.PropTypes.object,
   }
 
+  logout = () => this.context.auth.logout()
+
   async startGame(gameId: string) {
-    this.props.router.game({ gameId })
+    this.props.history.push(`/games/${gameId}`)
   }
 
   onContinueGame = async (gameId: string) => {
@@ -89,7 +90,12 @@ export default class MainPage extends React.Component<Props, {}> {
           >
             Start new game
           </Button>
+
           {games.map(this.renderGame as any)}
+
+          <Button onClick={this.logout}>
+            Sign out
+          </Button>
         </Layout>
       </div>
     )

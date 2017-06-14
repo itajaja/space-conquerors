@@ -17,12 +17,6 @@ export default class Store extends BaseStore<GameView> {
     return this.component.props.data!.game
   }
 
-  showMap = () => this.set({ view: 'map', ...EMPTY_SELECTION })
-
-  showOverwiew = () => this.set({ view: 'overview', ...EMPTY_SELECTION })
-
-  showTurn = () => this.set({ view: 'turn', ...EMPTY_SELECTION })
-
   selectPlanet(selectedLocationId: string) {
     this.set({ ...EMPTY_SELECTION, selectedLocationId })
   }

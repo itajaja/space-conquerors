@@ -1,5 +1,7 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
+import { RouteComponentProps, withRouter } from 'react-router'
+import { NavLink } from 'react-router-dom'
 import { Menu } from 'semantic-ui-react'
 
 import ResourceAmountSegment from './ResourceAmountSegment'
@@ -11,14 +13,14 @@ const styles = StyleSheet.create({
   },
 })
 
-type Props = {
+type Props = RouteComponentProps<any> & {
   store: Store,
   userId: string,
 }
 
-export default class Navbar extends React.Component<Props, never> {
+class Navbar extends React.Component<Props, never> {
   render() {
-    const { store, userId } = this.props
+    const { match, store, userId } = this.props
     const playerName = store.game.players[userId].name
 
     return (
@@ -26,13 +28,25 @@ export default class Navbar extends React.Component<Props, never> {
         <Menu.Item>
           {playerName}
         </Menu.Item>
-        <Menu.Item onClick={store.showMap} active={store.state.view === 'map'}>
+        <Menu.Item
+          as={NavLink}
+          activeClassName="active"
+          to={`${match.url}/map`}
+        >
           Map
         </Menu.Item>
-        <Menu.Item onClick={store.showOverwiew} active={store.state.view === 'overview'}>
+        <Menu.Item
+          as={NavLink}
+          activeClassName="active"
+          to={`${match.url}/overview`}
+        >
           Overview
         </Menu.Item>
-        <Menu.Item onClick={store.showTurn} active={store.state.view === 'turn'}>
+        <Menu.Item
+          as={NavLink}
+          activeClassName="active"
+          to={`${match.url}/turn`}
+        >
           Turn
         </Menu.Item>
         <Menu.Item>
@@ -45,3 +59,5 @@ export default class Navbar extends React.Component<Props, never> {
     )
   }
 }
+
+export default withRouter(Navbar)
