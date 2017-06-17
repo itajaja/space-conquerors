@@ -87,13 +87,13 @@ function createGame(players: string[]): Game {
       0: {
         id: '0',
         unitTypeId: 'unit_spear',
-        playerId: 'a',
+        playerId: 'giacomo.tag@gmail.com',
         locationId: _.values(map.cells)[0].id,
       },
       1: {
         id: '1',
         unitTypeId: 'unit_spear',
-        playerId: 'a',
+        playerId: 'giacomo.tag@gmail.com',
         locationId: _.values(map.cells)[0].id,
       },
       2: {
@@ -107,7 +107,7 @@ function createGame(players: string[]): Game {
       bar: {
         id: 'bar',
         buildingTypeId: 'building_depot',
-        playerId: 'a',
+        playerId: 'giacomo.tag@gmail.com',
         locationId: origins[0].id,
       },
     },
@@ -128,26 +128,26 @@ function createGame(players: string[]): Game {
     mapLayout: mlx.generate(map),
     state,
     actions: {
-      a: [
+      'giacomo.tag@gmail.com': [
         {
           kind: 'produce',
-          playerId: 'a',
+          playerId: 'giacomo.tag@gmail.com',
           itemId: 'unit_spear',
           locationId: origins[0].id,
         }, {
           kind: 'move',
-          playerId: 'a',
+          playerId: 'giacomo.tag@gmail.com',
           unitId: '1',
           path: [_.values(map.cells)[0].id, _.values(map.cells)[1].id, _.values(map.cells)[2].id],
           speed: 3,
       }],
     },
     log: [
-      { player: 'a', message: 'you did this!' },
-      { player: 'a', message: 'you did that!' },
+      { player: 'giacomo.tag@gmail.com', message: 'you did this!' },
+      { player: 'giacomo.tag@gmail.com', message: 'you did that!' },
       { player: 'b', message: 'you should not see this' },
     ],
   }
 }
 
-export const cachedGame = createGame(['a', 'b'])
+export const cachedGame = createGame(['giacomo.tag@gmail.com', 'b'])
