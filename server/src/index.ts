@@ -2,47 +2,73 @@ import * as bodyParser from 'body-parser'
 import * as express from 'express'
 import { graphqlExpress } from 'graphql-server-express'
 import * as jwt from 'jsonwebtoken'
+import * as createJwksClient from 'jwks-rsa'
 
+import { createModels } from './models'
+import { Context } from './resolvers'
 import schema from './schema'
 
 const PORT = 4998
 
-const app = express()
+const JWT_OPTIONS = {
+  audience: 'Nm7eKJDk5mroobvkEAOywzsRy4J3nNQW',
+  algorithms: ['RS256'],
+}
 
-// const JWT_SECRET = 'lF5bv68eim5rFDM23KGCeFibGc1g55uyDawDhwYf4FlGFhE_6JZN_t3zTb8Xh-ow'
-// const JWT_LEEWAY = 10
-// const JWT_OPTIONS = {
-//   algorithms: ['HS256'],
-//   audience: 'https://space-conquerors.auth0.com/userinfo',
-//   clockTolerance: JWT_LEEWAY,
-// }
+async function start() {
+  const app = express()
 
-app.use('/graphql',
-  (req, resp, next) => {
-    const authorization = req.header('Authorization')
-    const idTokenMatch = /^Bearer (.*)$/.exec(authorization)
-    if (!idTokenMatch) {
-      return resp.send(401, 'invalid_token')
-    }
-    try {
-      // jwt.verify(idTokenMatch[1], JWT_SECRET, JWT_OPTIONS)
-      const token = jwt.decode(idTokenMatch[1])
-      // tslint:disable-next-line:no-string-literal
-      req['token'] = token
-    } catch (e) {
-      return resp.send(401, 'invalid_authorization')
-    }
-    next()
-  },
-  bodyParser.json(),
-  graphqlExpress((req) => ({
-    schema,
-    context: {
-      userId: (req as any).token.email,
+  const models = await createModels()
+
+  const jwksClient = createJwksClient({
+    jwksUri: 'https://space-conquerors.auth0.com/.well-known/jwks.json',
+  })
+
+  app.use('/graphql',
+    (req, resp, next) => {
+      const authorization = req.header('Authorization')
+      const idTokenMatch = /^Bearer (.*)$/.exec(authorization)
+      if (!idTokenMatch) {
+        return resp.status(401).send('invalid_token')
+      }
+      const token = jwt.decode(idTokenMatch[1], { complete: true })
+      if (!token) {
+        return resp.status(401).send('invalid_authorization')
+      }
+
+      const { payload, header } = (token as any)
+
+      jwksClient.getSigningKey(header.kid, (err, key) => {
+        if (err) {
+          return resp.status(401).send('invalid_authorization_kid')
+        }
+        const signingKey = key.publicKey || key.rsaPublicKey!
+        jwt.verify(idTokenMatch[1], signingKey, JWT_OPTIONS, onVerify)
+      })
+
+      const onVerify = (err) => {
+        if (err) {
+          return resp.status(401).send('invalid_authorization')
+        }
+        // tslint:disable-next-line:no-string-literal
+        req['token'] = payload
+        next()
+      }
     },
-  })),
-)
+    bodyParser.json(),
+    graphqlExpress((req) => ({
+      schema,
+      context: {
+        userId: (req as any).token.sub,
+        userName: (req as any).token.email,
+        models,
+      } as Context,
+    })),
+  )
 
-app.listen(PORT)
-// tslint:disable-next-line:no-console
-console.log('service started on port', PORT)
+  app.listen(PORT)
+  // tslint:disable-next-line:no-console
+  console.log('service started on port', PORT)
+}
+
+start()
