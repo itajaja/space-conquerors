@@ -1,6 +1,6 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
-import { gql, graphql, InjectedGraphQLProps } from 'react-apollo'
+import { DefaultChildProps, gql, graphql } from 'react-apollo'
 import { Redirect, Route, RouteComponentProps, Switch } from 'react-router-dom'
 
 import { Game } from '../gqlTypes'
@@ -25,8 +25,9 @@ export type State = {
   selectedPath?: string[],
 }
 
-export type Props = InjectedGraphQLProps<{game: Game, viewer: any}> &
-  RouteComponentProps<any>
+type ComponentProps = RouteComponentProps<any>
+type ResultProps = { game: Game, viewer: any }
+export type Props = DefaultChildProps<ComponentProps, ResultProps>
 
 const Query = gql`
   query GameView($gameId: String!) {
@@ -48,13 +49,7 @@ const Query = gql`
   }
 `
 
-@graphql(Query, {
-  options: ({ match }) => ({
-    variables: { gameId: match.params.gameId },
-  }),
-})
-@shortcircuit(p => p.data.game && p.data.viewer)
-export default class GameView extends React.Component<Props, State> {
+export class GameView extends React.Component<Props, State> {
   store: Store
 
   constructor(props, ctx) {
@@ -93,3 +88,9 @@ export default class GameView extends React.Component<Props, State> {
     )
   }
 }
+
+export default graphql<ResultProps, ComponentProps>(Query, {
+  options: ({ match }) => ({
+    variables: { gameId: match.params.gameId },
+  }),
+})(shortcircuit(p => p.data.game && p.data.viewer)(GameView))

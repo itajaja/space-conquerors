@@ -93,7 +93,7 @@ export class GameModel extends Model<Game> {
   authFilter(filter: object = {}): object {
     return {
       $and: [
-        this.ctx.userMeta.admin ? {} : { 'player.id': this.ctx.userId },
+        this.ctx.userMeta.admin ? {} : { 'players.id': this.ctx.userId },
         filter,
       ],
     }

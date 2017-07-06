@@ -1,7 +1,6 @@
 import * as React from 'react'
-// import { RouteComponentProps } from 'react-router-dom'
 
-export default class CheckLogin extends React.Component<never, never> {
+export default class CheckLogin extends React.Component<{}, never> {
   static contextTypes = {
     auth: React.PropTypes.object,
   }

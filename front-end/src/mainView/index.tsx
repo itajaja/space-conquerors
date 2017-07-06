@@ -1,6 +1,6 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
-import { gql, graphql, InjectedGraphQLProps } from 'react-apollo'
+import { DefaultChildProps, gql, graphql } from 'react-apollo'
 import { RouteComponentProps } from 'react-router-dom'
 import { Button } from 'semantic-ui-react'
 
@@ -20,7 +20,9 @@ const styles = StyleSheet.create({
   },
 })
 
-type Props = RouteComponentProps<any> & InjectedGraphQLProps<{viewer: any}>
+type ComponentProps = RouteComponentProps<any>
+type ResultProps = { viewer: any }
+type Props = DefaultChildProps<ComponentProps, ResultProps>
 
 const Query = gql`query MainPage {
   viewer {
@@ -34,9 +36,7 @@ const Query = gql`query MainPage {
   }
 }`
 
-@graphql(Query)
-@shortcircuit(p => p.data.viewer)
-export default class MainView extends React.Component<Props, {}> {
+class MainView extends React.Component<Props, {a: number}> {
   static contextTypes = {
     auth: React.PropTypes.object,
     dialog: React.PropTypes.object,
@@ -101,3 +101,7 @@ export default class MainView extends React.Component<Props, {}> {
     )
   }
 }
+
+export default graphql<ResultProps, ComponentProps>(Query)(
+  shortcircuit(p => p.data.viewer)(MainView),
+)

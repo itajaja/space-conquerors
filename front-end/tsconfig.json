@@ -3,7 +3,6 @@
     "target": "es5",
     "outDir": "lib",
     "jsx": "react",
-    "experimentalDecorators": true,
     "strictNullChecks": true,
     "sourceMap": true,
     "noUnusedLocals": true,

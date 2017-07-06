@@ -3,7 +3,8 @@ import * as _ from 'lodash'
 import * as React from 'react'
 import buildingTypes from 'sco-engine/lib/buildings'
 import * as dx from 'sco-engine/lib/definitions'
-import { addResources, items } from 'sco-engine/lib/gameEngine'
+import { items } from 'sco-engine/lib/gameEngine'
+import * as resources from 'sco-engine/lib/resources'
 import * as sx from 'sco-engine/lib/state'
 import technologies from 'sco-engine/lib/technologies'
 import { Button, Grid, Header, Icon, List, Table } from 'semantic-ui-react'
@@ -40,7 +41,7 @@ export default class OverviewView extends React.Component<Props, never> {
         const buildingType = buildingTypes[cur.buildingTypeId]
         // TODO factor in planet type
         return buildingType.resourceYield
-          ? addResources(prev, buildingType.resourceYield)
+          ? resources.add(prev, buildingType.resourceYield)
           : prev
       }, dx.zeroResources())
     return <ResourceAmountSegment amount={production} zeros />

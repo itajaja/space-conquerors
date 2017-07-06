@@ -3,7 +3,7 @@ import { IUnitState } from 'sco-engine/lib/state'
 import unitTypes from 'sco-engine/lib/units'
 
 import BaseStore from '../store'
-import GameView from './index'
+import { GameView } from './index'
 
 const EMPTY_SELECTION = {
   selectedPath: undefined,
@@ -34,7 +34,7 @@ export default class Store extends BaseStore<GameView> {
       .map(u => this.game.state.units[u])
       .map(u => unitTypes[u.unitTypeId].speed)
 
-    if (selectedPath.length > _.min(speeds)) {
+    if (selectedPath.length > (_.min(speeds) || 0)) {
       this.set({
         selectedDestinations: undefined,
       })

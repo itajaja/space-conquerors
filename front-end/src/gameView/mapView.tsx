@@ -134,7 +134,8 @@ export default class MapView extends React.Component<Props, State> {
           width="100%"
           height="100%"
           toolbarPosition="none"
-          tool={this.state.shift ? 'pan' : 'else'}
+          miniaturePosition="none"
+          tool={this.state.shift ? 'pan' : 'none'}
           background="transparent"
           SVGBackground="transparent"
         >

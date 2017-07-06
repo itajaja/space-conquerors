@@ -1,12 +1,14 @@
 import * as React from 'react'
 import { ComponentClass, StatelessComponent } from 'react'
 
-export type WrapWithShortCircuit =
-  <P, TComponentConstruct extends (ComponentClass<P> | StatelessComponent<P>)>
-  (component: TComponentConstruct) => TComponentConstruct
-
-export default function shortcircuit(pred): WrapWithShortCircuit {
-  return Component => {
-    return (props) => pred(props) ? <Component {...props} /> : null
+export default function shortcircuit(pred: (props: any) => boolean) {
+  function wrap<P>(Component: ComponentClass<P> | StatelessComponent<P>) {
+    return class extends React.Component<P, never> {
+      render() {
+        return pred(this.props) ? <Component {...this.props} /> : null
+      }
+    }
   }
+
+  return wrap
 }
