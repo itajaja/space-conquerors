@@ -93,7 +93,7 @@ export default class GameValidator {
       throw new ValidationError('invalid_movement_action.not_unit_owner')
     }
 
-    if (action.speed <= 0 || action.speed > unitTypes[unit.id].speed) {
+    if (action.speed <= 0 || action.speed > unitTypes[unit.unitTypeId].speed) {
       throw new ValidationError('invalid_movement_action.invalid_speed')
     }
 
