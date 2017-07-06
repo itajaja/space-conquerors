@@ -45,7 +45,7 @@ class MainView extends React.Component<Props, {a: number}> {
   logout = () => this.context.auth.logout()
 
   async startGame(gameId: string) {
-    this.props.history.push(`/games/${gameId}`)
+    this.props.history.push(`/${gameId}`)
   }
 
   onContinueGame = async (gameId: string) => {

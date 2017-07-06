@@ -1,6 +1,7 @@
 import * as _ from 'lodash'
 import * as React from 'react'
 import { ReactSVGPanZoom } from 'react-svg-pan-zoom'
+import {AutoSizer} from 'react-virtualized'
 import { IMovementAction } from 'sco-engine/lib/actions'
 import { MapLayoutCell } from 'sco-engine/lib/mapLayout'
 
@@ -96,8 +97,10 @@ export default class MapView extends React.Component<Props, State> {
     )
   }
 
-  render() {
-    const { store } = this.props
+  renderMap(width: number, height: number){
+    if (width === 0 || height === 0) {
+      return null
+    }
     const { game, state } = this.props.store
     const unitsByPlanet = _.groupBy(_.values(game.state.units), 'locationId')
 
@@ -106,7 +109,7 @@ export default class MapView extends React.Component<Props, State> {
         <g transform={`translate(${x},${y})`} key={id}>
           <Cell
             cell={game.map.cells[id]}
-            store={store}
+            store={this.props.store}
             units={unitsByPlanet[id] || []}
           />
         </g>
@@ -129,51 +132,61 @@ export default class MapView extends React.Component<Props, State> {
       })
 
     return (
+      <ReactSVGPanZoom
+        width={width}
+        height={height}
+        toolbarPosition="none"
+        miniaturePosition="none"
+        tool={this.state.shift ? 'pan' : 'none'}
+        background="transparent"
+        SVGBackground="transparent"
+      >
+        <svg width={1000} height={1000}>
+          <defs>
+            <marker
+              id="pointyArrowSelected"
+              markerWidth="3"
+              markerHeight="3"
+              refX="7"
+              refY="1.5"
+              orient="auto"
+              markerUnits="strokeWidth"
+            >
+              <path d="M0,0 L0,3 L3,1.5 z" fill={SELECTED_PATH_COLOR} />
+            </marker>
+            <marker
+              id="pointyArrow"
+              markerWidth="3"
+              markerHeight="3"
+              refX="7"
+              refY="1.5"
+              orient="auto"
+              markerUnits="strokeWidth"
+            >
+              <path
+                d="M0,0 L0,3 L3,1.5 z"
+                fill={PATH_COLOR}
+                opacity={PATH_OPACITY}
+              />
+            </marker>
+          </defs>
+          {paths}
+          {state.selectedPath && this.renderPath(state.selectedPath, 0, true)}
+          {cellLinks}
+          {cellComponents}
+        </svg>
+      </ReactSVGPanZoom>
+    )
+  }
+
+  render() {
+    const { store } = this.props
+
+    return (
       <div style={{ height: '100%'}}>
-        <ReactSVGPanZoom
-          width="100%"
-          height="100%"
-          toolbarPosition="none"
-          miniaturePosition="none"
-          tool={this.state.shift ? 'pan' : 'none'}
-          background="transparent"
-          SVGBackground="transparent"
-        >
-          <svg>
-            <defs>
-              <marker
-                id="pointyArrowSelected"
-                markerWidth="3"
-                markerHeight="3"
-                refX="7"
-                refY="1.5"
-                orient="auto"
-                markerUnits="strokeWidth"
-              >
-                <path d="M0,0 L0,3 L3,1.5 z" fill={SELECTED_PATH_COLOR} />
-              </marker>
-              <marker
-                id="pointyArrow"
-                markerWidth="3"
-                markerHeight="3"
-                refX="7"
-                refY="1.5"
-                orient="auto"
-                markerUnits="strokeWidth"
-              >
-                <path
-                  d="M0,0 L0,3 L3,1.5 z"
-                  fill={PATH_COLOR}
-                  opacity={PATH_OPACITY}
-                />
-              </marker>
-            </defs>
-            {paths}
-            {state.selectedPath && this.renderPath(state.selectedPath, 0, true)}
-            {cellLinks}
-            {cellComponents}
-          </svg>
-        </ReactSVGPanZoom>
+        <AutoSizer>
+          {({ width, height }) => this.renderMap(width, height)}
+        </AutoSizer>
         <SidebarMenu store={store} />
       </div>
     )

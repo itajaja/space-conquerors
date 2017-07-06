@@ -29,7 +29,7 @@ type ComponentProps = RouteComponentProps<any>
 type ResultProps = { game: Game, viewer: any }
 export type Props = DefaultChildProps<ComponentProps, ResultProps>
 
-const Query = gql`
+export const Query = gql`
   query GameView($gameId: String!) {
     game(gameId: $gameId) {
       id

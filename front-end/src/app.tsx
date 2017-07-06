@@ -31,7 +31,7 @@ export default function App() {
               <CheckLogin>
                 <Switch>
                   <Route exact path="/" component={MainView} />
-                  <Route path="/games/:gameId" component={GameView} />
+                  <Route path="/:gameId" component={GameView} />
                 </Switch>
               </CheckLogin>
             </Switch>
