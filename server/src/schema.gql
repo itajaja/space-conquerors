@@ -37,6 +37,41 @@ type Query {
   game(gameId: String!): Game
 }
 
+input CreateGameInput {
+  name: String!
+
+  players: [String]!
+}
+
+input SubmitActionsInput {
+  gameId: String!
+
+  actions: [JSON]!
+}
+
+input AdvanceTurnInput {
+  gameId: String!
+}
+
+type CreateGamePayload {
+  viewer: Viewer
+  gameId: String
+}
+
+type SubmitActionsPayload {
+  game: Game
+}
+
+type AdvanceTurnPayload {
+  game: Game
+}
+
+type Mutation {
+  createGame(input: CreateGameInput!): CreateGamePayload
+  submitActions(input: SubmitActionsInput!): SubmitActionsPayload
+  advanceTurn(input: AdvanceTurnInput!): AdvanceTurnPayload
+}
+
 schema {
   query: Query
 }

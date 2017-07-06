@@ -4,7 +4,7 @@ import { graphqlExpress } from 'graphql-server-express'
 import * as jwt from 'jsonwebtoken'
 import * as createJwksClient from 'jwks-rsa'
 
-import { createModels } from './models'
+import { initModels } from './models'
 import { Context } from './resolvers'
 import schema from './schema'
 
@@ -18,7 +18,7 @@ const JWT_OPTIONS = {
 async function start() {
   const app = express()
 
-  const models = await createModels()
+  const models = await initModels()
 
   const jwksClient = createJwksClient({
     jwksUri: 'https://space-conquerors.auth0.com/.well-known/jwks.json',
@@ -27,7 +27,7 @@ async function start() {
   app.use('/graphql',
     (req, resp, next) => {
       const authorization = req.header('Authorization')
-      const idTokenMatch = /^Bearer (.*)$/.exec(authorization)
+      const idTokenMatch = /^Bearer (.*)$/.exec(authorization!)
       if (!idTokenMatch) {
         return resp.status(401).send('invalid_token')
       }
@@ -56,14 +56,20 @@ async function start() {
       }
     },
     bodyParser.json(),
-    graphqlExpress((req) => ({
-      schema,
-      context: {
+    graphqlExpress((req) => {
+      const context: Context = {
         userId: (req as any).token.sub,
         userName: (req as any).token.email,
-        models,
-      } as Context,
-    })),
+        userMeta: (req as any).token.app_metadata || {},
+      } as any
+
+      context.models = models(context)
+
+      return {
+        schema,
+        context,
+      }
+    }),
   )
 
   app.listen(PORT)

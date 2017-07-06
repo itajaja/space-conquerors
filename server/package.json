@@ -32,6 +32,8 @@
     "jwks-rsa": "^1.1.1",
     "lodash": "^4.17.4",
     "mongodb": "^2.2.29",
-    "sco-engine": "file:../engine"
+    "randomcolor": "^0.5.3",
+    "sco-engine": "file:../engine",
+    "tcomb": "^3.2.21"
   }
 }
