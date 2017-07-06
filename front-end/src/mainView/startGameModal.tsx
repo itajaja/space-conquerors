@@ -3,30 +3,35 @@ import * as React from 'react'
 import { Button, Input, Label, List, Modal, ModalProps } from 'semantic-ui-react'
 
 type Props = ModalProps & {
-  onConfirm: (players: string[]) => void,
+  onConfirm: ({ players, name }: { players: string[], name: string }) => void,
+  userId: string,
 }
 
 type State = {
+  name: string,
   players: string[],
   error: string | null,
 }
 
 export default class StartGameModal extends React.Component<Props, State> {
   state = {
-    players: ['', ''],
+    name: '',
+    players: [this.props.userId, ''],
     error: null,
   }
 
   onConfirm = () => {
-    const { players } = this.state
-    if (players.length < 2) {
-      this.setState({ error: '2 players minum'})
+    const { players, name } = this.state
+    if (!name) {
+      this.setState({ error: 'name required'})
+    } else if (players.length < 2 || players.length > 10) {
+      this.setState({ error: '2-10 players allowed'})
     } else if (_.uniq(players).length !== players.length) {
       this.setState({ error: 'players must have unique names'})
     } else if (players.some(p => !p || p.length < 1)) {
       this.setState({ error: 'fill in all the player names'})
     } else {
-      this.props.onConfirm(players)
+      this.props.onConfirm({ players, name })
     }
   }
 
@@ -48,28 +53,46 @@ export default class StartGameModal extends React.Component<Props, State> {
     this.setState({ players, error: null })
   }
 
+  onChangeName = (_, { value }) => {
+    this.setState({ name: value })
+  }
+
   renderPlayer = (player: string, idx: number) => {
     const label = `player ${idx + 1}`
     return (
       <List.Item key={idx}>
         <Input
+          fluid
           type="text"
           placeholder={label}
-          action={{ icon: 'trash', onClick: () => this.deleteUser(idx) }}
+          action={idx !== 0 && { icon: 'trash', onClick: () => this.deleteUser(idx) }}
           value={player}
           onChange={(_, { value }) => this.onChangeUser(idx, value)}
+          disabled={idx === 0}
         />
       </List.Item>
     )
   }
 
   render() {
+    const { onConfirm, onCancel, userId, ...props } = this.props
+    const { name, players, error } = this.state
+
     return (
-      <Modal {...this.props}>
-        <Modal.Header>Select Players</Modal.Header>
+      <Modal {...props}>
+        <Modal.Header>Create New Game</Modal.Header>
         <Modal.Content>
+          <Modal.Header as="h3">Game Name</Modal.Header>
+          <Input
+            fluid
+            type="text"
+            placeholder="name"
+            value={name}
+            onChange={this.onChangeName}
+            />
+          <Modal.Header as="h3">Players</Modal.Header>
           <List>
-            {this.state.players.map(this.renderPlayer)}
+            {players.map(this.renderPlayer)}
             <List.Item>
               <Button icon="plus" onClick={this.addPlayer}></Button>
             </List.Item>
@@ -78,7 +101,7 @@ export default class StartGameModal extends React.Component<Props, State> {
           </List>
         </Modal.Content>
         <Modal.Actions>
-          {this.state.error && <Label basic color="red">{this.state.error}</Label>}
+          {error && <Label basic color="red">{error}</Label>}
           <Button primary content="Confirm" onClick={this.onConfirm} />
         </Modal.Actions>
       </Modal>

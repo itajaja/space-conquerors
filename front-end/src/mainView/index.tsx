@@ -1,6 +1,6 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
-import { DefaultChildProps, gql, graphql } from 'react-apollo'
+import { compose, DefaultChildProps, gql, graphql } from 'react-apollo'
 import { RouteComponentProps } from 'react-router-dom'
 import { Button } from 'semantic-ui-react'
 
@@ -24,8 +24,18 @@ type ComponentProps = RouteComponentProps<any>
 type ResultProps = { viewer: any }
 type Props = DefaultChildProps<ComponentProps, ResultProps>
 
+const Mutation = gql`mutation MainPageMutation($input: CreateGameInput!) {
+  createGame(input: $input) {
+    viewer {
+      id
+    }
+  }
+}`
+
 const Query = gql`query MainPage {
   viewer {
+    id
+    user { id }
     games {
       id
       name
@@ -54,14 +64,23 @@ class MainView extends React.Component<Props, {a: number}> {
 
   onStartGame = async () => {
     const dialog: DialogContext = this.context.dialog
-    const players = await dialog.prompt(StartGameModal)
-    if (!players) {
+    const dialogResult = await dialog.prompt(
+      StartGameModal, { userId: this.props.data!.viewer.user.id },
+    )
+    if (!dialogResult) {
       return
     }
+
+    await this.props.mutate!({
+      refetchQueries: [{
+        query: Query,
+      }],
+      variables: { input: dialogResult.result },
+    })
   }
 
   renderGame = (game: Game) => {
-    const numPlayers = Object.keys(game).length
+    const numPlayers = Object.keys(game.players).length
     return (
       <Button
         size="big"
@@ -69,13 +88,13 @@ class MainView extends React.Component<Props, {a: number}> {
         onClick={() => this.onContinueGame(game.id)}
         key={game.id}
       >
-        Continue game {game.name} ({numPlayers} players, turn #{game.currentTurnNumber})
+        {game.name} <i>({numPlayers} players, turn #{game.currentTurnNumber})</i>
       </Button>
     )
   }
 
   render() {
-    const { games } = this.props.data!.viewer
+    const { games, user } = this.props.data!.viewer
 
     return (
       <div className={css(styles.root)}>
@@ -91,7 +110,9 @@ class MainView extends React.Component<Props, {a: number}> {
             Start new game
           </Button>
 
-          {games.map(this.renderGame as any)}
+          {games.map(this.renderGame)}
+
+          <p>share this ID to create games: {user.id}</p>
 
           <Button onClick={this.logout}>
             Sign out
@@ -102,6 +123,8 @@ class MainView extends React.Component<Props, {a: number}> {
   }
 }
 
-export default graphql<ResultProps, ComponentProps>(Query)(
-  shortcircuit(p => p.data.viewer)(MainView),
-)
+export default compose(
+  graphql<ResultProps, ComponentProps>(Query),
+  graphql<ResultProps, ComponentProps>(Mutation),
+  shortcircuit(p => p.data.viewer),
+)(MainView)

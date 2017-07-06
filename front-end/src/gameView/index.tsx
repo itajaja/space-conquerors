@@ -44,6 +44,7 @@ export const Query = gql`
       log
     }
     viewer {
+      id
       user { id }
     }
   }

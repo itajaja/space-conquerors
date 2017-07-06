@@ -86,10 +86,10 @@ export default {
       }))
 
       const units = {}
-      players.forEach(p => units[p] = {})
+      players.forEach(p => units[p] = [])
 
       const actions = {}
-      players.forEach(p => actions[p] = {})
+      players.forEach(p => actions[p] = [])
 
       const state = {
         players: _.keyBy(playerStates, 'id'),
