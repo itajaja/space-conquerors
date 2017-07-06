@@ -1,9 +1,11 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
+import { DefaultChildProps, gql, graphql } from 'react-apollo'
 import { Action } from 'sco-engine/lib/actions'
 import { items } from 'sco-engine/lib/gameEngine'
 import { Button, Grid, Header, List } from 'semantic-ui-react'
 
+import { Query as GameViewQuery } from './index'
 import Store from './store'
 
 const styles = StyleSheet.create({
@@ -12,11 +14,20 @@ const styles = StyleSheet.create({
   },
 })
 
-type Props = {
+type ComponentProps = {
   store: Store,
 }
+type Props = DefaultChildProps<ComponentProps, {}>
 
-export default class OverviewView extends React.Component<Props, never> {
+const Query = gql`mutation TurnView($input: SubmitActionsInput!) {
+  submitActions(input: $input) {
+    game {
+      id
+    }
+  }
+}`
+
+class TurnView extends React.Component<Props, never> {
   renderAction(a: Action, props = {}) {
     const { game } = this.props.store
     let content
@@ -46,8 +57,25 @@ export default class OverviewView extends React.Component<Props, never> {
     )
   }
 
-  removeAction = (idx: number) => {
-    throw new Error('Unimplemented: Add mutation')
+  removeAction = async (idx: number) => {
+    const { game } = this.props.store
+
+    const actions = game.actions.slice()
+    actions.splice(idx, 1)
+
+    const input = {
+      actions,
+      gameId: game.id,
+    }
+
+    await this.props.mutate!({
+      refetchQueries: [{
+        query: GameViewQuery,
+        variables: { gameId: game.id },
+      }],
+      variables: { input },
+    })
+
   }
 
   render() {
@@ -85,3 +113,5 @@ export default class OverviewView extends React.Component<Props, never> {
     )
   }
 }
+
+export default graphql<{}, ComponentProps>(Query)(TurnView)

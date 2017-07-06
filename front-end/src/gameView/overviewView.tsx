@@ -1,6 +1,8 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as _ from 'lodash'
 import * as React from 'react'
+import { DefaultChildProps, gql, graphql } from 'react-apollo'
+import * as ax from 'sco-engine/lib/actions'
 import buildingTypes from 'sco-engine/lib/buildings'
 import * as dx from 'sco-engine/lib/definitions'
 import { items } from 'sco-engine/lib/gameEngine'
@@ -9,6 +11,7 @@ import * as sx from 'sco-engine/lib/state'
 import technologies from 'sco-engine/lib/technologies'
 import { Button, Grid, Header, Icon, List, Table } from 'semantic-ui-react'
 
+import { Query as GameViewQuery } from './index'
 import ResourceAmountSegment from './ResourceAmountSegment'
 import Store from './store'
 
@@ -18,9 +21,18 @@ const styles = StyleSheet.create({
   },
 })
 
-type Props = {
+const Query = gql`mutation SelectedUnitsSidebarMenu($input: SubmitActionsInput!) {
+  submitActions(input: $input) {
+    game {
+      id
+    }
+  }
+}`
+
+type ComponentProps = {
   store: Store,
 }
+type Props = DefaultChildProps<ComponentProps, {}>
 
 class IconHeader extends React.Component<{ icon: string }, never> {
   render() {
@@ -34,7 +46,7 @@ class IconHeader extends React.Component<{ icon: string }, never> {
   }
 }
 
-export default class OverviewView extends React.Component<Props, never> {
+class OverviewView extends React.Component<Props, never> {
   renderBuildingProduction(buildings: sx.IBuildingState[]) {
     const production = buildings.reduce(
       (prev, cur) => {
@@ -47,8 +59,30 @@ export default class OverviewView extends React.Component<Props, never> {
     return <ResourceAmountSegment amount={production} zeros />
   }
 
-  onPurchase(item: dx.IItem & dx.PurchaseableItem) {
-    throw new Error('Unimplemented: add mutation')
+  async onPurchase(item: dx.IItem & dx.PurchaseableItem) {
+    const { game, state } = this.props.store
+
+    const newAction: ax.IProduceAction = {
+      kind: 'produce',
+      playerId: game.state.player.id,
+      itemId: item.id,
+      locationId: state.selectedLocationId,
+    }
+
+    const actions = [...game.actions, newAction]
+
+    const input = {
+      actions,
+      gameId: game.id,
+    }
+
+    await this.props.mutate!({
+      refetchQueries: [{
+        query: GameViewQuery,
+        variables: { gameId: game.id },
+      }],
+      variables: { input },
+    })
   }
 
   render() {
@@ -211,3 +245,5 @@ export default class OverviewView extends React.Component<Props, never> {
     )
   }
 }
+
+export default graphql<{}, ComponentProps>(Query)(OverviewView)

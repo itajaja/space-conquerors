@@ -140,6 +140,7 @@ export default class MapView extends React.Component<Props, State> {
         tool={this.state.shift ? 'pan' : 'none'}
         background="transparent"
         SVGBackground="transparent"
+        detectAutoPan={false}
       >
         <svg width={1000} height={1000}>
           <defs>

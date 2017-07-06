@@ -1,6 +1,8 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as _ from 'lodash'
 import * as React from 'react'
+import { DefaultChildProps, gql, graphql } from 'react-apollo'
+import * as ax from 'sco-engine/lib/actions'
 import buildings from 'sco-engine/lib/buildings'
 import * as dx from 'sco-engine/lib/definitions'
 import { ICell } from 'sco-engine/lib/map'
@@ -9,6 +11,7 @@ import units from 'sco-engine/lib/units'
 import { Button, Header, List, Modal } from 'semantic-ui-react'
 
 import style from '../style'
+import { Query as GameViewQuery } from './index'
 import ResourceAmountSegment from './ResourceAmountSegment'
 import SelectedUnitsSidebarMenu from './selectedUnitsSidebarMenu'
 import Store from './store'
@@ -26,13 +29,44 @@ const styles = StyleSheet.create({
   },
 })
 
-type Props = {
+const Query = gql`mutation SidebarMenu($input: SubmitActionsInput!) {
+  submitActions(input: $input) {
+    game {
+      id
+    }
+  }
+}`
+
+type ComponentProps = {
   store: Store,
 }
+type Props = DefaultChildProps<ComponentProps, {}>
 
-export default class SidebarMenu extends React.Component<Props, never> {
-  onPurchase = (item: dx.IItem & dx.PurchaseableItem) => {
-    new Error('not implemented: add mutation')
+class SidebarMenu extends React.Component<Props, never> {
+  onPurchase = async (item: dx.IItem & dx.PurchaseableItem) => {
+    const { game, state } = this.props.store
+
+    const newAction: ax.IProduceAction = {
+      kind: 'produce',
+      playerId: game.state.player.id,
+      itemId: item.id,
+      locationId: state.selectedLocationId,
+    }
+
+    const actions = [...game.actions, newAction]
+
+    const input = {
+      actions,
+      gameId: game.id,
+    }
+
+    await this.props.mutate!({
+      refetchQueries: [{
+        query: GameViewQuery,
+        variables: { gameId: game.id },
+      }],
+      variables: { input },
+    })
   }
 
   renderItem(item: dx.IItem & dx.PurchaseableItem) {
@@ -167,3 +201,5 @@ export default class SidebarMenu extends React.Component<Props, never> {
     )
   }
 }
+
+export default graphql<{}, ComponentProps>(Query)(SidebarMenu)

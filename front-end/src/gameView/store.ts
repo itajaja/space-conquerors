@@ -76,29 +76,4 @@ export default class Store extends BaseStore<GameView> {
   emptySelection() {
     this.set(EMPTY_SELECTION)
   }
-
-  // This is deprecated, the mutations should be moved to GQL server
-  // makePurchase(item: dx.IItem, locationId?: string) {
-  //   const newAction: IProduceAction = {
-  //     kind: 'produce',
-  //     playerId: this.state.gameState.player.id,
-  //     itemId: item.id,
-  //     locationId,
-  //   }
-
-  //   this.addActions([newAction])
-  // }
-
-  // removeAction(index: number) {
-  //   const { actions } = this.state
-  //   actions!.splice(index, 1)
-
-  //   this.set({ actions })
-  // }
-
-  // addActions(newActions: Action[]) {
-  //   const actions = [...(this.state.actions || []), ...newActions]
-
-  //   this.set({ actions })
-  // }
 }
