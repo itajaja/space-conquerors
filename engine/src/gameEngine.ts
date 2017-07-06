@@ -5,9 +5,11 @@ import * as ax from './actions'
 import buildingTypes from './buildings'
 import CombatEngine from './combatEngine'
 import * as dx from './definitions'
+import GameValidator from './gameValidator'
 import { IMap } from './map'
-import * as sx from './state'
+import * as resources from './resources'
 import { IGameState } from './state'
+import * as sx from './state'
 import technologyTypes from './technologies'
 import unitTypes from './units'
 import { lcm } from './utils/index'
@@ -18,59 +20,10 @@ export const items: { [idx: string]: dx.PurchaseableItem } = {
   ...unitTypes,
 }
 
-function subtractResources(a: dx.ResourceAmount, b: dx.ResourceAmount): dx.ResourceAmount {
-  return {
-    gold: a.gold - b.gold,
-    iron: a.iron - b.iron,
-    gas: a.gas - b.gas,
-    darkMatter: a.darkMatter - b.darkMatter,
-  }
-}
-
-export function addResources(a: dx.ResourceAmount, b: dx.ResourceAmount): dx.ResourceAmount {
-  return {
-    gold: a.gold + b.gold,
-    iron: a.iron + b.iron,
-    gas: a.gas + b.gas,
-    darkMatter: a.darkMatter + b.darkMatter,
-  }
-}
-
-function hasEnoughResources(a: dx.ResourceAmount, b: dx.ResourceAmount) {
-  const result = subtractResources(a, b)
-  return _.values(result).every(r => r >= 0)
-}
-
-export function canProduceItem(player: sx.IPlayerState, item: dx.PurchaseableItem) {
-  // check if enough resources
-  if (!hasEnoughResources(player.resourcesAmount, item.cost)) {
-    return false
-  }
-  // check if tech present
-  const techRequirements = Object.keys(item.technologyRequirements)
-  if (techRequirements.some(t => !player.technologies[t])) {
-    return false
-  }
-  if (item.kind === 'tech') {
-    // check that there is a purchased tech from previous level
-    const requirement = item.level === 1
-      ? true
-      : _.keys(player.technologies).map(t => technologyTypes[t])
-        .some(t => t.family === item.family && t.level === item.level - 1)
-
-    if (player.technologies[item.id] || !requirement) {
-      return false
-    }
-  }
-
-  // TODO: if building, check if exceeding caps
-
-  return true
-}
-
 export interface ITurnLogEntry {
   player: string,
   message: string,
+  data?: object,
 }
 
 /**
@@ -78,17 +31,21 @@ export interface ITurnLogEntry {
  */
 export default class GameEngine {
   log: ITurnLogEntry[] = []
+  validator: GameValidator
 
-  constructor(public state: IGameState, public map: IMap) { }
+  constructor(public state: IGameState, public map: IMap) {
+    this.validator = new GameValidator(state, map)
+  }
 
   schedulePlayerProduction(player: sx.IPlayerState, actions: ax.IProduceAction[]) {
-    for (const a of actions) {
+    actions.forEach((a, idx) => {
       const item = items[a.itemId]
 
-      if (canProduceItem(player, item)) {
-        player.resourcesAmount = subtractResources(
-          player.resourcesAmount, item.cost,
-        )
+      const produceError = this.validator.safe(() =>
+        this.validator.validateProductionAction(a),
+      )
+      if (!produceError) {
+        player.resourcesAmount = resources.subtract(player.resourcesAmount, item.cost)
         player.productionStatuses.push({
           remainingTurns: item.productionTime,
           itemId: item.id,
@@ -106,9 +63,12 @@ export default class GameEngine {
         this.log.push({
           player: player.id,
           message: `Unable to schedule ${item.name}`,
+          data: {
+            actionIdx: idx,
+          },
         })
       }
-    }
+    })
   }
 
   scheduleProduction(actions: ax.IProduceAction[]) {
@@ -151,6 +111,13 @@ export default class GameEngine {
   }
 
   moveUnits(actions: ax.IMovementAction[]) {
+    // there isn't a good way to resolve from this error. shouldn't happen anyway
+    this.validator.validateMovementActions(actions)
+    // filter out bad actions
+    actions = actions.filter(action => (!this.validator.safe(() => (
+      this.validator.validateMovementAction(action)
+    ))))
+
     const steps = actions.reduce((prev, curr) => lcm(prev, curr.speed * 2), 1)
 
     let unitActions = actions.map(action => {
@@ -239,10 +206,10 @@ export default class GameEngine {
         (prev, cur) => {
           const { resourceYield } = buildingTypes[cur.buildingTypeId]
           // TODO factor in planet type
-          return resourceYield ? addResources(prev, resourceYield) : prev
+          return resourceYield ? resources.add(prev, resourceYield) : prev
         }, dx.zeroResources())
 
-      p.resourcesAmount = addResources(p.resourcesAmount, newAmount)
+      p.resourcesAmount = resources.add(p.resourcesAmount, newAmount)
 
       const resourceSummary = _.toPairs(newAmount)
         .map(([res, amount]) => `${res}: ${amount}`)
