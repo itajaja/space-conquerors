@@ -73,6 +73,10 @@ export default class Store extends BaseStore<GameView> {
     }
   }
 
+  emptySelection() {
+    this.set(EMPTY_SELECTION)
+  }
+
   // This is deprecated, the mutations should be moved to GQL server
   // makePurchase(item: dx.IItem, locationId?: string) {
   //   const newAction: IProduceAction = {
@@ -83,34 +87,6 @@ export default class Store extends BaseStore<GameView> {
   //   }
 
   //   this.addActions([newAction])
-  // }
-
-  // makeUnitMovement(units: string[], path: string[]) {
-  //   const speeds = units
-  //     .map(u => this.state.gameState.units[u])
-  //     .map(u => unitTypes[u.unitTypeId].speed)
-
-  //   const indexedUnits = new Set(units)
-
-  //   const oldActions = (this.state.actions || [])
-  //     .filter(a => {
-  //       if (a.kind === 'move' && indexedUnits.has(a.unitId)) {
-  //         return false
-  //       }
-  //       return true
-  //     })
-
-  //   const newActions = units.map(a => ({
-  //     kind: 'move' as 'move',
-  //     path,
-  //     playerId: this.state.gameState.player.id,
-  //     speed: _.min(speeds),
-  //     unitId: a,
-  //   }))
-
-  //   this.set({ actions: [...oldActions, ...newActions] })
-
-  //   this.set(EMPTY_SELECTION)
   // }
 
   // removeAction(index: number) {
