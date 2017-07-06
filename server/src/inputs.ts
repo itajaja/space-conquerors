@@ -13,14 +13,20 @@ const IProduceAction = t.struct({
 })
 
 const IMovementAction = t.struct({
-  kind: t.enums({ produce: 'move' }),
+  kind: t.enums({ move: 'move' }),
   playerId: t.String,
   unitId: t.String,
   path: t.list(t.String),
   speed: t.Number,
 })
 
+const actionKinds = {
+  move: IMovementAction,
+  produce: IProduceAction,
+}
+
 const Action = t.union([IProduceAction, IMovementAction])
+Action.dispatch = obj => actionKinds[obj.kind]
 
 export const CreateGameInput = t.struct({
   name: t.String,

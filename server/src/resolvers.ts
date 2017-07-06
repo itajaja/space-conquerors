@@ -124,7 +124,7 @@ export default {
     },
 
     submitActions: async (obj, { input }, ctx: Context) => {
-      const { gameId, actions } = inputs.CreateGameInput(input) as {
+      const { gameId, actions } = inputs.SubmitActionsInput(input) as {
         gameId: string,
         actions: ax.Action[],
       }
@@ -150,7 +150,9 @@ export default {
       game.actions[ctx.userId] = actions
       await ctx.models.games.update(game)
 
-      return game
+      return {
+        game,
+      }
     },
 
     advanceTurn: async (obj, { input }, ctx: Context) => {
@@ -170,7 +172,9 @@ export default {
       game.log = log
       await ctx.models.games.update(game)
 
-      return game
+      return {
+        game,
+      }
     },
   },
 
