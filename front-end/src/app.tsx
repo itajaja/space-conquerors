@@ -2,6 +2,7 @@ import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 
+import AdminGameView from './adminView/adminGameView'
 import AuthCallback from './authCallback'
 import AuthProvider from './authProvider'
 import CheckLogin from './checkLogin'
@@ -31,6 +32,7 @@ export default function App() {
               <CheckLogin>
                 <Switch>
                   <Route exact path="/" component={MainView} />
+                  <Route path="/admin/:gameId" component={AdminGameView} />
                   <Route path="/:gameId" component={GameView} />
                 </Switch>
               </CheckLogin>

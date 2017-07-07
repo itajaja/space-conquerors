@@ -18,11 +18,16 @@ type Game {
   state: JSON!
   actions: [JSON]!
   log: [JSON]!
+
+  isPlayer: Boolean!
+
+  full: JSON!
 }
 
 type User {
   id: String!
   name: String!
+  admin: Boolean!
 }
 
 type Viewer {

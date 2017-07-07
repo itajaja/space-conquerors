@@ -1,7 +1,7 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
 import { compose, DefaultChildProps, gql, graphql } from 'react-apollo'
-import { RouteComponentProps } from 'react-router-dom'
+import { NavLink, RouteComponentProps } from 'react-router-dom'
 import { Button } from 'semantic-ui-react'
 
 import Layout from '../components/layout'
@@ -35,13 +35,14 @@ const Mutation = gql`mutation MainPageMutation($input: CreateGameInput!) {
 const Query = gql`query MainPage {
   viewer {
     id
-    user { id }
+    user { id, admin }
     games {
       id
       name
       createdAt
       currentTurnNumber
       players
+      isPlayer
     }
   }
 }`
@@ -79,17 +80,30 @@ class MainView extends React.Component<Props, {a: number}> {
     })
   }
 
-  renderGame = (game: Game) => {
+  renderAdminGameButton(game: Game) {
+    if (!this.props.data!.viewer.user.admin) {
+      return null
+    }
+
+    return (
+      <Button as={NavLink} to={`/admin/${game.id}`}>
+        Admin
+      </Button>
+    )
+  }
+
+  renderGame = (game: Game & { isPlayer: boolean }) => {
     const numPlayers = Object.keys(game.players).length
     return (
-      <Button
-        size="big"
-        className={css(styles.button)}
-        onClick={() => this.onContinueGame(game.id)}
-        key={game.id}
-      >
-        {game.name} <i>({numPlayers} players, turn #{game.currentTurnNumber})</i>
-      </Button>
+      <Button.Group size="big" key={game.id} className={css(styles.button)}>
+        <Button
+          onClick={() => this.onContinueGame(game.id)}
+          disabled={!game.isPlayer}
+        >
+          {game.name} <i>({numPlayers} players, turn #{game.currentTurnNumber})</i>
+        </Button>
+        {this.renderAdminGameButton(game)}
+      </Button.Group>
     )
   }
 

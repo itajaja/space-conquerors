@@ -1,6 +1,6 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
-import { DefaultChildProps, gql, graphql } from 'react-apollo'
+import { compose, DefaultChildProps, gql, graphql } from 'react-apollo'
 import { Redirect, Route, RouteComponentProps, Switch } from 'react-router-dom'
 
 import { Game } from '../gqlTypes'
@@ -90,8 +90,11 @@ export class GameView extends React.Component<Props, State> {
   }
 }
 
-export default graphql<ResultProps, ComponentProps>(Query, {
-  options: ({ match }) => ({
-    variables: { gameId: match.params.gameId },
+export default compose(
+  graphql<ResultProps, ComponentProps>(Query, {
+    options: ({ match }) => ({
+      variables: { gameId: match.params.gameId },
+    }),
   }),
-})(shortcircuit(p => p.data.game && p.data.viewer)(GameView))
+  shortcircuit(p => p.data.game && p.data.viewer),
+)(GameView)

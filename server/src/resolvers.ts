@@ -35,6 +35,7 @@ export default {
     user: (obj, args, ctx: Context) => ({
       id: ctx.userId,
       name: ctx.userName,
+      admin: !!ctx.userMeta.admin,
     }),
     id: (obj, args, ctx: Context) => ctx.userId,
   },
@@ -49,7 +50,16 @@ export default {
     log: (obj: Game, args, ctx: Context) => (
       obj.log.filter(a => a.player === ctx.userId)
     ),
-    name: (obj: Game) => obj.name,
+    isPlayer: (obj: Game, args, ctx: Context) => (
+      !!obj.players.find(u => u.id === ctx.userId)
+    ),
+    full: (obj: Game, args, ctx: Context) => {
+      if (!ctx.userMeta.admin) {
+        throw new Error('invalid_auth.admin_required')
+      }
+
+      return obj
+    },
   },
 
   Mutation: {
@@ -85,16 +95,13 @@ export default {
         technologies: { tech_galaxy_trade: true } as { [idx: string]: true },
       }))
 
-      const units = {}
-      players.forEach(p => units[p] = [])
-
       const actions = {}
       players.forEach(p => actions[p] = [])
 
       const state = {
         players: _.keyBy(playerStates, 'id'),
         planets: indexedPlanetStates,
-        units,
+        units: {},
         buildings: {},
         marketState: {},
       }
@@ -170,6 +177,7 @@ export default {
       )
       game.state = state
       game.log = log
+      game.currentTurnNumber++
       await ctx.models.games.update(game)
 
       return {

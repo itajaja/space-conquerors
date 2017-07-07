@@ -25,9 +25,8 @@ class AuthProvider extends React.Component<Props, any> {
     domain: 'space-conquerors.auth0.com',
     clientID: 'Nm7eKJDk5mroobvkEAOywzsRy4J3nNQW',
     redirectUri: `${location.origin}/auth/callback`,
-    audience: 'https://space-conquerors.auth0.com/userinfo',
     responseType: 'token id_token',
-    scope: 'openid profile email',
+    scope: 'openid app_metadata profile email',
   })
 
   constructor(props, ctx) {
