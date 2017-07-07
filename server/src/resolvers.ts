@@ -178,6 +178,8 @@ export default {
       game.state = state
       game.log = log
       game.currentTurnNumber++
+      game.players.forEach(p => game.actions[p.id] = [])
+
       await ctx.models.games.update(game)
 
       return {
