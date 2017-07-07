@@ -1,2 +1,4 @@
 dist
 !dist/semantic.min.css
+!dist/themes/default/assets/fonts
+
