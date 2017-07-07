@@ -4,7 +4,7 @@ import { RouteComponentProps, withRouter } from 'react-router'
 import { NavLink } from 'react-router-dom'
 import { Menu } from 'semantic-ui-react'
 
-import ResourceAmountSegment from './ResourceAmountSegment'
+import ResourceAmountSegment from './resourceAmountSegment'
 import Store from './store'
 
 const styles = StyleSheet.create({

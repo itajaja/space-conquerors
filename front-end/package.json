@@ -34,6 +34,7 @@
   "dependencies": {
     "aphrodite": "^1.1.0",
     "auth0-js": "^8.7.0",
+    "express": "^4.15.3",
     "history": "^4.6.1",
     "lodash": "^4.17.4",
     "react": "^15.4.2",
@@ -47,6 +48,7 @@
     "semantic-ui": "^2.2.10",
     "semantic-ui-css": "^2.2.10",
     "semantic-ui-react": "^0.67.2",
+    "serve-always": "^0.1.2",
     "store": "^2.0.4"
   }
 }

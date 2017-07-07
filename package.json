@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "build-engine": "cd engine && npm install && npm run build",
+    "build-front-end": "npm run build-engine && cd front-end && npm install && npm run build",
+    "build-server": "npm run build-engine && cd server && npm install && npm run build",
+    "heroku-postbuild": "npm run build-$TARGET_PACKAGE",
+    "start": "npm run start-$TARGET_PACKAGE",
+    "start-front-end": "cd front-end && node server.js",
+    "start-server": "cd server && node lib/index.js"
+  }
+}

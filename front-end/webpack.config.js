@@ -40,6 +40,11 @@ let config = {
       { from: 'semantic/dist/semantic.min.css' },
       { from: 'semantic/dist/themes/default/assets/fonts', 'to': './' },
     ]),
+    new webpack.DefinePlugin({
+      'process.env': {
+        UPSTREAM_ORIGIN: JSON.stringify(UPSTREAM_ORIGIN),
+      },
+    })
   ],
 
   devtool: '#cheap-module-inline-source-map',
@@ -50,12 +55,6 @@ let config = {
       index: '/static/',
     },
     port: 4999,
-    proxy: {
-      '/graphql': {
-        target: UPSTREAM_ORIGIN,
-        changeOrigin: true,
-      },
-    },
     noInfo: true,
   },
 };

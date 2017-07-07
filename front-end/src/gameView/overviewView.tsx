@@ -12,7 +12,7 @@ import technologies from 'sco-engine/lib/technologies'
 import { Button, Grid, Header, Icon, List, Table } from 'semantic-ui-react'
 
 import { Query as GameViewQuery } from './index'
-import ResourceAmountSegment from './ResourceAmountSegment'
+import ResourceAmountSegment from './resourceAmountSegment'
 import Store from './store'
 
 const styles = StyleSheet.create({

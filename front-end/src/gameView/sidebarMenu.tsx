@@ -12,7 +12,7 @@ import { Button, Header, List, Modal } from 'semantic-ui-react'
 
 import style from '../style'
 import { Query as GameViewQuery } from './index'
-import ResourceAmountSegment from './ResourceAmountSegment'
+import ResourceAmountSegment from './resourceAmountSegment'
 import SelectedUnitsSidebarMenu from './selectedUnitsSidebarMenu'
 import Store from './store'
 

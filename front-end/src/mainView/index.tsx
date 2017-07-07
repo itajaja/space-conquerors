@@ -5,10 +5,10 @@ import { NavLink, RouteComponentProps } from 'react-router-dom'
 import { Button } from 'semantic-ui-react'
 
 import Layout from '../components/layout'
-import { DialogContext } from '../DialogController'
+import { DialogContext } from '../dialogController'
 import { Game } from '../gqlTypes'
 import shortcircuit from '../shortcircuit'
-import StartGameModal from './StartGameModal'
+import StartGameModal from './startGameModal'
 
 const styles = StyleSheet.create({
   root: {

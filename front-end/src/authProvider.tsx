@@ -5,6 +5,8 @@ import {
 } from 'react-apollo'
 import { RouteComponentProps, withRouter } from 'react-router'
 
+import * as config from './config'
+
 type AuthContext = {
   login: () => void,
   handleAuthentication: () => void,
@@ -89,7 +91,7 @@ class AuthProvider extends React.Component<Props, any> {
     this.client = new ApolloClient({
       queryDeduplication: true,
       networkInterface: createBatchingNetworkInterface({
-        uri: '/graphql',
+        uri: `${config.UPSTREAM_ORIGIN}/graphql`,
         batchInterval: 10,
         opts: {
           headers: {
