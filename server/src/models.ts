@@ -7,7 +7,11 @@ import * as sx from 'sco-engine/lib/state'
 
 import { Context } from './resolvers'
 
-const MONGODB_URL = 'mongodb://127.0.0.1:27017'
+const MONGODB_URI = process.env.MONGODB_URI
+
+if (!MONGODB_URI) {
+  throw new Error('MONGODB_URI not set')
+}
 
 type MongoObject = {
   _id?: string,
@@ -115,8 +119,7 @@ export type Models = {
 }
 
 export async function initModels() {
-  let db = await MongoClient.connect(MONGODB_URL)
-  db = await db.db('test')
+  const db = await MongoClient.connect(MONGODB_URI!)
 
   const games = await db.collection<Game>('games')
   await games.createIndex({ 'players.id': 1 })

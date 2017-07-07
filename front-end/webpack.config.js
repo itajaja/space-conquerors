@@ -4,9 +4,11 @@ const path = require('path')
 const merge = require('webpack-merge');
 const webpack = require('webpack');
 
-const TARGET = process.env.NODE_ENV;
+const { env } = process;
+const TARGET = env.NODE_ENV;
 const PRODUCTION = TARGET === 'production';
 const DEVELOPMENT = TARGET === 'development' || !TARGET;
+const UPSTREAM_ORIGIN = env.UPSTREAM_ORIGIN || 'http://localhost:4998';
 
 let config = {
   entry: './src/index.tsx',
@@ -50,7 +52,7 @@ let config = {
     port: 4999,
     proxy: {
       '/graphql': {
-        target: 'http://localhost:4998',
+        target: UPSTREAM_ORIGIN,
         changeOrigin: true,
       },
     },

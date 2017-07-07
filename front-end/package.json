@@ -7,6 +7,7 @@
     "dev-server": "DEV_SERVER=true webpack-dev-server --hot --inline --progress",
     "lint": "tslint --project tsconfig.json",
     "start": "npm run dev-server",
+    "start-remote": "UPSTREAM_ORIGIN=https://sco-server.herokuapp.com npm start",
     "test": "npm run lint && npm run build",
     "webpack": "NODE_ENV=production webpack -p --progress"
   },

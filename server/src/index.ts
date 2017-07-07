@@ -1,4 +1,5 @@
 import * as bodyParser from 'body-parser'
+import * as cors from 'cors'
 import * as express from 'express'
 import { graphqlExpress } from 'graphql-server-express'
 import * as jwt from 'jsonwebtoken'
@@ -8,7 +9,7 @@ import { initModels } from './models'
 import { Context } from './resolvers'
 import schema from './schema'
 
-const PORT = 4998
+const PORT = process.env.PORT || 80
 
 const JWT_OPTIONS = {
   audience: 'Nm7eKJDk5mroobvkEAOywzsRy4J3nNQW',
@@ -17,6 +18,8 @@ const JWT_OPTIONS = {
 
 async function start() {
   const app = express()
+
+  app.use(cors())
 
   const models = await initModels()
 

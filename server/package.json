@@ -6,7 +6,7 @@
     "build": "tsc && apollo-codegen introspect-schema ./src/schema.gql --output schema.json",
     "lint": "tslint --project tsconfig.json",
     "test": "npm run lint",
-    "start-dev": "nodemon --exec ts-node src/index.ts"
+    "start-dev": "PORT=4998 MONGODB_URI='mongodb://127.0.0.1:27017' nodemon --exec ts-node src/index.ts"
   },
   "author": "Giacomo Tagliabue",
   "license": "MIT",
@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "body-parser": "^1.17.1",
+    "cors": "^2.8.3",
     "express": "^4.15.2",
     "graphql": "^0.9.6",
     "graphql-server-express": "^0.7.2",
