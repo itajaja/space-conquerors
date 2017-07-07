@@ -4,7 +4,6 @@ declare const process: {
   },
 }
 
-console.log(process)
 export const {
   UPSTREAM_ORIGIN,
 } = process.env

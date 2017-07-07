@@ -7,5 +7,10 @@
     "start": "npm run start-$TARGET_PACKAGE",
     "start-front-end": "cd front-end && node server.js",
     "start-server": "cd server && node lib/index.js"
-  }
+  },
+  "cacheDirectories": [
+    "engine/node_modules",
+    "front-end/node_modules",
+    "server/node_modules"
+  ]
 }
