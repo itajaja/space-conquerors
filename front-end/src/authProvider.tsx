@@ -1,4 +1,5 @@
 import * as auth0 from 'auth0-js'
+import * as jwtDecode from 'jwt-decode'
 import * as React from 'react'
 import {
   ApolloClient, ApolloProvider, createBatchingNetworkInterface,
@@ -64,10 +65,10 @@ class AuthProvider extends React.Component<Props, any> {
   }
 
   setSession(authResult) {
-    const expiresAt = JSON.stringify((authResult.expiresIn * 1000) + new Date().getTime())
+    const expiresAt = jwtDecode(authResult.idToken).exp * 1000
     localStorage.setItem('access_token', authResult.accessToken)
     localStorage.setItem('id_token', authResult.idToken)
-    localStorage.setItem('expires_at', expiresAt)
+    localStorage.setItem('expires_at', expiresAt.toString())
   }
 
   logout() {
@@ -88,17 +89,30 @@ class AuthProvider extends React.Component<Props, any> {
   refreshClient() {
     const token = localStorage.getItem('id_token')
 
+    const networkInterface = createBatchingNetworkInterface({
+      uri: `${config.UPSTREAM_ORIGIN}/graphql`,
+      batchInterval: 10,
+      opts: {
+        headers: {
+          Authorization: token && `Bearer ${token}`,
+        },
+      },
+    })
+    networkInterface.useAfter([{
+      applyBatchAfterware: (res, next) => {
+        for (const response of res.responses) {
+          if (response.status === 401) {
+            this.logout()
+            return
+          }
+        }
+        next()
+      },
+    }])
+
     this.client = new ApolloClient({
       queryDeduplication: true,
-      networkInterface: createBatchingNetworkInterface({
-        uri: `${config.UPSTREAM_ORIGIN}/graphql`,
-        batchInterval: 10,
-        opts: {
-          headers: {
-            Authorization: token && `Bearer ${token}`,
-          },
-        },
-      }),
+      networkInterface,
     })
   }
 
