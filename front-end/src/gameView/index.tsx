@@ -1,4 +1,4 @@
-import { css, StyleSheet } from 'aphrodite'
+import { StyleSheet } from 'aphrodite'
 import * as React from 'react'
 import { compose, DefaultChildProps, gql, graphql } from 'react-apollo'
 import { Redirect, Route, RouteComponentProps, Switch } from 'react-router-dom'

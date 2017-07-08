@@ -1,8 +1,8 @@
 {
   "scripts": {
     "build-engine": "cd engine && npm install && npm run build",
-    "build-front-end": "npm run build-engine && cd front-end && npm install && npm run build",
-    "build-server": "npm run build-engine && cd server && npm install && npm run build",
+    "build-front-end": "npm run build-engine && cd front-end && rm -rf node_modules/sco-engine && npm install && npm run build",
+    "build-server": "npm run build-engine && cd server && rm -rf node_modules/sco-engine && npm install && npm run build",
     "heroku-postbuild": "npm run build-$TARGET_PACKAGE",
     "start": "npm run start-$TARGET_PACKAGE",
     "start-front-end": "cd front-end && node server.js",
