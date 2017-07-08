@@ -42,6 +42,7 @@ export function ge(a: dx.ResourceAmount, b: dx.ResourceAmount) {
 }
 
 export class ResourceCalculator {
+  // Maybe we should move these indexes in a common place
   buildingsByUser = _.groupBy(_.values(this.state.buildings), l => l.playerId)
   buildingsByLocation = _.groupBy(_.values(this.state.buildings), l => l.locationId)
   planetsByUser = _.groupBy(_.values(this.state.planets), l => l.ownerPlayerId)

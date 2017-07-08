@@ -22,6 +22,8 @@ class ValidationError extends Error {
 }
 
 export default class GameValidator {
+  buildingsByLocation = _.groupBy(_.values(this.state.buildings), l => l.locationId)
+
   constructor(public state: sx.IGameState, public map: IMap) { }
 
   safe(func: () => void) {
@@ -102,10 +104,20 @@ export default class GameValidator {
       const location = this.state.planets[action.locationId]
 
       this.validateUnitOrBuildingAvailability(item, player, location)
-
-      if (location.ownerPlayerId !== player.id) {
-        throw new ValidationError('location not owned')
+      if (item.kind === 'building') {
+        if (location.ownerPlayerId !== player.id) {
+          throw new ValidationError('location not owned')
+        }
+        const existingBuildings = (this.buildingsByLocation[location.locationId] || [])
+          .filter(b => b.buildingTypeId === item.id)
+        const producingBuildings = player.productionStatuses
+          .filter(p => p.itemId === item.id && p.locationId === location.locationId)
+        const currentBuildings = existingBuildings.length + producingBuildings.length
+        if (item.maxPerPlanet && currentBuildings >= item.maxPerPlanet) {
+          throw new ValidationError('can\'t build more of this on this planet')
+        }
       }
+      // TODO add checks for max per planet and max per system
     }
   }
 
