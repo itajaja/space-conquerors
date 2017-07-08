@@ -10,11 +10,13 @@ import { IBuildingState } from 'sco-engine/lib/state'
 import units from 'sco-engine/lib/units'
 import { Button, Header, List, Modal } from 'semantic-ui-react'
 
+import Layout from '../components/layout'
 import style from '../style'
 import { Query as GameViewQuery } from './index'
 import ResourceAmountSegment from './resourceAmountSegment'
 import SelectedUnitsSidebarMenu from './selectedUnitsSidebarMenu'
 import Store from './store'
+import ValidatedButton from './validatedButton'
 
 const styles = StyleSheet.create({
   root: {
@@ -26,6 +28,7 @@ const styles = StyleSheet.create({
     width: 400,
     padding: 20,
     background: style.grey,
+    overflow: 'auto',
   },
 })
 
@@ -69,28 +72,47 @@ class SidebarMenu extends React.Component<Props, never> {
     })
   }
 
-  renderItem(item: dx.IItem & dx.PurchaseableItem) {
+  renderItem = (item: dx.IBuildingType | dx.IUnitType) => {
     return (
       <List.Item key={item.id}>
-        <List.Content floated="left">
-          <List.Header>{item.name}</List.Header>
-          <List.Description>
-            {item.description} - (<ResourceAmountSegment amount={item.cost} />)
-          </List.Description>
-        </List.Content>
-        <Button floated="right" onClick={() => this.onPurchase(item)}>
-          Purchase
-        </Button>
+        <Layout direction="row" justify="space-between">
+          <List.Content floated="left">
+            <List.Header>{item.name}</List.Header>
+            <List.Description>
+              {item.description} - (<ResourceAmountSegment amount={item.cost} />)
+            </List.Description>
+          </List.Content>
+          <ValidatedButton
+            onClick={() => this.onPurchase(item)}
+            error={this.validatePurchaseItem(item)}
+          >
+            Purchase
+          </ValidatedButton>
+        </Layout>
       </List.Item>
     )
   }
 
-  renderBuildingDescription = (building: dx.IBuildingType) => {
-    return this.renderItem(building)
+  isItemAvailable = (item: dx.IUnitType | dx.IBuildingType) => {
+    const { game, myPlayer, validator, state } = this.props.store
+    const planetState = game.state.planets[state.selectedLocationId!]
+
+    return !validator.safe(() => validator.validateUnitOrBuildingAvailability(
+      item, myPlayer, planetState,
+    ))
   }
 
-  renderUnitDescription = (unit: dx.IUnitType) => {
-    return this.renderItem(unit)
+  validatePurchaseItem = (item: dx.IUnitType | dx.IBuildingType) => {
+    const { myPlayer, scheduledStateValidator, state } = this.props.store
+
+    return scheduledStateValidator.safe(
+      () => scheduledStateValidator.validateProductionAction({
+        itemId: item.id,
+        kind: 'produce',
+        playerId: myPlayer.id,
+        locationId: state.selectedLocationId!,
+      }),
+    )
   }
 
   renderActions(cell: ICell) {
@@ -102,17 +124,23 @@ class SidebarMenu extends React.Component<Props, never> {
     }
 
     return (
-      <Modal trigger={<Button>Build</Button>}>
+      <Modal trigger={<Button>Build</Button>} size="fullscreen">
         <Modal.Header>Planet {cell.name} - Build</Modal.Header>
         <Modal.Content>
           <Modal.Description>
             <Header>Buildings</Header>
             <List divided relaxed>
-              {_.values(buildings).map(this.renderBuildingDescription)}
+              {_.values(buildings)
+                .filter(this.isItemAvailable)
+                .map(this.renderItem)
+              }
             </List>
             <Header>Units</Header>
             <List divided relaxed>
-              {_.values(units).map(this.renderUnitDescription)}
+              {_.values(units)
+                .filter(this.isItemAvailable)
+                .map(this.renderItem)
+              }
             </List>
           </Modal.Description>
         </Modal.Content>

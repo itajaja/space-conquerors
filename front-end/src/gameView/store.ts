@@ -26,6 +26,22 @@ export default class Store extends BaseStore<GameView> {
     return this.game.actions[this.myPlayer.id]
   }
 
+  get validator() {
+    return this.component.validator
+  }
+
+  get scheduledState() {
+    return this.component.scheduledState
+  }
+
+  get scheduledStateValidator() {
+    return this.component.scheduledStateValidator
+  }
+
+  get resourceCalculator() {
+    return this.component.resourceCalculator
+  }
+
   selectPlanet(selectedLocationId: string) {
     this.set({ ...EMPTY_SELECTION, selectedLocationId })
   }

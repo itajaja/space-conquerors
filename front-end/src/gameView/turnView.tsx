@@ -88,11 +88,7 @@ class TurnView extends React.Component<Props, never> {
             <Header as="h2" textAlign="center" inverted>
               Previous Turn Report
             </Header>
-            {game.log.map(l => (
-              <p>
-                {l.message}
-              </p>
-            ))}
+            {game.log.map((l, idx) => <p key={idx}>{l.message}</p>)}
           </Grid.Column>
           <Grid.Column>
             <Header as="h2" textAlign="center" inverted>

@@ -22,6 +22,8 @@ class Navbar extends React.Component<Props, never> {
   render() {
     const { match, store, userId } = this.props
     const playerName = store.game.players[userId].name
+    const plusAmount = store.resourceCalculator
+      .calculatePlayerProduction(store.myPlayer.id)
 
     return (
       <Menu inverted className={css(styles.root)}>
@@ -51,7 +53,8 @@ class Navbar extends React.Component<Props, never> {
         </Menu.Item>
         <Menu.Item>
           <ResourceAmountSegment
-            amount={store.myPlayer.resourcesAmount}
+            amount={store.scheduledState.players[store.myPlayer.id].resourcesAmount}
+            plusAmount={plusAmount}
             zeros
           />
         </Menu.Item>

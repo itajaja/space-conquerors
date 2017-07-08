@@ -3,17 +3,17 @@ import * as _ from 'lodash'
 import * as React from 'react'
 import { DefaultChildProps, gql, graphql } from 'react-apollo'
 import * as ax from 'sco-engine/lib/actions'
-import buildingTypes from 'sco-engine/lib/buildings'
 import * as dx from 'sco-engine/lib/definitions'
 import { items } from 'sco-engine/lib/gameEngine'
-import * as resources from 'sco-engine/lib/resources'
 import * as sx from 'sco-engine/lib/state'
 import technologies from 'sco-engine/lib/technologies'
-import { Button, Grid, Header, Icon, List, Table } from 'semantic-ui-react'
+import { Grid, Header, Icon, List, Table } from 'semantic-ui-react'
 
+import Layout from '../components/layout'
 import { Query as GameViewQuery } from './index'
 import ResourceAmountSegment from './resourceAmountSegment'
 import Store from './store'
+import ValidatedButton from './validatedButton'
 
 const styles = StyleSheet.create({
   root: {
@@ -48,14 +48,8 @@ class IconHeader extends React.Component<{ icon: string }, never> {
 
 class OverviewView extends React.Component<Props, never> {
   renderBuildingProduction(buildings: sx.IBuildingState[]) {
-    const production = buildings.reduce(
-      (prev, cur) => {
-        const buildingType = buildingTypes[cur.buildingTypeId]
-        // TODO factor in planet type
-        return buildingType.resourceYield
-          ? resources.add(prev, buildingType.resourceYield)
-          : prev
-      }, dx.zeroResources())
+    const production = this.props.store.resourceCalculator
+      .calculateBuildingsProduction(buildings)
     return <ResourceAmountSegment amount={production} zeros />
   }
 
@@ -85,16 +79,35 @@ class OverviewView extends React.Component<Props, never> {
     })
   }
 
+  isTechAvailable = (tech: dx.ITechnology) => {
+    const { myPlayer, validator } = this.props.store
+    return !validator.safe(
+      () => validator.validateTechAvailability(tech, myPlayer),
+    )
+  }
+
+  validatePurchaseTechnology = (tech: dx.ITechnology) => {
+    const { myPlayer, scheduledStateValidator } = this.props.store
+    return scheduledStateValidator.safe(
+      () => scheduledStateValidator.validateProductionAction({
+        itemId: tech.id,
+        kind: 'produce',
+        playerId: myPlayer.id,
+      }),
+    )
+  }
+
   render() {
     const { game, myPlayer } = this.props.store
     const { buildings, planets, units } = game.state
     const playerPlanets = _.values(planets).filter(p => p.ownerPlayerId === myPlayer.id)
     const playerUnits = _.values(units).filter(u => u.playerId === myPlayer.id)
-    const playerBuildings = _.values(buildings).filter(b => b.playerId === myPlayer.id)
     const planetBuildings = _.groupBy(buildings, 'locationId')
     const unitsByType = _.groupBy(playerUnits, 'unitTypeId')
     const techs = _.keys(myPlayer.technologies).map(t => technologies[t])
     const orderedTechnologies = _.orderBy(techs, ['family', 'level'])
+    const totalResources = this.props.store.resourceCalculator
+      .calculatePlayerProduction(myPlayer.id)
 
     return (
       <Grid columns={3} divided className={css(styles.root)}>
@@ -129,7 +142,7 @@ class OverviewView extends React.Component<Props, never> {
                   <Table.HeaderCell>—</Table.HeaderCell>
                   <Table.HeaderCell>Total</Table.HeaderCell>
                   <Table.HeaderCell>
-                    {this.renderBuildingProduction(playerBuildings)}
+                    <ResourceAmountSegment amount={totalResources} zeros />
                   </Table.HeaderCell>
                 </Table.Row>
               </Table.Footer>
@@ -222,20 +235,25 @@ class OverviewView extends React.Component<Props, never> {
             <Header as="h3" inverted>Available Technologies</Header>
 
             <List divided relaxed inverted>
-              {_.values(technologies).map(t => (
+              {_.values(technologies).filter(this.isTechAvailable).map(t => (
                 <List.Item key={t.id}>
-                  <List.Content floated="left">
-                    <List.Header>
-                      {t.name}{' '}
-                      ({t.family} level {t.level})
-                    </List.Header>
-                    <List.Description>
-                      {t.description} - (<ResourceAmountSegment amount={t.cost} />)
-                    </List.Description>
-                  </List.Content>
-                  <Button floated="right" onClick={() => this.onPurchase(t)}>
-                    Purchase
-                  </Button>
+                  <Layout direction="row" justify="space-between">
+                    <List.Content>
+                      <List.Header>
+                        {t.name}{' '}
+                        ({t.family} level {t.level})
+                      </List.Header>
+                      <List.Description>
+                        {t.description} - (<ResourceAmountSegment amount={t.cost} />)
+                      </List.Description>
+                    </List.Content>
+                    <ValidatedButton
+                      onClick={() => this.onPurchase(t)}
+                      error={this.validatePurchaseTechnology(t)}
+                    >
+                      Purchase
+                    </ValidatedButton>
+                  </Layout>
                 </List.Item>
               ))}
             </List>
