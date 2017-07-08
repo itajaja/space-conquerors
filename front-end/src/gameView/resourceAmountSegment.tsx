@@ -9,7 +9,7 @@ const RESOURCES_ICONS = {
   gold: '💰',
 }
 
-type Props = {
+type Props = React.HTMLAttributes<{}> & {
   amount: dx.ResourceAmount,
   plusAmount?: dx.ResourceAmount,
   zeros?: boolean,

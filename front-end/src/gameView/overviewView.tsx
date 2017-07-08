@@ -19,6 +19,10 @@ const styles = StyleSheet.create({
   root: {
     padding: 20,
   },
+  resourceAmount: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
 })
 
 const Query = gql`mutation SelectedUnitsSidebarMenu($input: SubmitActionsInput!) {
@@ -50,7 +54,13 @@ class OverviewView extends React.Component<Props, never> {
   renderBuildingProduction(buildings: sx.IBuildingState[]) {
     const production = this.props.store.resourceCalculator
       .calculateBuildingsProduction(buildings)
-    return <ResourceAmountSegment amount={production} zeros />
+    return (
+      <ResourceAmountSegment
+        amount={production}
+        zeros
+        className={css(styles.resourceAmount)}
+      />
+    )
   }
 
   async onPurchase(item: dx.IItem & dx.PurchaseableItem) {
@@ -142,7 +152,11 @@ class OverviewView extends React.Component<Props, never> {
                   <Table.HeaderCell>—</Table.HeaderCell>
                   <Table.HeaderCell>Total</Table.HeaderCell>
                   <Table.HeaderCell>
-                    <ResourceAmountSegment amount={totalResources} zeros />
+                    <ResourceAmountSegment
+                      amount={totalResources}
+                      zeros
+                      className={css(styles.resourceAmount)}
+                    />
                   </Table.HeaderCell>
                 </Table.Row>
               </Table.Footer>
