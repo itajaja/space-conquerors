@@ -1,17 +1,28 @@
 import * as _ from 'lodash'
 
 import * as ax from './actions'
+import * as dx from './definitions'
 import { items } from './gameEngine'
 import { IMap } from './map'
 import * as resources from './resources'
-import { IGameState } from './state'
+import * as sx from './state'
 import technologyTypes from './technologies'
 import unitTypes from './units'
 
-class ValidationError extends Error {}
+class ValidationError extends Error {
+  // tslint:disable-next-line:max-line-length
+  // https://github.com/Microsoft/TypeScript-wiki/blob/master/Breaking-Changes.md#extending-built-ins-like-error-array-and-map-may-no-longer-work
+
+  constructor(m: string) {
+    super(m)
+
+    // Set the prototype explicitly.
+    Object.setPrototypeOf(this, ValidationError.prototype)
+  }
+}
 
 export default class GameValidator {
-  constructor(public state: IGameState, public map: IMap) { }
+  constructor(public state: sx.IGameState, public map: IMap) { }
 
   safe(func: () => void) {
     try {
@@ -26,96 +37,106 @@ export default class GameValidator {
     return null
   }
 
-  validateProductionAction(action: ax.IProduceAction) {
-    const item = items[action.itemId]
-    if (!item) {
-      throw new ValidationError('invalid_production_action.invalid_itemid')
-    }
-
-    const player = this.state.players[action.playerId]
-    if (!player) {
-      throw new ValidationError('invalid_production_action.invalid_player')
-    }
-
-    if (!resources.ge(player.resourcesAmount, item.cost)) {
-      throw new ValidationError('invalid_production_action.not_enough_resources')
-    }
-
+  /**
+   * Check if an item has the rigth technology requirement
+   */
+  validateItemTechRequirements(item: dx.IPurchaseable, player: sx.IPlayerState) {
     const techRequirements = Object.keys(item.technologyRequirements)
     if (techRequirements.some(t => !player.technologies[t])) {
-      throw new ValidationError('invalid_production_action.tech_required')
+      throw new ValidationError('technology requirements not satisfied')
+    }
+  }
+
+  /**
+   * Check if a technology is available to be researched
+   */
+  validateUnitOrBuildingAvailability(
+    item: dx.IUnitType | dx.IBuildingType,
+    player: sx.IPlayerState,
+    location: sx.IPlanetState,
+  ) {
+    this.validateItemTechRequirements(item, player)
+  }
+
+  /**
+   * Check if a technology is available to be researched
+   */
+  validateTechAvailability(item: dx.ITechnology, player: sx.IPlayerState) {
+    this.validateItemTechRequirements(item, player)
+
+    if (!!player.technologies[item.id]) {
+      throw new ValidationError('already present')
+    }
+
+    const requirement = item.level === 1
+      ? true
+      : _.keys(player.technologies).map(t => technologyTypes[t])
+        .some(t => t.family === item.family && t.level === item.level - 1)
+
+    if (!requirement) {
+      throw new ValidationError('technology level not available')
+    }
+  }
+
+  validateProductionAction(action: ax.IProduceAction) {
+    const item = items[action.itemId]
+    const player = this.state.players[action.playerId]
+
+    if (!resources.ge(player.resourcesAmount, item.cost)) {
+      throw new ValidationError('not enough resources')
     }
 
     if (item.kind === 'tech') {
-      if (player.technologies[item.id]) {
-        throw new ValidationError('invalid_production_action.tech_already_present')
-      }
+      this.validateTechAvailability(item, player)
 
-      const requirement = item.level === 1
-        ? true
-        : _.keys(player.technologies).map(t => technologyTypes[t])
-          .some(t => t.family === item.family && t.level === item.level - 1)
-
-      if (!requirement) {
-        throw new ValidationError('invalid_production_action.tech_tree_not_satisfied')
+      if (!!player.productionStatuses.find(p => p.itemId === item.id)) {
+        throw new ValidationError('already scheduled')
       }
     }
 
     if (item.kind !== 'tech') {
       if (!action.locationId) {
-        throw new ValidationError('invalid_production_action.no_location')
+        throw new ValidationError('must provide a location')
       }
 
       const location = this.state.planets[action.locationId]
-      if (!location) {
-        throw new ValidationError('invalid_production_action.invalid_location')
-      }
+
+      this.validateUnitOrBuildingAvailability(item, player, location)
 
       if (location.ownerPlayerId !== player.id) {
-        throw new ValidationError('invalid_production_action.not_owned_location')
+        throw new ValidationError('location not owned')
       }
     }
-
-    // TODO: if building, check if exceeding caps
   }
 
   validateMovementAction(action: ax.IMovementAction) {
     const unit = this.state.units[action.unitId]
-    if (!unit) {
-      throw new ValidationError('invalid_movement_action.invalid_unitid')
-    }
-
     const player = this.state.players[action.playerId]
-    if (!player) {
-      throw new ValidationError('invalid_movement_action.invalid_player')
-    }
+
     if (unit.playerId !== player.id) {
-      throw new ValidationError('invalid_movement_action.not_unit_owner')
+      throw new ValidationError('cannot move a unit that is not owned')
     }
 
     if (action.speed <= 0 || action.speed > unitTypes[unit.unitTypeId].speed) {
-      throw new ValidationError('invalid_movement_action.invalid_speed')
+      throw new ValidationError('invalid speed')
     }
 
     if (action.path.length < 2) {
-      throw new ValidationError('invalid_movement_action.path_length')
+      throw new ValidationError('invalid path length')
     }
 
     const [start, ...path] = action.path
 
     if (start !== unit.locationId) {
-      throw new ValidationError('invalid_movement_action.starting_point')
+      throw new ValidationError('starting point of movement doesn\'t match unit position')
     }
 
     path.forEach((step, idx) => {
       const prevStep = action.path[idx]
       const stepLoc = this.map.cells[step]
-      if (!stepLoc) {
-        throw new ValidationError('invalid_movement_action.invalid_path_step')
-      }
 
       if (!stepLoc.edges[prevStep]) { // edges are undirected, so this is fine
-        throw new ValidationError('invalid_movement_action.invalid_path_step_edge')
+        throw new ValidationError('steps provided are not contiguous')
       }
     })
   }
@@ -124,7 +145,7 @@ export default class GameValidator {
     const movedUnits = {}
     actions.forEach(action => {
       if (movedUnits[action.unitId]) {
-        throw new ValidationError('invalid_movement_action.duplicate_unit_movement')
+        throw new ValidationError('cannot provide two movement actions for the same unit')
       }
       movedUnits[action.unitId] = true
     })

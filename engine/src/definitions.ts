@@ -84,3 +84,13 @@ export interface ITechnology extends IItem, IPurchaseable {
 
 export type Item = IBuildingType | IUnitType | ITechnology
 export type PurchaseableItem = IBuildingType | IUnitType | ITechnology
+
+export function isBuildingType(item: Item): item is IBuildingType {
+  return item.kind === 'building'
+}
+export function isUnitType(item: Item): item is IUnitType {
+  return item.kind === 'unit'
+}
+export function isTech(item: Item): item is ITechnology {
+  return item.kind === 'tech'
+}

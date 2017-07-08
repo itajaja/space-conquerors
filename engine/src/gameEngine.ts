@@ -7,6 +7,7 @@ import CombatEngine from './combatEngine'
 import * as dx from './definitions'
 import GameValidator from './gameValidator'
 import { IMap } from './map'
+import { ResourceCalculator } from './resources'
 import * as resources from './resources'
 import { IGameState } from './state'
 import * as sx from './state'
@@ -199,16 +200,10 @@ export default class GameEngine {
   }
 
   produceResources() {
-    const buildingsByUser = _.groupBy(_.values(this.state.buildings), l => l.playerId)
+    const calculator = new ResourceCalculator(this.state)
 
     _.forOwn(this.state.players, p => {
-      const newAmount = (buildingsByUser[p.id] || []).reduce(
-        (prev, cur) => {
-          const { resourceYield } = buildingTypes[cur.buildingTypeId]
-          // TODO factor in planet type
-          return resourceYield ? resources.add(prev, resourceYield) : prev
-        }, dx.zeroResources())
-
+      const newAmount = calculator.calculatePlayerProduction(p.id)
       p.resourcesAmount = resources.add(p.resourcesAmount, newAmount)
 
       const resourceSummary = _.toPairs(newAmount)

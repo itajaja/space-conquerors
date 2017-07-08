@@ -18,3 +18,10 @@ export interface IMovementAction {
 }
 
 export type Action = IProduceAction | IMovementAction
+
+export function isMovementAction(action: Action): action is IMovementAction {
+  return action.kind === 'move'
+}
+export function isProduceAction(action: Action): action is IProduceAction {
+  return action.kind === 'produce'
+}
