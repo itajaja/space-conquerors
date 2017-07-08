@@ -5,7 +5,6 @@ import { DefaultChildProps, gql, graphql } from 'react-apollo'
 import * as ax from 'sco-engine/lib/actions'
 import * as dx from 'sco-engine/lib/definitions'
 import { items } from 'sco-engine/lib/gameEngine'
-import * as sx from 'sco-engine/lib/state'
 import technologies from 'sco-engine/lib/technologies'
 import { Grid, Header, Icon, List, Table } from 'semantic-ui-react'
 
@@ -51,9 +50,9 @@ class IconHeader extends React.Component<{ icon: string }, never> {
 }
 
 class OverviewView extends React.Component<Props, never> {
-  renderBuildingProduction(buildings: sx.IBuildingState[]) {
+  renderPlanetProduction(locationId: string) {
     const production = this.props.store.resourceCalculator
-      .calculateBuildingsProduction(buildings)
+      .calculatePlanetProduction(locationId)
     return (
       <ResourceAmountSegment
         amount={production}
@@ -109,10 +108,9 @@ class OverviewView extends React.Component<Props, never> {
 
   render() {
     const { game, myPlayer } = this.props.store
-    const { buildings, planets, units } = game.state
+    const { planets, units } = game.state
     const playerPlanets = _.values(planets).filter(p => p.ownerPlayerId === myPlayer.id)
     const playerUnits = _.values(units).filter(u => u.playerId === myPlayer.id)
-    const planetBuildings = _.groupBy(buildings, 'locationId')
     const unitsByType = _.groupBy(playerUnits, 'unitTypeId')
     const techs = _.keys(myPlayer.technologies).map(t => technologies[t])
     const orderedTechnologies = _.orderBy(techs, ['family', 'level'])
@@ -142,7 +140,7 @@ class OverviewView extends React.Component<Props, never> {
                       {game.map.systems[game.map.cells[p.locationId].systemId].name}
                     </Table.Cell>
                     <Table.Cell>
-                      {this.renderBuildingProduction(planetBuildings[p.locationId] || [])}
+                      {this.renderPlanetProduction(p.locationId)}
                     </Table.Cell>
                   </Table.Row>
                 ))}

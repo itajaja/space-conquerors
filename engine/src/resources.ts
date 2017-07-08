@@ -43,8 +43,31 @@ export function ge(a: dx.ResourceAmount, b: dx.ResourceAmount) {
 
 export class ResourceCalculator {
   buildingsByUser = _.groupBy(_.values(this.state.buildings), l => l.playerId)
+  buildingsByLocation = _.groupBy(_.values(this.state.buildings), l => l.locationId)
+  planetsByUser = _.groupBy(_.values(this.state.planets), l => l.ownerPlayerId)
 
   constructor(private state: sx.IGameState) { }
+
+  calculatePlanetProduction(locationId: string) {
+    const buildings = this.buildingsByLocation[locationId]
+    if (!buildings) {
+      return dx.zeroResources()
+    }
+    const hasDepot = buildings.find(d => d.buildingTypeId === 'building_depot')
+    if (!hasDepot) {
+      return dx.zeroResources()
+    }
+    // TODO: for now this is the same for all planets. we should factor in
+    // the planet type
+    let resources = dx.zeroResources({ gold: 250, iron: 25, gas: 50 })
+
+    resources = add(
+      resources,
+      this.calculateBuildingsProduction(this.buildingsByLocation[locationId]),
+    )
+
+    return resources
+  }
 
   calculateBuildingProduction(building: sx.IBuildingState) {
     return buildingTypes[building.buildingTypeId].resourceYield || dx.zeroResources()
@@ -58,7 +81,6 @@ export class ResourceCalculator {
   }
 
   calculatePlayerProduction(playerId: string) {
-    // TODO factor in planet type
     return this.calculateBuildingsProduction(this.buildingsByUser[playerId] || [])
   }
 }
