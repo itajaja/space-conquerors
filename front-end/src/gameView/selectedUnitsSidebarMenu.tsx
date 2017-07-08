@@ -30,10 +30,10 @@ class SelectedUnitsSidebarMenu extends React.Component<Props, never> {
   }
 
   onMove = async () => {
-    const { state, game } = this.props.store
+    const { state, game, myActions, myPlayer } = this.props.store
     const selectedUnits = state.selectedUnits!
     const indexedUnits = new Set(selectedUnits)
-    const oldActions = game.actions.filter(a => (
+    const oldActions = myActions.filter(a => (
       a.kind !== 'move' || !indexedUnits.has(a.unitId)
     ))
 
@@ -44,7 +44,7 @@ class SelectedUnitsSidebarMenu extends React.Component<Props, never> {
     const newActions = selectedUnits.map(a => ({
       kind: 'move' as 'move',
       path: state.selectedPath,
-      playerId: game.state.player.id,
+      playerId: myPlayer.id,
       speed: _.min(speeds),
       unitId: a,
     }))
@@ -68,10 +68,10 @@ class SelectedUnitsSidebarMenu extends React.Component<Props, never> {
   }
 
   renderUnit = (unitId: string, idx: number) => {
-    const { game } = this.props.store
+    const { game, myActions } = this.props.store
     const unit = game.state.units[unitId]
     const unitType = units[unit.unitTypeId]
-    const movement = game.actions && game.actions
+    const movement = myActions
       .find(a => a.kind === 'move' && a.unitId === unitId) as IMovementAction
     const path = movement
       ? movement.path.map(p => game.map.cells[p].name).join(' -> ')

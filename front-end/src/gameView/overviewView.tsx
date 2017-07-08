@@ -60,16 +60,16 @@ class OverviewView extends React.Component<Props, never> {
   }
 
   async onPurchase(item: dx.IItem & dx.PurchaseableItem) {
-    const { game, state } = this.props.store
+    const { game, state, myActions, myPlayer } = this.props.store
 
     const newAction: ax.IProduceAction = {
       kind: 'produce',
-      playerId: game.state.player.id,
+      playerId: myPlayer.id,
       itemId: item.id,
       locationId: state.selectedLocationId,
     }
 
-    const actions = [...game.actions, newAction]
+    const actions = [...myActions, newAction]
 
     const input = {
       actions,
@@ -86,14 +86,14 @@ class OverviewView extends React.Component<Props, never> {
   }
 
   render() {
-    const { game } = this.props.store
-    const { buildings, player, planets, units } = game.state
-    const playerPlanets = _.values(planets).filter(p => p.ownerPlayerId === player.id)
-    const playerUnits = _.values(units).filter(u => u.playerId === player.id)
-    const playerBuildings = _.values(buildings).filter(b => b.playerId === player.id)
+    const { game, myPlayer } = this.props.store
+    const { buildings, planets, units } = game.state
+    const playerPlanets = _.values(planets).filter(p => p.ownerPlayerId === myPlayer.id)
+    const playerUnits = _.values(units).filter(u => u.playerId === myPlayer.id)
+    const playerBuildings = _.values(buildings).filter(b => b.playerId === myPlayer.id)
     const planetBuildings = _.groupBy(buildings, 'locationId')
     const unitsByType = _.groupBy(playerUnits, 'unitTypeId')
-    const techs = _.keys(player.technologies).map(t => technologies[t])
+    const techs = _.keys(myPlayer.technologies).map(t => technologies[t])
     const orderedTechnologies = _.orderBy(techs, ['family', 'level'])
 
     return (
@@ -147,7 +147,7 @@ class OverviewView extends React.Component<Props, never> {
               </Table.Header>
 
               <Table.Body>
-                {player.productionStatuses.map((s, idx) => (
+                {myPlayer.productionStatuses.map((s, idx) => (
                   <Table.Row key={idx}>
                     <Table.Cell>
                       {items[s.itemId].name} ({items[s.itemId].kind.toLowerCase()})

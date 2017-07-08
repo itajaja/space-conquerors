@@ -44,16 +44,16 @@ type Props = DefaultChildProps<ComponentProps, {}>
 
 class SidebarMenu extends React.Component<Props, never> {
   onPurchase = async (item: dx.IItem & dx.PurchaseableItem) => {
-    const { game, state } = this.props.store
+    const { game, state, myActions, myPlayer } = this.props.store
 
     const newAction: ax.IProduceAction = {
       kind: 'produce',
-      playerId: game.state.player.id,
+      playerId: myPlayer.id,
       itemId: item.id,
       locationId: state.selectedLocationId,
     }
 
-    const actions = [...game.actions, newAction]
+    const actions = [...myActions, newAction]
 
     const input = {
       actions,
@@ -94,11 +94,10 @@ class SidebarMenu extends React.Component<Props, never> {
   }
 
   renderActions(cell: ICell) {
-    const { game } = this.props.store
+    const { game, myPlayer } = this.props.store
     const planetState = game.state.planets[cell.id]
-    const thisPlayerId = game.state.player.id
 
-    if (!planetState || planetState.ownerPlayerId !== thisPlayerId) {
+    if (!planetState || planetState.ownerPlayerId !== myPlayer.id) {
       return
     }
 

@@ -58,9 +58,9 @@ class TurnView extends React.Component<Props, never> {
   }
 
   removeAction = async (idx: number) => {
-    const { game } = this.props.store
+    const { game, myActions } = this.props.store
 
-    const actions = game.actions.slice()
+    const actions = myActions.slice()
     actions.splice(idx, 1)
 
     const input = {
@@ -79,7 +79,7 @@ class TurnView extends React.Component<Props, never> {
   }
 
   render() {
-    const { actions, log } = this.props.store.game
+    const { game, myActions } = this.props.store
 
     return (
       <Grid columns={2} divided className={css(styles.root)}>
@@ -88,7 +88,7 @@ class TurnView extends React.Component<Props, never> {
             <Header as="h2" textAlign="center" inverted>
               Previous Turn Report
             </Header>
-            {log.map(l => (
+            {game.log.map(l => (
               <p>
                 {l.message}
               </p>
@@ -100,7 +100,7 @@ class TurnView extends React.Component<Props, never> {
             </Header>
 
             <List divided relaxed inverted>
-              {(actions || []).map((a, idx) => (
+              {myActions.map((a, idx) => (
                 <List.Item key={idx}>
                   {this.renderAction(a, {floated: 'left'})}
                   <Button floated="right" icon="trash" onClick={() => this.removeAction(idx)} />

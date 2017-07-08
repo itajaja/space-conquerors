@@ -1,17 +1,14 @@
 import * as _ from 'lodash'
 
+import { zeroResources } from './definitions'
 import { IMap } from './map'
 import * as sx from './state'
 
-export type VisibleState = Pick<sx.IGameState, 'buildings' | 'marketState' | 'planets' | 'units'>
-export interface IVisibleState extends VisibleState {
-  player: sx.IPlayerState,
-  players: string[],
-}
-
 export function getStateforPlayer(
   playerId: string, state: sx.IGameState, map: IMap,
-): IVisibleState {
+): sx.IGameState {
+  // TODO allies should allow to see some data (eg techs, unit positions)
+
   const playerPlanets = _.values(state.planets).filter(p => p.ownerPlayerId === playerId)
   const playerUnits = _.values(state.units).filter(u => u.playerId === playerId)
   // the locations the player is on
@@ -26,14 +23,21 @@ export function getStateforPlayer(
     return _.pickBy(items, b => !!visibleLocations[b.locationId]) as T
   }
 
+  const players = _.mapValues(state.players, player => ({
+    status: sx.PlayerStatus.Alive,
+    id: player.id,
+    productionStatuses: [],
+    resourcesAmount: zeroResources(),
+    technologies: {},
+  })) as sx.IGameState['players']
+
+  players[playerId] = state.players[playerId]
+
   return {
     buildings: filterVisibles(state.buildings),
     marketState: state.marketState,
     planets: filterVisibles(state.planets),
     units: filterVisibles(state.units),
-    player: state.players[playerId],
-    players: _.values(state.players)
-      .filter(p => p.status === sx.PlayerStatus.Alive)
-      .map(p => p.id),
+    players,
   }
 }

@@ -51,7 +51,7 @@ class Navbar extends React.Component<Props, never> {
         </Menu.Item>
         <Menu.Item>
           <ResourceAmountSegment
-            amount={store.game.state.player.resourcesAmount}
+            amount={store.myPlayer.resourcesAmount}
             zeros
           />
         </Menu.Item>

@@ -15,13 +15,11 @@ type Game {
   players: JSON!
   map: JSON!
   mapLayout: JSON!
-  state: JSON!
-  actions: [JSON]!
-  log: [JSON]!
+  state(full: Boolean): JSON!
+  actions(full: Boolean): JSON!
+  log(full: Boolean): [JSON]!
 
   isPlayer: Boolean!
-
-  full: JSON!
 }
 
 type User {

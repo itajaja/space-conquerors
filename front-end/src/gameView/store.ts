@@ -17,6 +17,15 @@ export default class Store extends BaseStore<GameView> {
     return this.component.props.data!.game
   }
 
+  get myPlayer() {
+    const userId = this.component.props.data!.viewer.user.id
+    return this.game.state.players[userId]
+  }
+
+  get myActions() {
+    return this.game.actions[this.myPlayer.id]
+  }
+
   selectPlanet(selectedLocationId: string) {
     this.set({ ...EMPTY_SELECTION, selectedLocationId })
   }
@@ -64,7 +73,7 @@ export default class Store extends BaseStore<GameView> {
     const from = units[0].locationId
     if (units.every(u =>
       u.locationId === from // all from same location
-      && u.playerId === this.game.state.player.id, // all owned by player
+      && u.playerId === this.myPlayer.id, // all owned by player
     )) {
       this.selectPossibleDestinations(from)
       this.set({

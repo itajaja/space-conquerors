@@ -43,23 +43,40 @@ export default {
   Game: {
     id: (obj: Game) => obj._id,
     players: (obj: Game) => _.keyBy(obj.players, 'id'),
-    state: (obj: Game, args, ctx: Context) => (
-      getStateforPlayer(ctx.userId, obj.state, obj.map)
-    ),
-    actions: (obj: Game, args, ctx: Context) => obj.actions[ctx.userId],
-    log: (obj: Game, args, ctx: Context) => (
-      obj.log.filter(a => a.player === ctx.userId)
-    ),
+    state: (obj: Game, args, ctx: Context): sx.IGameState => {
+      if (args.full) {
+        if (!ctx.userMeta.admin) {
+          throw new Error('invalid_auth.admin_required')
+        }
+
+        return obj.state
+      }
+
+      return getStateforPlayer(ctx.userId, obj.state, obj.map)
+    },
+    actions: (obj: Game, args, ctx: Context): Game['actions'] => {
+      if (args.full) {
+        if (!ctx.userMeta.admin) {
+          throw new Error('invalid_auth.admin_required')
+        }
+
+        return obj.actions
+      }
+      return _.pick(obj.actions, [ctx.userId]) as Game['actions']
+    },
+    log: (obj: Game, args, ctx: Context): Game['log'] => {
+      if (args.full) {
+        if (!ctx.userMeta.admin) {
+          throw new Error('invalid_auth.admin_required')
+        }
+
+        return obj.log
+      }
+      return obj.log.filter(a => a.player === ctx.userId)
+    },
     isPlayer: (obj: Game, args, ctx: Context) => (
       !!obj.players.find(u => u.id === ctx.userId)
     ),
-    full: (obj: Game, args, ctx: Context) => {
-      if (!ctx.userMeta.admin) {
-        throw new Error('invalid_auth.admin_required')
-      }
-
-      return obj
-    },
   },
 
   Mutation: {

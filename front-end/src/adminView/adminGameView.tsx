@@ -6,7 +6,7 @@ import { RouteComponentProps } from 'react-router-dom'
 import { applyTurn } from 'sco-engine/lib/game'
 import { Button, Grid } from 'semantic-ui-react'
 
-import { FullGame } from '../gqlTypes'
+import { Game } from '../gqlTypes'
 import shortcircuit from '../shortcircuit'
 
 const styles = StyleSheet.create({
@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
 })
 
 type ComponentProps = RouteComponentProps<any>
-type ResultProps = { game: { id: string, full: FullGame} }
+type ResultProps = { game: Game }
 export type Props = DefaultChildProps<ComponentProps, ResultProps>
 
 const Mutation = gql`mutation MainPageMutation($input: AdvanceTurnInput!) {
@@ -30,7 +30,15 @@ const Mutation = gql`mutation MainPageMutation($input: AdvanceTurnInput!) {
 export const Query = gql`query adminGameView($gameId: String!) {
   game(gameId: $gameId) {
     id
-    full
+    name
+    createdAt
+    currentTurnNumber
+    players
+    map
+    mapLayout
+    state(full: true)
+    actions(full: true)
+    log(full: true)
   }
 }`
 
@@ -46,7 +54,7 @@ class AdminGameView extends React.Component<Props, never> {
   }
 
   nextTurn() {
-    const { state, map, actions } = this.props.data!.game.full
+    const { state, map, actions } = this.props.data!.game
 
     return applyTurn(state, map, _.flatten(_.values(actions)))
   }
@@ -64,12 +72,12 @@ class AdminGameView extends React.Component<Props, never> {
   }
 
   render() {
-    const { currentTurnNumber, actions, state} = this.props.data!.game.full
+    const { game } = this.props.data!
     const nextTurn = this.nextTurn()
 
     return (
       <div className={css(styles.root)}>
-        <h2>Turn {currentTurnNumber}</h2>
+        <h2>Turn {game.currentTurnNumber}</h2>
         <Button size="big" onClick={this.advanceTurn}>
           Advance To Next Turn
         </Button>
@@ -77,11 +85,11 @@ class AdminGameView extends React.Component<Props, never> {
           <Grid.Row>
             <Grid.Column>
               <h2>Actions</h2>
-              {this.renderJson(actions)}
+              {this.renderJson(game.actions)}
             </Grid.Column>
             <Grid.Column>
               <h2>Game State</h2>
-              {this.renderJson(state)}
+              {this.renderJson(game.state)}
             </Grid.Column>
             <Grid.Column>
               <h2>Next Game State</h2>
