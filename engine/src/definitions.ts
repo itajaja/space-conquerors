@@ -33,6 +33,7 @@ export interface IBuildingType extends IItem, IPurchaseable {
   maxPerSystem?: number
 
   resourceYield?: ResourceAmount
+  buildingRequirements: { [idx: string]: true },
 }
 
 export enum UnitClass {
@@ -68,6 +69,7 @@ export interface IUnitType extends IItem, IPurchaseable {
   foodConsumption: number
 
   specials?: any // TBD
+  buildingRequirements: { [idx: string]: true },
 }
 
 export enum TechnologyFamily {

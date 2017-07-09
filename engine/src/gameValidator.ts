@@ -58,6 +58,11 @@ export default class GameValidator {
     location: sx.IPlanetState,
   ) {
     this.validateItemTechRequirements(item, player)
+    const buildingRequirements = Object.keys(item.buildingRequirements)
+    const planetBuildings = this.buildingsByLocation[location.locationId]
+    if (buildingRequirements.some(t => !planetBuildings.find(b => b.buildingTypeId === t))) {
+      throw new ValidationError('building requirements not satisfied')
+    }
   }
 
   /**
