@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node ./validateAssets.js",
     "lint": "tslint --project tsconfig.json",
     "test": "npm run lint"
   },
