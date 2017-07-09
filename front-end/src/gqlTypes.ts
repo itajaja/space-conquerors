@@ -9,7 +9,14 @@ export type Game = {
   name: string,
   createdAt: string,
   state: sx.IGameState,
-  players: Array<{ id: string, name: string, color: string }>,
+  players: {
+    [idx: string]: {
+      id: string,
+      email: string,
+      name: string,
+      color: string,
+    },
+  },
   currentTurnNumber: number,
   map: mx.IMap,
   mapLayout: mlx.MapLayout,

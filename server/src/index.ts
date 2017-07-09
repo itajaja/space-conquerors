@@ -61,9 +61,12 @@ async function start() {
     bodyParser.json(),
     graphqlExpress((req) => {
       const context: Context = {
-        userId: (req as any).token.sub,
-        userName: (req as any).token.email,
-        userMeta: (req as any).token.app_metadata || {},
+        user: {
+          id: (req as any).token.sub,
+          meta: (req as any).token.app_metadata || {},
+          name: (req as any).token.name,
+          email: (req as any).token.email,
+        },
       } as any
 
       context.models = models(context)

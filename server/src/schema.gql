@@ -25,15 +25,19 @@ type Game {
 
 type User {
   id: String!
+
   name: String!
-  admin: Boolean!
+  email: String!
+  admin: Boolean
 }
 
 type Viewer {
   id: ID!
 
   user: User!
+
   games: [Game]!
+  users(search: String): [User]!
 }
 
 type Query {

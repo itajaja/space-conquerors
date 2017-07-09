@@ -10,12 +10,15 @@ import * as sx from 'sco-engine/lib/state'
 import { getStateforPlayer } from 'sco-engine/lib/visibility'
 
 import * as inputs from './inputs'
-import { Game, Models } from './models'
+import { Game, Models, User } from './models'
 
 export type Context = {
-  userId: string,
-  userName: string,
-  userMeta: { admin: boolean },
+  user: {
+    id: string,
+    meta: { admin?: boolean },
+    name: string,
+    email: string,
+  }
   models: Models,
 }
 
@@ -28,56 +31,86 @@ export default {
   },
 
   Viewer: {
-    games: async (obj, args, ctx: Context) => {
-      return ctx.models.games.findAll()
+    id: (obj, args, ctx: Context) => ctx.user.id,
+
+    user: async (obj, args, ctx: Context) => {
+      const user: User = {
+        id: ctx.user.id,
+        email: ctx.user.email,
+        name: ctx.user.name,
+      }
+      await ctx.models.users.collection.updateOne(
+        { id: user.id }, user, { upsert: true },
+      )
+      return {
+        ...user,
+        admin: !!ctx.user.meta.admin,
+      }
     },
-    user: (obj, args, ctx: Context) => ({
-      id: ctx.userId,
-      name: ctx.userName,
-      admin: !!ctx.userMeta.admin,
-    }),
-    id: (obj, args, ctx: Context) => ctx.userId,
+
+    games: async (obj, args, ctx: Context) => ctx.models.games.findAll(),
+    users: async (obj, args, ctx: Context) => {
+      let query = {}
+      if (args.search) {
+        query = {
+          name: { $regex: `^${args.search}` },
+        }
+      }
+      return ctx.models.users.findAll(query)
+    },
   },
 
   Game: {
     id: (obj: Game) => obj._id,
-    players: (obj: Game) => _.keyBy(obj.players, 'id'),
     state: (obj: Game, args, ctx: Context): sx.IGameState => {
       if (args.full) {
-        if (!ctx.userMeta.admin) {
+        if (!ctx.user.meta.admin) {
           throw new Error('invalid_auth.admin_required')
         }
 
         return obj.state
       }
 
-      return getStateforPlayer(ctx.userId, obj.state, obj.map)
+      return getStateforPlayer(ctx.user.id, obj.state, obj.map)
+    },
+    players: async (obj: Game, args, ctx: Context) => {
+      const playerIds = obj.players.map(g => g.id)
+      const indexedPlayers = _.keyBy(obj.players, 'id')
+      const users = await ctx.models.users.findAll({ id: { $in: playerIds } })
+      const players = {}
+      users.forEach(u => players[u.id!] = {
+        id: u.id,
+        email: u.email,
+        name: u.name,
+        color: indexedPlayers[u.id!].color,
+      })
+      return players
     },
     actions: (obj: Game, args, ctx: Context): Game['actions'] => {
       if (args.full) {
-        if (!ctx.userMeta.admin) {
+        if (!ctx.user.meta.admin) {
           throw new Error('invalid_auth.admin_required')
         }
 
         return obj.actions
       }
-      return _.pick(obj.actions, [ctx.userId]) as Game['actions']
+      return _.pick(obj.actions, [ctx.user.id]) as Game['actions']
     },
     log: (obj: Game, args, ctx: Context): Game['log'] => {
       if (args.full) {
-        if (!ctx.userMeta.admin) {
+        if (!ctx.user.meta.admin) {
           throw new Error('invalid_auth.admin_required')
         }
 
         return obj.log
       }
-      return obj.log.filter(a => a.player === ctx.userId)
+      return obj.log.filter(a => a.player === ctx.user.id)
     },
     isPlayer: (obj: Game, args, ctx: Context) => (
-      !!obj.players.find(u => u.id === ctx.userId)
+      !!obj.players.find(u => u.id === ctx.user.id)
     ),
     turnReady: (obj: Game, args, ctx: Context) => (
-      !!obj.meta.turnReady[ctx.userId]
+      !!obj.meta.turnReady[ctx.user.id]
     ),
   },
 
@@ -86,6 +119,11 @@ export default {
       const { players, name } = inputs.CreateGameInput(input) as {
         players: string[],
         name: string,
+      }
+
+      const users = await ctx.models.users.findAll({ id: { $in: players } })
+      if (users.length !== players.length) {
+        throw new Error('invalid_player_ids')
       }
 
       const playersSet = new Set(players)
@@ -129,7 +167,6 @@ export default {
         name,
         players: players.map(id => ({
           id,
-          name: id,
           color: randomcolor(),
         })),
         createdAt: new Date().toString(),
@@ -165,7 +202,7 @@ export default {
       )
 
       actions.forEach(action => {
-        if (action.playerId !== ctx.userId) {
+        if (action.playerId !== ctx.user.id) {
           throw new Error('invalid_action.user_id')
         }
 
@@ -176,7 +213,7 @@ export default {
         }
       })
 
-      game.actions[ctx.userId] = actions
+      game.actions[ctx.user.id] = actions
       await ctx.models.games.update(game)
 
       return {
@@ -189,7 +226,7 @@ export default {
         gameId: string,
       }
 
-      if (!ctx.userMeta.admin) {
+      if (!ctx.user.meta.admin) {
         throw new Error('invalid_auth.admin_required')
       }
 
@@ -211,10 +248,10 @@ export default {
       }
 
       const game = await ctx.models.games.findById(gameId)
-      if (!game.players.find(u => u.id === ctx.userId)) {
+      if (!game.players.find(u => u.id === ctx.user.id)) {
         throw new Error('invalid_auth.not_player')
       }
-      game.meta.turnReady[ctx.userId] = turnReady
+      game.meta.turnReady[ctx.user.id] = turnReady
 
       await ctx.models.games.update(game)
       const readys = _.values(game.meta.turnReady)

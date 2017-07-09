@@ -168,7 +168,9 @@ class SidebarMenu extends React.Component<Props, never> {
       )
     }
 
-    const owner = planetState.ownerPlayerId || 'This planet is unhabited'
+    const owner = planetState.ownerPlayerId
+      ? game.players[planetState.ownerPlayerId].name
+      : 'This planet is unhabited'
 
     return (
       <div>

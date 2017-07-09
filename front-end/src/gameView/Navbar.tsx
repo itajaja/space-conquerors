@@ -2,7 +2,7 @@ import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
 import { RouteComponentProps, withRouter } from 'react-router'
 import { NavLink } from 'react-router-dom'
-import { Menu } from 'semantic-ui-react'
+import { Dropdown, Menu } from 'semantic-ui-react'
 
 import ResourceAmountSegment from './resourceAmountSegment'
 import Store from './store'
@@ -23,16 +23,10 @@ class Navbar extends React.Component<Props, never> {
     const { match, store } = this.props
     const plusAmount = store.resourceCalculator
       .calculatePlayerProduction(store.myPlayer.id)
+    const myName = store.game.players[store.myPlayer.id].name
 
     return (
       <Menu inverted className={css(styles.root)}>
-        <Menu.Item
-          as={NavLink}
-          activeClassName="active"
-          to={`/`}
-          icon="home"
-          exact
-        />
         <Menu.Item>
           {store.game.name} (turn #{store.game.currentTurnNumber})
         </Menu.Item>
@@ -64,6 +58,16 @@ class Navbar extends React.Component<Props, never> {
             zeros
           />
         </Menu.Item>
+
+        <Menu.Menu position="right">
+          <Dropdown item text={myName}>
+            <Dropdown.Menu>
+              <Dropdown.Item as={NavLink} to={`/`}>
+                Exit Game
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </Menu.Menu>
       </Menu>
     )
   }
