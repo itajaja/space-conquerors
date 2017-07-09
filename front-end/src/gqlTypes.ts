@@ -15,4 +15,5 @@ export type Game = {
   mapLayout: mlx.MapLayout,
   actions: { [idx: string]: Action[] }
   log: ITurnLogEntry[],
+  turnReady: boolean,
 }

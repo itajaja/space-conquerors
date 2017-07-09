@@ -3,7 +3,6 @@ import * as _ from 'lodash'
 import * as randomcolor from 'randomcolor'
 import * as ax from 'sco-engine/lib/actions'
 import * as dx from 'sco-engine/lib/definitions'
-import { applyTurn } from 'sco-engine/lib/game'
 import Validator from 'sco-engine/lib/gameValidator'
 import MapGenerator from 'sco-engine/lib/mapGenerator'
 import * as mlx from 'sco-engine/lib/mapLayout'
@@ -77,6 +76,9 @@ export default {
     isPlayer: (obj: Game, args, ctx: Context) => (
       !!obj.players.find(u => u.id === ctx.userId)
     ),
+    turnReady: (obj: Game, args, ctx: Context) => (
+      !!obj.meta.turnReady[ctx.userId]
+    ),
   },
 
   Mutation: {
@@ -137,6 +139,9 @@ export default {
         state,
         actions,
         log: [],
+        meta: {
+          turnReady: {},
+        },
       }
 
       const newGame = await ctx.models.games.insert(game)
@@ -189,16 +194,36 @@ export default {
       }
 
       const game = await ctx.models.games.findById(gameId)
-      const { state, log } = applyTurn(
-        game.state, game.map, _.flatten(_.values(game.actions)),
-      )
-      game.state = state
-      game.log = log
-      game.currentTurnNumber++
-      game.players.forEach(p => game.actions[p.id] = [])
+
+      ctx.models.games.advanceTurn(game)
 
       await ctx.models.games.update(game)
 
+      return {
+        game,
+      }
+    },
+
+    setTurnReady: async (obj, { input }, ctx: Context) => {
+      const { gameId, turnReady } = inputs.SetTurnReadyInput(input) as {
+        gameId: string,
+        turnReady: boolean,
+      }
+
+      const game = await ctx.models.games.findById(gameId)
+      if (!game.players.find(u => u.id === ctx.userId)) {
+        throw new Error('invalid_auth.not_player')
+      }
+      game.meta.turnReady[ctx.userId] = turnReady
+
+      await ctx.models.games.update(game)
+      const readys = _.values(game.meta.turnReady)
+
+      if (readys.length === game.players.length && readys.every(r => r)) {
+        ctx.models.games.advanceTurn(game)
+      }
+
+      await ctx.models.games.update(game)
       return {
         game,
       }

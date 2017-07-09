@@ -42,3 +42,8 @@ export const SubmitActionsInput = t.struct({
 export const AdvanceTurnInput = t.struct({
   gameId: t.String,
 })
+
+export const SetTurnReadyInput = t.struct({
+  gameId: t.String,
+  turnReady: t.Boolean,
+})

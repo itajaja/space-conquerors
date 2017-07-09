@@ -1,9 +1,9 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
-import { DefaultChildProps, gql, graphql } from 'react-apollo'
+import { compose, gql, graphql, MutationFunc } from 'react-apollo'
 import { Action } from 'sco-engine/lib/actions'
 import { items } from 'sco-engine/lib/gameEngine'
-import { Button, Grid, Header, List } from 'semantic-ui-react'
+import { Button, Checkbox, Grid, Header, List } from 'semantic-ui-react'
 
 import { Query as GameViewQuery } from './index'
 import Store from './store'
@@ -17,15 +17,31 @@ const styles = StyleSheet.create({
 type ComponentProps = {
   store: Store,
 }
-type Props = DefaultChildProps<ComponentProps, {}>
+type ResultProps = {
+  setTurnReady: MutationFunc<{}>,
+  submitActions: MutationFunc<{}>,
+}
+type Props = ComponentProps & ResultProps
 
-const Query = gql`mutation TurnView($input: SubmitActionsInput!) {
-  submitActions(input: $input) {
-    game {
-      id
+const SubmitaActionsMutation = gql`
+mutation SubmitaActionsQuery($input: SubmitActionsInput!) {
+    submitActions(input: $input) {
+      game {
+        id
+      }
     }
   }
-}`
+`
+
+const SetTurnReadyMutation = gql`
+  mutation SetTurnReady($input: SetTurnReadyInput!) {
+    setTurnReady(input: $input) {
+      game {
+        id
+      }
+    }
+  }
+`
 
 class TurnView extends React.Component<Props, never> {
   renderAction(a: Action, props = {}) {
@@ -68,14 +84,30 @@ class TurnView extends React.Component<Props, never> {
       gameId: game.id,
     }
 
-    await this.props.mutate!({
+    await this.props.submitActions({
       refetchQueries: [{
         query: GameViewQuery,
         variables: { gameId: game.id },
       }],
       variables: { input },
     })
+  }
 
+  onChangeTurnReady = async () => {
+    const { game } = this.props.store
+
+    const input = {
+      gameId: game.id,
+      turnReady: !game.turnReady,
+    }
+
+    await this.props.setTurnReady!({
+      refetchQueries: [{
+        query: GameViewQuery,
+        variables: { gameId: game.id },
+      }],
+      variables: { input },
+    })
   }
 
   render() {
@@ -103,6 +135,13 @@ class TurnView extends React.Component<Props, never> {
                 </List.Item>
               ))}
             </List>
+            <Header as="h3" inverted>
+              <Checkbox
+                checked={game.turnReady}
+                onChange={this.onChangeTurnReady}
+              />
+              {' '}Ready to advance turn
+            </Header>
           </Grid.Column>
         </Grid.Row>
       </Grid>
@@ -110,4 +149,7 @@ class TurnView extends React.Component<Props, never> {
   }
 }
 
-export default graphql<{}, ComponentProps>(Query)(TurnView)
+export default compose(
+  graphql<ResultProps, ComponentProps>(SubmitaActionsMutation, { name: 'submitActions' }),
+  graphql<ResultProps, ComponentProps>(SetTurnReadyMutation, { name: 'setTurnReady' }),
+)(TurnView)

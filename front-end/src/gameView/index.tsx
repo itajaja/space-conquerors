@@ -52,6 +52,7 @@ export const Query = gql`
       state
       actions
       log
+      turnReady
     }
     viewer {
       id

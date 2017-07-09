@@ -20,6 +20,7 @@ type Game {
   log(full: Boolean): [JSON]!
 
   isPlayer: Boolean!
+  turnReady: Boolean!
 }
 
 type User {
@@ -56,6 +57,11 @@ input AdvanceTurnInput {
   gameId: String!
 }
 
+input SetTurnReadyInput {
+  gameId: String!
+  turnReady: Boolean!
+}
+
 type CreateGamePayload {
   viewer: Viewer
   gameId: String
@@ -69,10 +75,15 @@ type AdvanceTurnPayload {
   game: Game
 }
 
+type SetTurnReadyPayload {
+  game: Game
+}
+
 type Mutation {
   createGame(input: CreateGameInput!): CreateGamePayload
   submitActions(input: SubmitActionsInput!): SubmitActionsPayload
   advanceTurn(input: AdvanceTurnInput!): AdvanceTurnPayload
+  setTurnReady(input: SetTurnReadyInput!): SetTurnReadyPayload
 }
 
 schema {

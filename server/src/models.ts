@@ -1,10 +1,13 @@
+import * as _ from 'lodash'
 import { Collection, MongoClient, ObjectID } from 'mongodb'
 import { Action } from 'sco-engine/lib/actions'
+import { applyTurn } from 'sco-engine/lib/game'
 import { ITurnLogEntry } from 'sco-engine/lib/gameEngine'
 import * as mx from 'sco-engine/lib/map'
 import * as mlx from 'sco-engine/lib/mapLayout'
 import * as sx from 'sco-engine/lib/state'
 
+import executeMigrations from './migrations'
 import { Context } from './resolvers'
 
 const MONGODB_URI = process.env.MONGODB_URI
@@ -13,7 +16,7 @@ if (!MONGODB_URI) {
   throw new Error('MONGODB_URI not set')
 }
 
-type MongoObject = {
+export type MongoObject = {
   _id?: string,
 }
 
@@ -27,13 +30,16 @@ export type Game = MongoObject & {
   mapLayout: mlx.MapLayout,
   actions: { [idx: string]: Action[] }
   log: ITurnLogEntry[],
+  meta: {
+    turnReady: { [idx: string]: boolean },
+  },
 }
 
 /**
  * Small wrapper around mongoDB collection
  */
-class Model<T extends MongoObject> {
-  constructor(protected collection: Collection<T>, protected ctx: Context) { }
+export class Model<T extends MongoObject> {
+  constructor(protected collection: Collection<T>) { }
   authFilter(filter?: object): object | undefined {
     return filter
   }
@@ -62,15 +68,19 @@ class Model<T extends MongoObject> {
   }
 
   async findOne(query?: object) {
-    query = this.authFilter(query)
+    const item = await this.findOneOrNull(query)
 
-    const next = await this.find(query).limit(1).next()
-
-    if (next == null) {
+    if (item === null) {
       throw new Error('object_not_found')
     }
 
-    return next
+    return item
+  }
+
+  async findOneOrNull(query?: object): Promise<T | null> {
+    query = this.authFilter(query)
+
+    return await this.find(query).limit(1).next()
   }
 
   async insert(item: T): Promise<T> {
@@ -94,6 +104,10 @@ class Model<T extends MongoObject> {
 }
 
 export class GameModel extends Model<Game> {
+  constructor(protected collection: Collection<Game>, protected ctx: Context) {
+    super(collection)
+  }
+
   authFilter(filter: object = {}): object {
     return {
       $and: [
@@ -112,6 +126,17 @@ export class GameModel extends Model<Game> {
       throw new Error('invalid_game.no_self_as_player')
     }
   }
+
+  advanceTurn(game: Game) {
+    const { state, log } = applyTurn(
+      game.state, game.map, _.flatten(_.values(game.actions)),
+    )
+    game.state = state
+    game.log = log
+    game.currentTurnNumber++
+    game.players.forEach(p => game.actions[p.id] = [])
+    game.meta.turnReady = {}
+  }
 }
 
 export type Models = {
@@ -123,6 +148,8 @@ export async function initModels() {
 
   const games = await db.collection<Game>('games')
   await games.createIndex({ 'players.id': 1 })
+
+  await executeMigrations(db)
 
   return (ctx: Context) => {
     return {
