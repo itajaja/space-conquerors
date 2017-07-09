@@ -20,15 +20,21 @@ type Props = RouteComponentProps<any> & {
 
 class Navbar extends React.Component<Props, never> {
   render() {
-    const { match, store, userId } = this.props
-    const playerName = store.game.players[userId].name
+    const { match, store } = this.props
     const plusAmount = store.resourceCalculator
       .calculatePlayerProduction(store.myPlayer.id)
 
     return (
       <Menu inverted className={css(styles.root)}>
+        <Menu.Item
+          as={NavLink}
+          activeClassName="active"
+          to={`/`}
+          icon="home"
+          exact
+        />
         <Menu.Item>
-          {playerName}
+          {store.game.name} (turn #{store.game.currentTurnNumber})
         </Menu.Item>
         <Menu.Item
           as={NavLink}
