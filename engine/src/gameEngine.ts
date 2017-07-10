@@ -235,6 +235,14 @@ export default class GameEngine {
         p.remainingTurns--
 
         const item = items[p.itemId]
+        if (p.locationId) {
+          const planet = this.state.planets[p.locationId]
+          if (planet.ownerPlayerId !== playerId) {
+            // this happens when the planet has been conquered
+            break
+          }
+        }
+
         if (p.remainingTurns === 0) {
           if (unitTypes[p.itemId]) {
             const id = uuid()
