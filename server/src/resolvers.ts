@@ -32,7 +32,7 @@ export default {
       let query = {}
       if (args.search) {
         query = {
-          name: { $regex: `^${args.search}` },
+          email: { $regex: `^${args.search}` },
         }
       }
       return ctx.models.users.findAll(query)
