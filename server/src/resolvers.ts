@@ -149,7 +149,7 @@ export default {
         status: sx.PlayerStatus.Alive,
         resourcesAmount: dx.zeroResources({ gold: 2000, iron: 300 }),
         productionStatuses: [],
-        technologies: { tech_galaxy_trade: true } as { [idx: string]: true },
+        technologies: {},
       }))
 
       const actions = {}
@@ -170,7 +170,7 @@ export default {
           color: randomcolor(),
         })),
         createdAt: new Date().toString(),
-        currentTurnNumber: 0,
+        currentTurnNumber: 1,
         map,
         mapLayout: mlx.generate(map),
         state,
