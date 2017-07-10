@@ -135,10 +135,10 @@ class OverviewView extends React.Component<Props, never> {
               <Table.Body>
                 {playerPlanets.map(p => (
                   <Table.Row key={p.locationId}>
-                    <Table.Cell>{game.map.cells[p.locationId].name}</Table.Cell>
                     <Table.Cell>
                       {game.map.systems[game.map.cells[p.locationId].systemId].name}
                     </Table.Cell>
+                    <Table.Cell>{game.map.cells[p.locationId].name}</Table.Cell>
                     <Table.Cell>
                       {this.renderPlanetProduction(p.locationId)}
                     </Table.Cell>
