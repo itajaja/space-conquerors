@@ -108,7 +108,7 @@ class MainView extends React.Component<Props, {a: number}> {
   }
 
   render() {
-    const { games, user } = this.props.data!.viewer
+    const { games } = this.props.data!.viewer
 
     return (
       <div className={css(styles.root)}>
@@ -125,8 +125,6 @@ class MainView extends React.Component<Props, {a: number}> {
           </Button>
 
           {games.map(this.renderGame)}
-
-          <p>share this ID to create games: {user.id}</p>
 
           <Button onClick={this.logout}>
             Sign out
