@@ -197,6 +197,12 @@ export default class GameEngine {
           .filter(b => b.locationId === location.id)
           .forEach(p => { p.playerId = u.playerId })
 
+        if (oldOwner) {
+          this.log.push({
+            player: oldOwner,
+            message: `You lost control of planet ${location.name} (${system.name})`,
+          })
+        }
         this.log.push({
           player: u.playerId,
           message: `The planet ${location.name} (${system.name}) has been conquered`,
