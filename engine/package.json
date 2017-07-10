@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "scripts": {
-    "build": "tsc && node ./validateAssets.js",
+    "build": "tsc && ts-node ./validateAssets.ts",
     "lint": "tslint --project tsconfig.json",
     "test": "npm run lint"
   },
@@ -11,6 +11,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/lodash": "^4.14.62",
+    "ts-node": "^3.2.0",
     "tslint": "^4.5.1",
     "typescript": "^2.2.1"
   },

@@ -1,7 +1,7 @@
-const _ = require('lodash')
-const buildings = require('./lib/buildings').default
-const techs = require('./lib/technologies').default
-const units = require('./lib/units').default
+import * as _ from 'lodash'
+import buildings from './lib/buildings'
+import techs from './lib/technologies'
+import units from './lib/units'
 
 function assert(val, msg) {
   if (!val) {
@@ -14,7 +14,7 @@ function assert(val, msg) {
  * it's run during build after compilation
  */
 function validateAssets() {
-  const items = _.values(buildings).concat(_.values(units))
+  const items = [..._.values(buildings), ..._.values(units)]
   items.forEach(item => {
     _.keys(item.buildingRequirements).forEach(req => assert(
       buildings[req],
@@ -25,7 +25,6 @@ function validateAssets() {
       `${item.id} contains invalid technology requirement ${req}`,
     ))
   })
-  console.log(`validated ${items.length} assets`)
 }
 
 validateAssets()
