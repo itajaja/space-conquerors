@@ -190,7 +190,13 @@ export default class GameEngine {
       const oldOwner = oldPlanetState && oldPlanetState.ownerPlayerId
       const system = this.map.systems[location.systemId]
       if (location.planet && oldOwner !== u.playerId) {
+        // transfer ownership of planet
         this.state.planets[u.locationId].ownerPlayerId = u.playerId
+        // transfer ownership of buildings
+        _.values(this.state.buildings)
+          .filter(b => b.locationId === location.id)
+          .forEach(p => { p.playerId = u.playerId })
+
         this.log.push({
           player: u.playerId,
           message: `The planet ${location.name} (${system.name}) has been conquered`,
