@@ -3,7 +3,7 @@ import * as _ from 'lodash'
 import * as React from 'react'
 import { DefaultChildProps, gql, graphql } from 'react-apollo'
 import * as ax from 'sco-engine/lib/actions'
-import buildings from 'sco-engine/lib/buildings'
+import buildingTypes from 'sco-engine/lib/buildings'
 import * as dx from 'sco-engine/lib/definitions'
 import { ICell } from 'sco-engine/lib/map'
 import { IBuildingState } from 'sco-engine/lib/state'
@@ -133,7 +133,7 @@ class SidebarMenu extends React.Component<Props, never> {
           <Modal.Description>
             <Header>Buildings</Header>
             <List divided relaxed>
-              {_.values(buildings)
+              {_.values(buildingTypes)
                 .filter(this.isItemAvailable)
                 .map(this.renderItem)
               }
@@ -151,13 +151,23 @@ class SidebarMenu extends React.Component<Props, never> {
     )
   }
 
-  renderBuilding(building: IBuildingState, idx: number) {
-    const buildingType = buildings[building.buildingTypeId]
+  renderBuildings(buildings: IBuildingState[]) {
+    const buildingItems = buildings.map((building, idx) => {
+      const buildingType = buildingTypes[building.buildingTypeId]
+      return (
+        <div key={idx}>
+          <AssetPopup itemId={buildingType.id}>{buildingType.name}</AssetPopup>
+        </div>
+      )
+    })
 
-    return (
-      <p key={idx}>
-        <AssetPopup itemId={buildingType.id}>{buildingType.name}</AssetPopup>
-      </p>
+    return(
+      <div>
+        <Header as="h4">
+          Buildings
+        </Header>
+        {buildingItems}
+      </div>
     )
   }
 
@@ -167,9 +177,9 @@ class SidebarMenu extends React.Component<Props, never> {
 
     if (!planetState) {
       return (
-        <div>
+        <p>
           This planet is out of reach for detailed information
-        </div>
+        </p>
       )
     }
 
@@ -178,9 +188,9 @@ class SidebarMenu extends React.Component<Props, never> {
       : 'This planet is unhabited'
 
     return (
-      <div>
+      <p>
         owner: {owner}
-      </div>
+      </p>
     )
   }
 
@@ -197,7 +207,7 @@ class SidebarMenu extends React.Component<Props, never> {
       <div>
         <p>This planet is rich in {cell.planet.resourceTypeDefinition}</p>
         {this.renderPlanetState(cell)}
-        {buildings.map(this.renderBuilding)}
+        {!!buildings.length && this.renderBuildings(buildings)}
       </div>
     )
   }
