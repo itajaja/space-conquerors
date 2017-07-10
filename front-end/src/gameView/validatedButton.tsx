@@ -1,5 +1,4 @@
 import * as React from 'react'
-
 import { Button, ButtonProps, Popup } from 'semantic-ui-react'
 
 type Props = ButtonProps & {

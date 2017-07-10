@@ -10,6 +10,7 @@ import { IBuildingState } from 'sco-engine/lib/state'
 import units from 'sco-engine/lib/units'
 import { Button, Header, List, Modal } from 'semantic-ui-react'
 
+import AssetPopup from '../components/assetPopup'
 import Layout from '../components/layout'
 import style from '../style'
 import { Query as GameViewQuery } from './index'
@@ -77,7 +78,9 @@ class SidebarMenu extends React.Component<Props, never> {
       <List.Item key={item.id}>
         <Layout direction="row" justify="space-between">
           <List.Content floated="left">
-            <List.Header>{item.name}</List.Header>
+            <List.Header>
+              <AssetPopup itemId={item.id}>{item.name}</AssetPopup>
+            </List.Header>
             <List.Description>
               {item.description} - (<ResourceAmountSegment amount={item.cost} />)
             </List.Description>
@@ -152,7 +155,9 @@ class SidebarMenu extends React.Component<Props, never> {
     const buildingType = buildings[building.buildingTypeId]
 
     return (
-      <p key={idx}>{buildingType.name}</p>
+      <p key={idx}>
+        <AssetPopup itemId={buildingType.id}>{buildingType.name}</AssetPopup>
+      </p>
     )
   }
 

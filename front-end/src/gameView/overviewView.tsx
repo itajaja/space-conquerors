@@ -8,6 +8,7 @@ import { items } from 'sco-engine/lib/gameEngine'
 import technologies from 'sco-engine/lib/technologies'
 import { Grid, Header, Icon, List, Table } from 'semantic-ui-react'
 
+import AssetPopup from '../components/assetPopup'
 import Layout from '../components/layout'
 import { Query as GameViewQuery } from './index'
 import ResourceAmountSegment from './resourceAmountSegment'
@@ -175,7 +176,10 @@ class OverviewView extends React.Component<Props, never> {
                 {myPlayer.productionStatuses.map((s, idx) => (
                   <Table.Row key={idx}>
                     <Table.Cell>
-                      {items[s.itemId].name} ({items[s.itemId].kind.toLowerCase()})
+                      <AssetPopup itemId={s.itemId}>
+                        {items[s.itemId].name}
+                      </AssetPopup>
+                      ({items[s.itemId].kind.toLowerCase()})
                     </Table.Cell>
                     <Table.Cell>
                       {s.remainingTurns}
@@ -203,7 +207,9 @@ class OverviewView extends React.Component<Props, never> {
                 {_.values(unitsByType).map((u, idx) => (
                   <Table.Row key={idx}>
                     <Table.Cell>
-                      {items[u[0].unitTypeId].name}
+                      <AssetPopup itemId={u[0].unitTypeId}>
+                        {items[u[0].unitTypeId].name}
+                      </AssetPopup>
                     </Table.Cell>
                     <Table.Cell>
                       {u.length}
@@ -237,7 +243,9 @@ class OverviewView extends React.Component<Props, never> {
                       {t.level}
                     </Table.Cell>
                     <Table.Cell>
-                      {t.name}
+                      <AssetPopup itemId={t.id}>
+                        {t.name}
+                      </AssetPopup>
                     </Table.Cell>
                   </Table.Row>
                 ))}

@@ -5,6 +5,7 @@ import { IMovementAction } from 'sco-engine/lib/actions'
 import units from 'sco-engine/lib/units'
 import { Button, Header, List } from 'semantic-ui-react'
 
+import AssetPopup from '../components/assetPopup'
 import { Query as GameViewQuery } from './index'
 import Store from './store'
 
@@ -76,11 +77,15 @@ class SelectedUnitsSidebarMenu extends React.Component<Props, never> {
     const path = movement
       ? movement.path.map(p => game.map.cells[p].name).join(' -> ')
       : `Stationing on ${game.map.cells[unit.locationId].name}`
+    const ownerName = game.players[unit.playerId].name
 
     return (
       <List.Item key={unitId}>
         <List.Content floated="left">
-          <List.Header>{unitType.name}</List.Header>
+          <List.Header>
+            <AssetPopup itemId={unitType.id}>{unitType.name}</AssetPopup>
+            ({ownerName})
+          </List.Header>
           <List.Description>{path}</List.Description>
         </List.Content>
         <Button floated="right" onClick={() => this.onRemoveUnit(idx)}>
