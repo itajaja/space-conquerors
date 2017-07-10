@@ -72,10 +72,7 @@ export interface IUnitType extends IItem, IPurchaseable {
   buildingRequirements: { [idx: string]: true },
 }
 
-export enum TechnologyFamily {
-  CIVIL,
-  MILITARY,
-}
+export type TechnologyFamily = 'civil' | 'military'
 
 export interface ITechnology extends IItem, IPurchaseable {
   kind: 'tech'
