@@ -81,7 +81,14 @@ export class ResourceCalculator {
     )
   }
 
+  calculatePlanetsProduction(planets: sx.IPlanetState[]) {
+    return planets.reduce(
+      (prev, cur) => add(prev, this.calculatePlanetProduction(cur.locationId)),
+      dx.zeroResources(),
+    )
+  }
+
   calculatePlayerProduction(playerId: string) {
-    return this.calculateBuildingsProduction(this.buildingsByUser[playerId] || [])
+    return this.calculatePlanetsProduction(this.planetsByUser[playerId])
   }
 }
