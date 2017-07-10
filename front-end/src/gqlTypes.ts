@@ -4,16 +4,20 @@ import * as mx from 'sco-engine/lib/map'
 import * as mlx from 'sco-engine/lib/mapLayout'
 import * as sx from 'sco-engine/lib/state'
 
+export type User = {
+  id: string,
+  email: string,
+  name: string,
+  admin?: boolean,
+}
+
 export type Game = {
   id: string,
   name: string,
   createdAt: string,
   state: sx.IGameState,
   players: {
-    [idx: string]: {
-      id: string,
-      email: string,
-      name: string,
+    [idx: string]: User & {
       color: string,
     },
   },

@@ -2,6 +2,9 @@ import * as _ from 'lodash'
 import * as React from 'react'
 import { Button, Input, Label, List, Modal, ModalProps } from 'semantic-ui-react'
 
+import Layout from '../components/layout'
+import SearchUserInput from './searchUserInput'
+
 type Props = ModalProps & {
   onConfirm: ({ players, name }: { players: string[], name: string }) => void,
   userId: string,
@@ -59,17 +62,21 @@ export default class StartGameModal extends React.Component<Props, State> {
 
   renderPlayer = (player: string, idx: number) => {
     const label = `player ${idx + 1}`
+    const content = idx === 0
+      ? <Input value="Myself" disabled fluid />
+      : (
+        <Layout direction="row">
+          <SearchUserInput
+            placeholder={label}
+            value={player}
+            onChange={(_, { value }) => this.onChangeUser(idx, value)}
+          />
+          <Button icon="trash" onClick={() => this.deleteUser(idx)} />
+        </Layout>
+      )
     return (
       <List.Item key={idx}>
-        <Input
-          fluid
-          type="text"
-          placeholder={label}
-          action={idx !== 0 && { icon: 'trash', onClick: () => this.deleteUser(idx) }}
-          value={player}
-          onChange={(_, { value }) => this.onChangeUser(idx, value)}
-          disabled={idx === 0}
-        />
+        {content}
       </List.Item>
     )
   }

@@ -37,12 +37,12 @@ type Viewer {
   user: User!
 
   games: [Game]!
-  users(search: String): [User]!
 }
 
 type Query {
   viewer: Viewer!
   game(gameId: String!): Game
+  users(search: String): [User]!
 }
 
 input CreateGameInput {

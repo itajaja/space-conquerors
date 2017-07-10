@@ -28,6 +28,15 @@ export default {
   Query: {
     viewer: () => ({}),
     game: (obj, args, ctx: Context) => ctx.models.games.findById(args.gameId),
+    users: async (obj, args, ctx: Context) => {
+      let query = {}
+      if (args.search) {
+        query = {
+          name: { $regex: `^${args.search}` },
+        }
+      }
+      return ctx.models.users.findAll(query)
+    },
   },
 
   Viewer: {
@@ -49,15 +58,6 @@ export default {
     },
 
     games: async (obj, args, ctx: Context) => ctx.models.games.findAll(),
-    users: async (obj, args, ctx: Context) => {
-      let query = {}
-      if (args.search) {
-        query = {
-          name: { $regex: `^${args.search}` },
-        }
-      }
-      return ctx.models.users.findAll(query)
-    },
   },
 
   Game: {
