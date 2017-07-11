@@ -166,9 +166,9 @@ export default class GameEngine {
             const [l1, l2] = this.cellsFromedgeId(locationId!)
             const c1 = this.map.cells[l1]
             const c2 = this.map.cells[l2]
-            const s1 = this.map.systems[l1]
-            const s2 = this.map.systems[l2]
-            where = `between ${c1} (${s1.name}) and ${c2} (${s2.name})`
+            const s1 = this.map.systems[c1.systemId]
+            const s2 = this.map.systems[c2.systemId]
+            where = `between ${c1.name} (${s1.name}) and ${c2.name} (${s2.name})`
           }
 
           playersInvolved.forEach(p => this.log.push({
