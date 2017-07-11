@@ -259,7 +259,6 @@ export default {
       }
       game.meta.turnReady[ctx.user.id] = turnReady
 
-      await ctx.models.games.update(game)
       const readys = _.values(game.meta.turnReady)
 
       if (readys.length === game.players.length && readys.every(r => r)) {
