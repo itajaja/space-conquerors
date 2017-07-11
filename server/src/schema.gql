@@ -21,6 +21,8 @@ type Game {
 
   isPlayer: Boolean!
   turnReady: Boolean!
+
+  meta: JSON!
 }
 
 type User {

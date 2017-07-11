@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
 })
 
 type ComponentProps = RouteComponentProps<any>
-type ResultProps = { game: Game }
+type ResultProps = { game: Game & { meta: any } }
 export type Props = DefaultChildProps<ComponentProps, ResultProps>
 
 const Mutation = gql`mutation MainPageMutation($input: AdvanceTurnInput!) {
@@ -39,6 +39,7 @@ export const Query = gql`query adminGameView($gameId: String!) {
     state(full: true)
     actions(full: true)
     log(full: true)
+    meta
   }
 }`
 
@@ -86,6 +87,8 @@ class AdminGameView extends React.Component<Props, never> {
             <Grid.Column>
               <h2>Actions</h2>
               {this.renderJson(game.actions)}
+              <h2>Meta</h2>
+              {this.renderJson(game.meta)}
             </Grid.Column>
             <Grid.Column>
               <h2>Game State</h2>

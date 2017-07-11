@@ -112,6 +112,12 @@ export default {
     turnReady: (obj: Game, args, ctx: Context) => (
       !!obj.meta.turnReady[ctx.user.id]
     ),
+    meta: (obj: Game, args, ctx: Context) => {
+      if (!ctx.user.meta.admin) {
+        throw new Error('invalid_auth.admin_required')
+      }
+      return obj.meta
+    },
   },
 
   Mutation: {
