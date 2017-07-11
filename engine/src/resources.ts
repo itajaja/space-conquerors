@@ -89,6 +89,7 @@ export class ResourceCalculator {
   }
 
   calculatePlayerProduction(playerId: string) {
-    return this.calculatePlanetsProduction(this.planetsByUser[playerId])
+    // [] in case the player is dead. we should handle this better somewhere
+    return this.calculatePlanetsProduction(this.planetsByUser[playerId] || [])
   }
 }
