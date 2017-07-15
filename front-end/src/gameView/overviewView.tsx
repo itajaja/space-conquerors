@@ -85,9 +85,9 @@ class OverviewView extends React.Component<Props, never> {
   }
 
   validatePurchaseTechnology = (tech: dx.ITechnology) => {
-    const { myPlayer, scheduledStateValidator } = this.props.store
-    return scheduledStateValidator.safe(
-      () => scheduledStateValidator.validateProductionAction({
+    const { myPlayer, scheduledGameValidator } = this.props.store
+    return scheduledGameValidator.safe(
+      () => scheduledGameValidator.validateProductionAction({
         itemId: tech.id,
         kind: 'produce',
         playerId: myPlayer.id,

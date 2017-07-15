@@ -5,12 +5,11 @@ import * as ax from './actions'
 import buildingTypes from './buildings'
 import CombatEngine from './combatEngine'
 import * as dx from './definitions'
+import { GameCache } from './game'
 import GameValidator from './gameValidator'
 import { Log } from './logs'
-import { IMap } from './map'
-import { ResourceCalculator } from './resources'
 import * as resources from './resources'
-import { IGameState } from './state'
+import { ResourceCalculator } from './resources'
 import * as sx from './state'
 import technologyTypes from './technologies'
 import unitTypes from './units'
@@ -29,8 +28,16 @@ export default class GameEngine {
   logs: Log[] = []
   validator: GameValidator
 
-  constructor(public state: IGameState, public map: IMap) {
-    this.validator = new GameValidator(state, map)
+  private get state() {
+    return this.game.state
+  }
+
+  private get map() {
+    return this.game.map
+  }
+
+  constructor(public game: GameCache) {
+    this.validator = new GameValidator(game)
   }
 
   schedulePlayerProduction(player: sx.IPlayerState, actions: ax.IProduceAction[]) {
@@ -208,7 +215,7 @@ export default class GameEngine {
   }
 
   produceResources() {
-    const calculator = new ResourceCalculator(this.state)
+    const calculator = new ResourceCalculator(this.game)
 
     _.forOwn(this.state.players, p => {
       const newAmount = calculator.calculatePlayerProduction(p.id)

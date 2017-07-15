@@ -94,10 +94,10 @@ class SidebarMenu extends React.Component<Props, never> {
   }
 
   validatePurchaseItem = (item: dx.IUnitType | dx.IBuildingType) => {
-    const { myPlayer, scheduledStateValidator, state } = this.props.store
+    const { myPlayer, scheduledGameValidator, state } = this.props.store
 
-    return scheduledStateValidator.safe(
-      () => scheduledStateValidator.validateProductionAction({
+    return scheduledGameValidator.safe(
+      () => scheduledGameValidator.validateProductionAction({
         itemId: item.id,
         kind: 'produce',
         playerId: myPlayer.id,

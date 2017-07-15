@@ -3,6 +3,7 @@ import * as _ from 'lodash'
 import * as randomcolor from 'randomcolor'
 import * as ax from 'sco-engine/lib/actions'
 import * as dx from 'sco-engine/lib/definitions'
+import { GameCache } from 'sco-engine/lib/game'
 import Validator from 'sco-engine/lib/gameValidator'
 import { getLogsForPlayer } from 'sco-engine/lib/logs'
 import MapGenerator from 'sco-engine/lib/mapGenerator'
@@ -72,7 +73,7 @@ export default {
         return obj.state
       }
 
-      return getStateforPlayer(ctx.user.id, obj.state, obj.map)
+      return getStateforPlayer(ctx.user.id, new GameCache(obj.state, obj.map))
     },
     players: async (obj: Game, args, ctx: Context) => {
       const playerIds = obj.players.map(g => g.id)
@@ -204,7 +205,7 @@ export default {
       }
       const game = await ctx.models.games.findById(gameId)
 
-      const validator = new Validator(game.state, game.map)
+      const validator = new Validator(new GameCache(game.state, game.map))
       validator.validateMovementActions(
         actions.filter(a => a.kind === 'move') as ax.IMovementAction[],
       )

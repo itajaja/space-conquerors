@@ -2,6 +2,7 @@ import * as _ from 'lodash'
 
 import buildingTypes from './buildings'
 import * as dx from './definitions'
+import { GameCache } from './game'
 import * as sx from './state'
 import technologyTypes from './technologies'
 import unitTypes from './units'
@@ -42,15 +43,10 @@ export function ge(a: dx.ResourceAmount, b: dx.ResourceAmount) {
 }
 
 export class ResourceCalculator {
-  // Maybe we should move these indexes in a common place
-  buildingsByUser = _.groupBy(_.values(this.state.buildings), l => l.playerId)
-  buildingsByLocation = _.groupBy(_.values(this.state.buildings), l => l.locationId)
-  planetsByUser = _.groupBy(_.values(this.state.planets), l => l.ownerPlayerId)
-
-  constructor(private state: sx.IGameState) { }
+  constructor(private game: GameCache) { }
 
   calculatePlanetProduction(locationId: string) {
-    const buildings = this.buildingsByLocation[locationId]
+    const buildings = this.game.buildingsByLocation()[locationId]
     if (!buildings) {
       return dx.zeroResources()
     }
@@ -64,7 +60,7 @@ export class ResourceCalculator {
 
     resources = add(
       resources,
-      this.calculateBuildingsProduction(this.buildingsByLocation[locationId]),
+      this.calculateBuildingsProduction(this.game.buildingsByLocation()[locationId]),
     )
 
     return resources
@@ -90,6 +86,18 @@ export class ResourceCalculator {
 
   calculatePlayerProduction(playerId: string) {
     // [] in case the player is dead. we should handle this better somewhere
-    return this.calculatePlanetsProduction(this.planetsByUser[playerId] || [])
+    return this.calculatePlanetsProduction(this.game.planetsByUser()[playerId] || [])
+  }
+
+  calculateFoodProduction() {
+    return _.mapValues(this.game.buildingsByUser(), buildings => (
+      _.sumBy(buildings, b => buildingTypes[b.buildingTypeId].foodYield || 0)
+    ))
+  }
+
+  calculateFoodConsumption() {
+    return _.mapValues(this.game.unitsByUser(), units => (
+      _.sumBy(units, u => unitTypes[u.unitTypeId].foodConsumption)
+    ))
   }
 }
