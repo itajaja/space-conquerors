@@ -30,12 +30,12 @@ export default class Store extends BaseStore<GameView> {
     return this.component.validator
   }
 
-  get scheduledState() {
-    return this.component.scheduledState
+  get scheduledGame() {
+    return this.component.scheduledGame
   }
 
-  get scheduledStateValidator() {
-    return this.component.scheduledStateValidator
+  get scheduledGameValidator() {
+    return this.component.scheduledGameValidator
   }
 
   get resourceCalculator() {

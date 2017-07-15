@@ -33,6 +33,7 @@ export interface IBuildingType extends IItem, IPurchaseable {
   maxPerSystem?: number
 
   resourceYield?: ResourceAmount
+  foodYield?: number
   buildingRequirements: { [idx: string]: true },
 }
 

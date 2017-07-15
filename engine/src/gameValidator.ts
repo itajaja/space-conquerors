@@ -2,8 +2,8 @@ import * as _ from 'lodash'
 
 import * as ax from './actions'
 import * as dx from './definitions'
+import { GameCache } from './game'
 import { items } from './gameEngine'
-import { IMap } from './map'
 import * as resources from './resources'
 import * as sx from './state'
 import technologyTypes from './technologies'
@@ -22,9 +22,7 @@ class ValidationError extends Error {
 }
 
 export default class GameValidator {
-  buildingsByLocation = _.groupBy(_.values(this.state.buildings), l => l.locationId)
-
-  constructor(public state: sx.IGameState, public map: IMap) { }
+  constructor(private game: GameCache) {}
 
   safe(func: () => void) {
     try {
@@ -59,7 +57,7 @@ export default class GameValidator {
   ) {
     this.validateItemTechRequirements(item, player)
     const buildingRequirements = Object.keys(item.buildingRequirements)
-    const planetBuildings = this.buildingsByLocation[location.locationId] || []
+    const planetBuildings = this.game.buildingsByLocation()[location.locationId] || []
     if (buildingRequirements.some(t => !planetBuildings.find(b => b.buildingTypeId === t))) {
       throw new ValidationError('building requirements not satisfied')
     }
@@ -87,7 +85,7 @@ export default class GameValidator {
 
   validateProductionAction(action: ax.IProduceAction) {
     const item = items[action.itemId]
-    const player = this.state.players[action.playerId]
+    const player = this.game.state.players[action.playerId]
 
     if (!resources.ge(player.resourcesAmount, item.cost)) {
       throw new ValidationError('not enough resources')
@@ -106,14 +104,14 @@ export default class GameValidator {
         throw new ValidationError('must provide a location')
       }
 
-      const location = this.state.planets[action.locationId]
+      const location = this.game.state.planets[action.locationId]
 
       this.validateUnitOrBuildingAvailability(item, player, location)
       if (item.kind === 'building') {
         if (location.ownerPlayerId !== player.id) {
           throw new ValidationError('location not owned')
         }
-        const existingBuildings = (this.buildingsByLocation[location.locationId] || [])
+        const existingBuildings = (this.game.buildingsByLocation()[location.locationId] || [])
           .filter(b => b.buildingTypeId === item.id)
         const producingBuildings = player.productionStatuses
           .filter(p => p.itemId === item.id && p.locationId === location.locationId)
@@ -123,12 +121,19 @@ export default class GameValidator {
         }
       }
       // TODO add checks for max per planet and max per system
+
+      if (item.kind === 'unit') {
+        const newConsumption = this.game.foodConsumption()[player.id] + item.foodConsumption
+        if (newConsumption > this.game.foodProduction()[player.id]) {
+          throw new ValidationError('not enough food')
+        }
+      }
     }
   }
 
   validateMovementAction(action: ax.IMovementAction) {
-    const unit = this.state.units[action.unitId]
-    const player = this.state.players[action.playerId]
+    const unit = this.game.state.units[action.unitId]
+    const player = this.game.state.players[action.playerId]
 
     if (unit.playerId !== player.id) {
       throw new ValidationError('cannot move a unit that is not owned')
@@ -150,7 +155,7 @@ export default class GameValidator {
 
     path.forEach((step, idx) => {
       const prevStep = action.path[idx]
-      const stepLoc = this.map.cells[step]
+      const stepLoc = this.game.map.cells[step]
 
       if (!stepLoc.edges[prevStep]) { // edges are undirected, so this is fine
         throw new ValidationError('steps provided are not contiguous')

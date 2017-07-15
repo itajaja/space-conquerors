@@ -11,6 +11,9 @@ const styles = StyleSheet.create({
   root: {
     marginBottom: 0,
   },
+  foodWarning: {
+    color: 'red',
+  },
 })
 
 type Props = RouteComponentProps<any> & {
@@ -19,6 +22,21 @@ type Props = RouteComponentProps<any> & {
 }
 
 class Navbar extends React.Component<Props, never> {
+  renderFood() {
+    const { store } = this.props
+    const consumption = store.scheduledGame.foodConsumption()[store.myPlayer.id]
+    const production = store.scheduledGame.foodProduction()[store.myPlayer.id]
+
+    return (
+      <span>
+        🍗{' '}
+        <span className={css(consumption > production && styles.foodWarning)}>
+          {consumption}/{production}
+        </span>
+      </span>
+    )
+  }
+
   render() {
     const { match, store } = this.props
     const plusAmount = store.resourceCalculator
@@ -53,10 +71,13 @@ class Navbar extends React.Component<Props, never> {
         </Menu.Item>
         <Menu.Item>
           <ResourceAmountSegment
-            amount={store.scheduledState.players[store.myPlayer.id].resourcesAmount}
+            amount={store.scheduledGame.state.players[store.myPlayer.id].resourcesAmount}
             plusAmount={plusAmount}
             zeros
           />
+        </Menu.Item>
+        <Menu.Item>
+          {this.renderFood()}
         </Menu.Item>
 
         <Menu.Menu position="right">

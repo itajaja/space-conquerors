@@ -3,10 +3,10 @@ import * as React from 'react'
 import { compose, DefaultChildProps, gql, graphql } from 'react-apollo'
 import { NavLink, Redirect, Route, RouteComponentProps, Switch } from 'react-router-dom'
 import * as ax from 'sco-engine/lib/actions'
+import { GameCache } from 'sco-engine/lib/game'
 import GameEngine from 'sco-engine/lib/gameEngine'
 import GameValidator from 'sco-engine/lib/gameValidator'
 import { ResourceCalculator } from 'sco-engine/lib/resources'
-import * as sx from 'sco-engine/lib/state'
 import { deepClone } from 'sco-engine/lib/utils'
 import { Header } from 'semantic-ui-react'
 
@@ -90,8 +90,8 @@ export const Query = gql`
 export class GameView extends React.Component<Props, State> {
   store: Store
   validator: GameValidator
-  scheduledState: sx.IGameState
-  scheduledStateValidator: GameValidator
+  scheduledGame: GameCache
+  scheduledGameValidator: GameValidator
   resourceCalculator: ResourceCalculator
 
   constructor(props, ctx) {
@@ -108,19 +108,20 @@ export class GameView extends React.Component<Props, State> {
 
   syncProps(props: Props) {
     const { state, map, actions } = props.data!.game
-    this.validator = new GameValidator(state, map)
+    const game = new GameCache(state, map)
+    this.validator = new GameValidator(game)
 
-    this.resourceCalculator = new ResourceCalculator(state)
+    this.resourceCalculator = new ResourceCalculator(game)
 
-    this.scheduledState = deepClone(state)
-    const gameEngine = new GameEngine(this.scheduledState, map)
+    this.scheduledGame = new GameCache(deepClone(state), map)
+    const gameEngine = new GameEngine(this.scheduledGame)
     const userId = props.data!.viewer.user.id
     const produceActions = actions[this.store.myPlayer.id].filter(ax.isProduceAction)
     gameEngine.schedulePlayerProduction(
-      this.scheduledState.players[userId],
+      this.scheduledGame.state.players[userId],
       produceActions,
     )
-    this.scheduledStateValidator = new GameValidator(this.scheduledState, map)
+    this.scheduledGameValidator = new GameValidator(this.scheduledGame)
   }
 
   render() {
