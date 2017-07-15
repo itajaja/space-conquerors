@@ -4,6 +4,7 @@ import * as randomcolor from 'randomcolor'
 import * as ax from 'sco-engine/lib/actions'
 import * as dx from 'sco-engine/lib/definitions'
 import Validator from 'sco-engine/lib/gameValidator'
+import { getLogsForPlayer } from 'sco-engine/lib/logs'
 import MapGenerator from 'sco-engine/lib/mapGenerator'
 import * as mlx from 'sco-engine/lib/mapLayout'
 import * as sx from 'sco-engine/lib/state'
@@ -96,15 +97,15 @@ export default {
       }
       return _.pick(obj.actions, [ctx.user.id]) as Game['actions']
     },
-    log: (obj: Game, args, ctx: Context): Game['log'] => {
+    logs: (obj: Game, args, ctx: Context): Game['logs'] => {
       if (args.full) {
         if (!ctx.user.meta.admin) {
           throw new Error('invalid_auth.admin_required')
         }
 
-        return obj.log
+        return obj.logs
       }
-      return obj.log.filter(a => a.player === ctx.user.id)
+      return getLogsForPlayer(ctx.user.id,  obj.logs)
     },
     isPlayer: (obj: Game, args, ctx: Context) => (
       !!obj.players.find(u => u.id === ctx.user.id)
@@ -181,7 +182,7 @@ export default {
         mapLayout: mlx.generate(map),
         state,
         actions,
-        log: [],
+        logs: [],
         meta: {
           turnReady: {},
         },

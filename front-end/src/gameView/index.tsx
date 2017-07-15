@@ -51,7 +51,7 @@ export const Query = gql`
       mapLayout
       state
       actions
-      log
+      logs
       turnReady
     }
     viewer {

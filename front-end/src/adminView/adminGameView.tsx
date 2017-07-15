@@ -38,7 +38,7 @@ export const Query = gql`query adminGameView($gameId: String!) {
     mapLayout
     state(full: true)
     actions(full: true)
-    log(full: true)
+    logs(full: true)
     meta
   }
 }`
@@ -97,8 +97,8 @@ class AdminGameView extends React.Component<Props, never> {
             <Grid.Column>
               <h2>Next Game State</h2>
               {this.renderJson(nextTurn.state)}
-              <h2>Next Log</h2>
-              {this.renderJson(nextTurn.log)}
+              <h2>Next Logs</h2>
+              {this.renderJson(nextTurn.logs)}
             </Grid.Column>
           </Grid.Row>
         </Grid>

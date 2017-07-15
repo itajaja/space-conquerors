@@ -21,14 +21,19 @@ export default class CombatEngine {
   }
 
   start() {
+    let turns = 1
     while (true) {
       this.performTurn()
 
       const survivingPlayers = _.keys(_.keyBy(_.values(this.units), u => u.playerId))
 
       if (survivingPlayers.length <= 1) {
-        return this.computeSurvivors()
+        return {
+          survivors: this.computeSurvivors(),
+          turns,
+        }
       }
+      turns++
     }
   }
 

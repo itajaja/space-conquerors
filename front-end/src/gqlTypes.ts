@@ -1,5 +1,5 @@
 import { Action } from 'sco-engine/lib/actions'
-import { ITurnLogEntry } from 'sco-engine/lib/gameEngine'
+import { Log } from 'sco-engine/lib/logs'
 import * as mx from 'sco-engine/lib/map'
 import * as mlx from 'sco-engine/lib/mapLayout'
 import * as sx from 'sco-engine/lib/state'
@@ -25,6 +25,6 @@ export type Game = {
   map: mx.IMap,
   mapLayout: mlx.MapLayout,
   actions: { [idx: string]: Action[] }
-  log: ITurnLogEntry[],
+  logs: Log[],
   turnReady: boolean,
 }

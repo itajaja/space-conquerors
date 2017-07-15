@@ -2,7 +2,7 @@ import * as _ from 'lodash'
 import { Collection, MongoClient, ObjectID } from 'mongodb'
 import { Action } from 'sco-engine/lib/actions'
 import { applyTurn } from 'sco-engine/lib/game'
-import { ITurnLogEntry } from 'sco-engine/lib/gameEngine'
+import { Log } from 'sco-engine/lib/logs'
 import * as mx from 'sco-engine/lib/map'
 import * as mlx from 'sco-engine/lib/mapLayout'
 import * as sx from 'sco-engine/lib/state'
@@ -29,7 +29,7 @@ export type Game = MongoObject & {
   map: mx.IMap,
   mapLayout: mlx.MapLayout,
   actions: { [idx: string]: Action[] }
-  log: ITurnLogEntry[],
+  logs: Log[],
   meta: {
     turnReady: { [idx: string]: boolean },
   },
@@ -134,11 +134,11 @@ export class GameModel extends Model<Game> {
   }
 
   advanceTurn(game: Game) {
-    const { state, log } = applyTurn(
+    const { state, logs } = applyTurn(
       game.state, game.map, _.flatten(_.values(game.actions)),
     )
     game.state = state
-    game.log = log
+    game.logs = logs
     game.currentTurnNumber++
     game.players.forEach(p => game.actions[p.id] = [])
     game.meta.turnReady = {}

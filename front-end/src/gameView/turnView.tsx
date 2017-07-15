@@ -6,6 +6,7 @@ import { items } from 'sco-engine/lib/gameEngine'
 import { Button, Checkbox, Grid, Header, List } from 'semantic-ui-react'
 
 import { Query as GameViewQuery } from './index'
+import LogMessage from './logMessage'
 import Store from './store'
 
 const styles = StyleSheet.create({
@@ -120,7 +121,11 @@ class TurnView extends React.Component<Props, never> {
             <Header as="h2" textAlign="center" inverted>
               Previous Turn Report
             </Header>
-            {game.log.map((l, idx) => <p key={idx}>{l.message}</p>)}
+            <List divided relaxed inverted>
+              {game.logs.map((log, idx) => (
+                <LogMessage key={idx} log={log} store={this.props.store} />
+              ))}
+            </List>
           </Grid.Column>
           <Grid.Column>
             <Header as="h2" textAlign="center" inverted>

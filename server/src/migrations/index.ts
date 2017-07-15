@@ -2,6 +2,7 @@ import { Db } from 'mongodb'
 
 import { Model, MongoObject } from '../models'
 import m1 from './1'
+import m2 from './2'
 
 export type Migration = {
   id: string,
@@ -14,6 +15,7 @@ type MigrationMeta = MongoObject & {
 
 const migrations: Migration[] = [
   m1,
+  m2,
 ]
 
 export default async function executeMigrations(db: Db) {

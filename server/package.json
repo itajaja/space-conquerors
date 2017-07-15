@@ -6,7 +6,8 @@
     "build": "tsc && apollo-codegen introspect-schema ./src/schema.gql --output schema.json",
     "lint": "tslint --project tsconfig.json",
     "test": "npm run lint",
-    "start-dev": "PORT=4998 MONGODB_URI='mongodb://127.0.0.1:27017/test' nodemon --exec ts-node src/index.ts"
+    "start-dev": "PORT=4998 nodemon --exec ts-node src/index.ts",
+    "start-dev-local": "MONGODB_URI='mongodb://127.0.0.1:27017/test' npm run start-dev"
   },
   "author": "Giacomo Tagliabue",
   "license": "MIT",

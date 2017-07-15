@@ -97,7 +97,7 @@ export default class MapView extends React.Component<Props, State> {
     )
   }
 
-  renderMap(width: number, height: number){
+  renderMap(width: number, height: number) {
     if (width === 0 || height === 0) {
       return null
     }

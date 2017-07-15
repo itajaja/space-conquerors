@@ -6,6 +6,7 @@ import buildingTypes from './buildings'
 import CombatEngine from './combatEngine'
 import * as dx from './definitions'
 import GameValidator from './gameValidator'
+import { Log } from './logs'
 import { IMap } from './map'
 import { ResourceCalculator } from './resources'
 import * as resources from './resources'
@@ -21,17 +22,11 @@ export const items: { [idx: string]: dx.PurchaseableItem } = {
   ...unitTypes,
 }
 
-export interface ITurnLogEntry {
-  player: string,
-  message: string,
-  data?: object,
-}
-
 /**
  * GameEngine contains all the logic to manipulate the game state
  */
 export default class GameEngine {
-  log: ITurnLogEntry[] = []
+  logs: Log[] = []
   validator: GameValidator
 
   constructor(public state: IGameState, public map: IMap) {
@@ -52,23 +47,14 @@ export default class GameEngine {
           itemId: item.id,
           locationId: a.locationId,
         })
-        let message = `Successfully scheduled the production of ${item.name} (${item.kind})`
-        if (a.locationId) {
-          message += ` on ${this.map.cells[a.locationId].name}`
-        }
-        this.log.push({
-          player: player.id,
-          message,
-        })
-      } else {
-        this.log.push({
-          player: player.id,
-          message: `Unable to schedule ${item.name}`,
-          data: {
-            actionIdx: idx,
-          },
-        })
       }
+      this.logs.push({
+        kind: 'schedule',
+        playerId: player.id,
+        itemId: item.id,
+        location: a.locationId,
+        successful: !produceError,
+      })
     })
   }
 
@@ -86,8 +72,8 @@ export default class GameEngine {
     return [l1, l2].map(l => l).sort().join('::')
   }
 
-  cellsFromedgeId(edgeId: string) {
-    return edgeId.split('::')
+  cellsFromedgeId(edgeId: string): [string, string] {
+    return edgeId.split('::') as [string, string]
   }
 
   executeStep(action: ax.IMovementAction, unit: sx.IUnitState, speed: number, step: number) {
@@ -144,40 +130,47 @@ export default class GameEngine {
       const unitLocationsByLocation = _.groupBy(unitLocations, u => u.location)
 
       _.forOwn(unitLocationsByLocation, (units, locationId) => {
-        const playersInvolved = _.keys(_.groupBy(units, u => u.unit.playerId))
+        const unitsByPlayer = _.groupBy(units, u => u.unit.playerId)
         // TODO: check allies and such
-        if (playersInvolved.length > 1) {
+        if (_.size(unitsByPlayer) > 1) {
           const combatUnits = units.map(u => ({ ...u.unit, hp: u.unitType.endurance }))
-          const survivors = new CombatEngine(combatUnits).start()
+          const { survivors, turns } = new CombatEngine(combatUnits).start()
           const survivorsByPlayer = _.groupBy(survivors, s => s.playerId)
 
           // remove dead units
           const dead = _.difference(combatUnits.map(u => u.id), survivors.map(u => u.id))
-          const deadByPlayer = _.groupBy(dead, deadId => this.state.units[deadId].playerId)
+          const deadByTypeByPlayer = _.mapValues(
+            _.groupBy(dead, deadId => this.state.units[deadId].playerId),
+            deadByPlayer => _.groupBy(deadByPlayer, d => this.state.units[d].unitTypeId),
+          )
           dead.forEach(deadId => delete this.state.units[deadId])
           unitActions = unitActions.filter(u => this.state.units[u.unit.id])
 
-          const location = this.map.cells[locationId!]
-          let where = ''
-          if (location) {
-            const system = this.map.systems[location.systemId]
-            where = `at ${location.name} (${system.name})`
-          } else { // must be on an edge
-            const [l1, l2] = this.cellsFromedgeId(locationId!)
-            const c1 = this.map.cells[l1]
-            const c2 = this.map.cells[l2]
-            const s1 = this.map.systems[c1.systemId]
-            const s2 = this.map.systems[c2.systemId]
-            where = `between ${c1.name} (${s1.name}) and ${c2.name} (${s2.name})`
-          }
+          const location = this.map.cells[locationId]
+            ? locationId
+            : this.cellsFromedgeId(locationId)
 
-          playersInvolved.forEach(p => this.log.push({
-            player: p,
-            message: `There was a battle ${where} against`
-            + ` players ${playersInvolved.filter(op => op !== p)}.`
-            + ` ${(survivorsByPlayer[p] || []).length} units survived,`
-            + ` ${(deadByPlayer[p] || []).length} were killed`,
-          }))
+          this.logs.push({
+            kind: 'battle',
+            location,
+            turns,
+            players: _.mapValues(unitsByPlayer, (p, pId) => ({
+              win: !!(survivorsByPlayer[pId] || []).length,
+              totalUnits: p.length,
+              units: _.values(_.groupBy(p, u => u.unitType.id))
+                .map(us => {
+                  const unitTypeId = us[0].unitType.id
+                  const qtyBefore = us.length
+                  const deadByUnitType = (deadByTypeByPlayer[pId] || {})[unitTypeId]
+                  return {
+                    unitTypeId,
+                    qtyBefore,
+                    qtyAfter: qtyBefore - (deadByUnitType || []).length,
+                  }
+                }),
+            })),
+
+          })
         }
       })
     }
@@ -188,7 +181,6 @@ export default class GameEngine {
       const location = this.map.cells[u.locationId]
       const oldPlanetState = this.state.planets[location.id]
       const oldOwner = oldPlanetState && oldPlanetState.ownerPlayerId
-      const system = this.map.systems[location.systemId]
       if (location.planet && oldOwner !== u.playerId) {
         // transfer ownership of planet
         this.state.planets[u.locationId].ownerPlayerId = u.playerId
@@ -198,14 +190,18 @@ export default class GameEngine {
           .forEach(p => { p.playerId = u.playerId })
 
         if (oldOwner) {
-          this.log.push({
-            player: oldOwner,
-            message: `You lost control of planet ${location.name} (${system.name})`,
+          this.logs.push({
+            kind: 'lostPlanet',
+            playerId: oldOwner,
+            location: location.id,
+            byPlayerId: u.playerId,
           })
         }
-        this.log.push({
-          player: u.playerId,
-          message: `The planet ${location.name} (${system.name}) has been conquered`,
+        this.logs.push({
+          kind: 'conqueredPlanet',
+          playerId: u.playerId,
+          location: location.id,
+          previousOwnerId: oldOwner,
         })
       }
     })
@@ -218,12 +214,10 @@ export default class GameEngine {
       const newAmount = calculator.calculatePlayerProduction(p.id)
       p.resourcesAmount = resources.add(p.resourcesAmount, newAmount)
 
-      const resourceSummary = _.toPairs(newAmount)
-        .map(([res, amount]) => `${res}: ${amount}`)
-        .join(', ')
-      this.log.push({
-        player: p.id,
-        message: `The following resources were produced: ${resourceSummary}`,
+      this.logs.push({
+        kind: 'resourceProduction',
+        playerId: p.id,
+        amount: newAmount,
       })
     })
   }
@@ -263,14 +257,11 @@ export default class GameEngine {
           } else { // must be technology
             player.technologies[p.itemId] = true
           }
-          let message = `the production of ${item.name} (${item.kind}) has completed`
-          if (p.locationId) {
-            message += ` on ${this.map.cells[p.locationId].name}`
-          }
-
-          this.log.push({
-            player: player.id,
-            message,
+          this.logs.push({
+            kind: 'productionCompleted',
+            playerId: player.id,
+            itemId: item.id,
+            location: p.locationId,
           })
         } else {
           remainingProductions.push(p)
@@ -280,7 +271,7 @@ export default class GameEngine {
     })
   }
 
-  getLog() {
-    return this.log
+  getLogs() {
+    return this.logs
   }
 }

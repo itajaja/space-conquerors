@@ -1,5 +1,6 @@
 import * as ax from './actions'
-import GameEngine, { ITurnLogEntry } from './gameEngine'
+import GameEngine from './gameEngine'
+import { Log } from './logs'
 import { IMap } from './map'
 import { IGameState } from './state'
 import { deepClone } from './utils/index'
@@ -17,7 +18,7 @@ export interface IGame {
  */
 export function applyTurn(
   state: IGameState, map: IMap, actions: ax.Action[],
-): { state: IGameState, log: ITurnLogEntry[] } {
+): { state: IGameState, logs: Log[] } {
   const produceActions: ax.IProduceAction[] = []
   const moveActions: ax.IMovementAction[] = []
 
@@ -53,6 +54,6 @@ export function applyTurn(
 
   return {
     state: newState,
-    log: engine.getLog(),
+    logs: engine.getLogs(),
   }
 }

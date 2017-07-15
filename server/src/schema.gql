@@ -17,7 +17,7 @@ type Game {
   mapLayout: JSON!
   state(full: Boolean): JSON!
   actions(full: Boolean): JSON!
-  log(full: Boolean): [JSON]!
+  logs(full: Boolean): [JSON]!
 
   isPlayer: Boolean!
   turnReady: Boolean!
