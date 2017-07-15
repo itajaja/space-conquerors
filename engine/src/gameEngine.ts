@@ -94,10 +94,20 @@ export default class GameEngine {
       return unit.locationId
     }
 
+    // means it's either arrived or on a planet
     if (!to || !isInTransit) {
+      const { resourcesAmount } = this.state.players[unit.playerId]
+      const { gasConsumption } = unitTypes[unit.unitTypeId]
+      const newGas = resourcesAmount.gas - gasConsumption
+      if (newGas < 0) {
+        return unit.locationId
+      }
       // XXX mutation!
-      // means it's either arrived or on a planet
-      this.state.units[unit.id].locationId = from
+      if (this.state.units[unit.id].locationId !== from) {
+        // decrease the gas amount and move
+        resourcesAmount.gas = newGas
+        this.state.units[unit.id].locationId = from
+      }
       return from
     }
 

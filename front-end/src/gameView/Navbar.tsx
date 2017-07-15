@@ -2,6 +2,10 @@ import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
 import { RouteComponentProps, withRouter } from 'react-router'
 import { NavLink } from 'react-router-dom'
+import * as ax from 'sco-engine/lib/actions'
+import * as dx from 'sco-engine/lib/definitions'
+import * as movement from 'sco-engine/lib/movement'
+import * as resources from 'sco-engine/lib/resources'
 import { Dropdown, Menu } from 'semantic-ui-react'
 
 import ResourceAmountSegment from './resourceAmountSegment'
@@ -42,6 +46,11 @@ class Navbar extends React.Component<Props, never> {
     const plusAmount = store.resourceCalculator
       .calculatePlayerProduction(store.myPlayer.id)
     const myName = store.game.players[store.myPlayer.id].name
+    const actions = store.myActions.filter(ax.isMovementAction)
+    const estimatedAmount = resources.subtract(
+      store.scheduledGame.state.players[store.myPlayer.id].resourcesAmount,
+      dx.zeroResources({ gas: movement.estimateGasCost(actions, store.scheduledGame) }),
+    )
 
     return (
       <Menu inverted className={css(styles.root)}>
@@ -71,7 +80,7 @@ class Navbar extends React.Component<Props, never> {
         </Menu.Item>
         <Menu.Item>
           <ResourceAmountSegment
-            amount={store.scheduledGame.state.players[store.myPlayer.id].resourcesAmount}
+            amount={estimatedAmount}
             plusAmount={plusAmount}
             zeros
           />

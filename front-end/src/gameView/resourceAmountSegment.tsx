@@ -1,8 +1,14 @@
+import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
 import * as dx from 'sco-engine/lib/definitions'
 
+const styles = StyleSheet.create({
+  warning: {
+    color: 'red',
+  },
+})
+
 const RESOURCES_ICONS = {
-  food: '🍗',
   gas: '🛢',
   darkMatter: '🔮',
   iron: '⚙️',
@@ -24,7 +30,9 @@ export default class ResourceAmountSegment extends React.Component<Props, never>
       return (
         <span style={{ paddingRight: 10 }}>
           <span>{RESOURCES_ICONS[res]}</span>{' '}
-          {resourceAmount}
+          <span className={css(resourceAmount < 0 && styles.warning)}>
+            {resourceAmount}
+          </span>
           {plusResourceAmount != null && ` (+${plusResourceAmount})`}
         </span>
       )
