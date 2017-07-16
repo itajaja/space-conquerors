@@ -60,10 +60,11 @@ export class ResourceCalculator {
 
     resources = add(
       resources,
-      this.calculateBuildingsProduction(this.game.buildingsByLocation()[locationId]),
+      this.calculateBuildingsProduction(buildings),
     )
 
-    return resources
+    const hasPalace = !!buildings.find(d => d.buildingTypeId === 'building_palace')
+    return hasPalace ? add(resources, resources) : resources
   }
 
   calculateBuildingProduction(building: sx.IBuildingState) {
