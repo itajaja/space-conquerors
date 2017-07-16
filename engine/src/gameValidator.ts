@@ -22,6 +22,8 @@ class ValidationError extends Error {
 }
 
 export default class GameValidator {
+  // XXX all this cannot actually use the cache... or at least it should
+  // be updated when state updates
   constructor(private game: GameCache) {}
 
   safe(func: () => void) {
@@ -111,16 +113,29 @@ export default class GameValidator {
         if (location.ownerPlayerId !== player.id) {
           throw new ValidationError('location not owned')
         }
-        const existingBuildings = (this.game.buildingsByLocation()[location.locationId] || [])
+
+        const existingPlayerBuilding = this.game.buildingsByUser()[player.id]
           .filter(b => b.buildingTypeId === item.id)
         const producingBuildings = player.productionStatuses
-          .filter(p => p.itemId === item.id && p.locationId === location.locationId)
-        const currentBuildings = existingBuildings.length + producingBuildings.length
-        if (item.maxPerPlanet && currentBuildings >= item.maxPerPlanet) {
+          .filter(p => p.itemId === item.id)
+        const currentPlayerBuildings = existingPlayerBuilding.length
+          + producingBuildings.length
+        if (item.maxPerPlayer && currentPlayerBuildings >= item.maxPerPlayer) {
+          throw new ValidationError('can\'t build more of this')
+        }
+
+        const existingBuildingsOnPlanet = this.game
+          .buildingsByLocation()[location.locationId]
+          .filter(b => b.buildingTypeId === item.id)
+        const producingBuildingsOnPlanets = producingBuildings
+          .filter(p => p.locationId === location.locationId)
+        const currentBuildingsPerPlanet = existingBuildingsOnPlanet.length
+          + producingBuildingsOnPlanets.length
+        if (item.maxPerPlanet && currentBuildingsPerPlanet >= item.maxPerPlanet) {
           throw new ValidationError('can\'t build more of this on this planet')
         }
       }
-      // TODO add checks for max per planet and max per system
+      // TODO add checks for max per system
 
       if (item.kind === 'unit') {
         const newConsumption = this.game.foodConsumption()[player.id] + item.foodConsumption

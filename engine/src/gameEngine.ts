@@ -202,9 +202,18 @@ export default class GameEngine {
         // transfer ownership of planet
         this.state.planets[u.locationId].ownerPlayerId = u.playerId
         // transfer ownership of buildings
+        const buildingsToDelete: string[] = []
         _.values(this.state.buildings)
           .filter(b => b.locationId === location.id)
-          .forEach(p => { p.playerId = u.playerId })
+          .forEach(b => {
+            const buildingType = buildingTypes[b.buildingTypeId]
+            // delete buildings that have a player cap
+            if (!!buildingType.maxPerPlayer) {
+              buildingsToDelete.push(b.id)
+            }
+            b.playerId = u.playerId
+          })
+        buildingsToDelete.forEach(b => delete this.state.buildings[b])
 
         if (oldOwner) {
           this.logs.push({
