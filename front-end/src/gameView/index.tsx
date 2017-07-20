@@ -12,6 +12,7 @@ import { deepClone } from 'sco-engine/lib/utils'
 import Layout from '../components/layout'
 import { Game } from '../gqlTypes'
 import shortcircuit from '../shortcircuit'
+import { GameViewFragment } from './fragments'
 import MapView from './mapView'
 import Navbar from './Navbar'
 import OverviewView from './overviewView'
@@ -45,20 +46,17 @@ export const Query = gql`
       id
       name
       createdAt
-      currentTurnNumber
-      players
       map
       mapLayout
-      state
-      actions
-      logs
-      turnReady
+      ...GameViewFragment
     }
     viewer {
       id
       user { id }
     }
   }
+
+  ${GameViewFragment}
 `
 
 export class GameView extends React.Component<Props, State> {

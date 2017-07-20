@@ -1,7 +1,7 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as _ from 'lodash'
 import * as React from 'react'
-import { DefaultChildProps, gql, graphql } from 'react-apollo'
+import { DefaultChildProps, graphql } from 'react-apollo'
 import * as ax from 'sco-engine/lib/actions'
 import * as dx from 'sco-engine/lib/definitions'
 import { items } from 'sco-engine/lib/gameEngine'
@@ -10,7 +10,7 @@ import { Grid, Header, Icon, List, Table } from 'semantic-ui-react'
 
 import AssetPopup from '../components/assetPopup'
 import Layout from '../components/layout'
-import { Query as GameViewQuery } from './index'
+import { SubmitActionsMutation } from './fragments'
 import ResourceAmountSegment from './resourceAmountSegment'
 import Store from './store'
 import ValidatedButton from './validatedButton'
@@ -24,14 +24,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 })
-
-const Query = gql`mutation SelectedUnitsSidebarMenu($input: SubmitActionsInput!) {
-  submitActions(input: $input) {
-    game {
-      id
-    }
-  }
-}`
 
 type ComponentProps = {
   store: Store,
@@ -81,10 +73,6 @@ class OverviewView extends React.Component<Props, never> {
     }
 
     await this.props.mutate!({
-      refetchQueries: [{
-        query: GameViewQuery,
-        variables: { gameId: game.id },
-      }],
       variables: { input },
     })
   }
@@ -284,4 +272,4 @@ class OverviewView extends React.Component<Props, never> {
   }
 }
 
-export default graphql<{}, ComponentProps>(Query)(OverviewView)
+export default graphql<{}, ComponentProps>(SubmitActionsMutation)(OverviewView)

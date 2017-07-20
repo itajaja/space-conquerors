@@ -14,6 +14,14 @@ type State = {
   loading: boolean,
 }
 
+const Query = gql`query ($search: String!) {
+  users(search: $search) {
+    id
+    name
+    email
+  }
+}`
+
 class SearchUserInput extends React.Component<Props, State> {
   currentTimeout: number
 
@@ -26,13 +34,7 @@ class SearchUserInput extends React.Component<Props, State> {
   executeSearch = async (search: string) => {
     this.setState({ loading: true })
     const result = await this.props.client.query<{ users: User[] }>({
-      query: gql`query ($search: String!) {
-        users(search: $search) {
-          id
-          name
-          email
-        }
-      }`,
+      query: Query,
       variables: { search },
     })
     const options = result.data!.users.map(user => ({

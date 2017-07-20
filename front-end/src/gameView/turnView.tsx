@@ -1,11 +1,11 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
-import { compose, gql, graphql, MutationFunc } from 'react-apollo'
+import { compose, graphql, MutationFunc } from 'react-apollo'
 import { Action } from 'sco-engine/lib/actions'
 import { items } from 'sco-engine/lib/gameEngine'
 import { Button, Checkbox, Grid, Header, List } from 'semantic-ui-react'
 
-import { Query as GameViewQuery } from './index'
+import { SetTurnReadyMutation, SubmitActionsMutation } from './fragments'
 import LogMessage from './logMessage'
 import Store from './store'
 
@@ -23,26 +23,6 @@ type ResultProps = {
   submitActions: MutationFunc<{}>,
 }
 type Props = ComponentProps & ResultProps
-
-const SubmitaActionsMutation = gql`
-mutation SubmitaActionsQuery($input: SubmitActionsInput!) {
-    submitActions(input: $input) {
-      game {
-        id
-      }
-    }
-  }
-`
-
-const SetTurnReadyMutation = gql`
-  mutation SetTurnReady($input: SetTurnReadyInput!) {
-    setTurnReady(input: $input) {
-      game {
-        id
-      }
-    }
-  }
-`
 
 class TurnView extends React.Component<Props, never> {
   renderAction(a: Action, props = {}) {
@@ -86,10 +66,6 @@ class TurnView extends React.Component<Props, never> {
     }
 
     await this.props.submitActions({
-      refetchQueries: [{
-        query: GameViewQuery,
-        variables: { gameId: game.id },
-      }],
       variables: { input },
     })
   }
@@ -103,10 +79,6 @@ class TurnView extends React.Component<Props, never> {
     }
 
     await this.props.setTurnReady!({
-      refetchQueries: [{
-        query: GameViewQuery,
-        variables: { gameId: game.id },
-      }],
       variables: { input },
     })
   }
@@ -155,6 +127,6 @@ class TurnView extends React.Component<Props, never> {
 }
 
 export default compose(
-  graphql<ResultProps, ComponentProps>(SubmitaActionsMutation, { name: 'submitActions' }),
+  graphql<ResultProps, ComponentProps>(SubmitActionsMutation, { name: 'submitActions' }),
   graphql<ResultProps, ComponentProps>(SetTurnReadyMutation, { name: 'setTurnReady' }),
 )(TurnView)

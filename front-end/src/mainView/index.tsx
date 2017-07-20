@@ -24,28 +24,40 @@ type ComponentProps = RouteComponentProps<any>
 type ResultProps = { viewer: any }
 type Props = DefaultChildProps<ComponentProps, ResultProps>
 
-const Mutation = gql`mutation MainPageMutation($input: CreateGameInput!) {
-  createGame(input: $input) {
-    viewer {
-      id
-    }
+const MainViewFragment = gql`fragment MainViewFragment on Viewer {
+  id
+  user { id, admin }
+  games {
+    id
+    name
+    createdAt
+    currentTurnNumber
+    players
+    isPlayer
   }
 }`
 
-const Query = gql`query MainPage {
-  viewer {
-    id
-    user { id, admin }
-    games {
-      id
-      name
-      createdAt
-      currentTurnNumber
-      players
-      isPlayer
+const Mutation = gql`
+  mutation MainPageMutation($input: CreateGameInput!) {
+    createGame(input: $input) {
+      viewer {
+        ...MainViewFragment
+      }
     }
   }
-}`
+
+  ${MainViewFragment}
+`
+
+const Query = gql`
+  query MainPage {
+    viewer {
+      ...MainViewFragment
+    }
+  }
+
+  ${MainViewFragment}
+`
 
 class MainView extends React.Component<Props, {a: number}> {
   static contextTypes = {
@@ -73,9 +85,6 @@ class MainView extends React.Component<Props, {a: number}> {
     }
 
     await this.props.mutate!({
-      refetchQueries: [{
-        query: Query,
-      }],
       variables: { input: dialogResult.result },
     })
   }

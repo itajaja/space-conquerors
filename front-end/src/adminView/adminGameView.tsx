@@ -19,28 +19,37 @@ type ComponentProps = RouteComponentProps<any>
 type ResultProps = { game: Game & { meta: any } }
 export type Props = DefaultChildProps<ComponentProps, ResultProps>
 
+const AdminGameViewFragment = gql`fragment AdminGameViewFragment on Game {
+  id
+  name
+  createdAt
+  currentTurnNumber
+  players
+  map
+  mapLayout
+  state(full: true)
+  actions(full: true)
+  logs(full: true)
+  meta
+}`
+
 const Mutation = gql`mutation MainPageMutation($input: AdvanceTurnInput!) {
   advanceTurn(input: $input) {
     game {
       id
+      ...AdminGameViewFragment
     }
   }
+
+  ${AdminGameViewFragment}
 }`
 
 export const Query = gql`query adminGameView($gameId: String!) {
   game(gameId: $gameId) {
-    id
-    name
-    createdAt
-    currentTurnNumber
-    players
-    map
-    mapLayout
-    state(full: true)
-    actions(full: true)
-    logs(full: true)
-    meta
+    ...AdminGameViewFragment
   }
+
+  ${AdminGameViewFragment}
 }`
 
 class AdminGameView extends React.Component<Props, never> {
@@ -64,10 +73,6 @@ class AdminGameView extends React.Component<Props, never> {
     const gameId = this.props.data!.game.id
 
     await this.props.mutate!({
-      refetchQueries: [{
-        query: Query,
-        variables: { gameId },
-      }],
       variables: { input: { gameId } },
     })
   }

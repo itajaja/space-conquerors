@@ -1,21 +1,13 @@
 import * as _ from 'lodash'
 import * as React from 'react'
-import { DefaultChildProps, gql, graphql } from 'react-apollo'
+import { DefaultChildProps, graphql } from 'react-apollo'
 import { IMovementAction } from 'sco-engine/lib/actions'
 import units from 'sco-engine/lib/units'
 import { Button, Header, List } from 'semantic-ui-react'
 
 import AssetPopup from '../components/assetPopup'
-import { Query as GameViewQuery } from './index'
+import { SubmitActionsMutation } from './fragments'
 import Store from './store'
-
-const Query = gql`mutation SelectedUnitsSidebarMenu($input: SubmitActionsInput!) {
-  submitActions(input: $input) {
-    game {
-      id
-    }
-  }
-}`
 
 type ComponentProps = {
   store: Store,
@@ -58,10 +50,6 @@ class SelectedUnitsSidebarMenu extends React.Component<Props, never> {
     }
 
     await this.props.mutate!({
-      refetchQueries: [{
-        query: GameViewQuery,
-        variables: { gameId: game.id },
-      }],
       variables: { input },
     })
 
@@ -114,4 +102,4 @@ class SelectedUnitsSidebarMenu extends React.Component<Props, never> {
   }
 }
 
-export default graphql<{}, ComponentProps>(Query)(SelectedUnitsSidebarMenu)
+export default graphql<{}, ComponentProps>(SubmitActionsMutation)(SelectedUnitsSidebarMenu)
