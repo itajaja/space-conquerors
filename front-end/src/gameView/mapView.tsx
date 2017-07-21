@@ -18,18 +18,13 @@ type Props = {
 }
 
 type State = {
-  shift: boolean,
   indexedCells: { [idx: string]: MapLayoutCell },
 }
 
 export default class MapView extends React.Component<Props, State> {
-  oldKeyPress: any
-  oldKeyUp: any
-
   constructor(props: Props, ctx) {
     super(props, ctx)
     this.state = {
-      shift: false,
       indexedCells: this.computeIndexedCells(props),
     }
   }
@@ -42,31 +37,6 @@ export default class MapView extends React.Component<Props, State> {
     this.setState({
       indexedCells: this.computeIndexedCells(nextProps),
     })
-  }
-
-  componentDidMount() {
-    this.oldKeyPress = document.onkeydown
-    document.onkeydown = this.onKeyDown
-    this.oldKeyUp = document.onkeyup
-    document.onkeyup = this.onKeyUp
-  }
-
-  onKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'Shift' && !this.state.shift) {
-      return this.setState({ shift: true })
-    } else if (e.key !== 'Shift' && this.state.shift) {
-      return this.setState({ shift: false })
-    }
-  }
-
-  onKeyUp = (e: KeyboardEvent) => {
-    if (this.state.shift) {
-      return this.setState({ shift: false })
-    }
-  }
-
-  componentWillUnmount() {
-    document.onkeypress = this.oldKeyPress
   }
 
   renderPath = (path: string[], idx: number, selected = false) => {
@@ -137,7 +107,7 @@ export default class MapView extends React.Component<Props, State> {
         height={height}
         toolbarPosition="none"
         miniaturePosition="none"
-        tool={this.state.shift ? 'pan' : 'none'}
+        tool="auto"
         background="transparent"
         SVGBackground="transparent"
         detectAutoPan={false}

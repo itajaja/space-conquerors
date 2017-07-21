@@ -64,7 +64,8 @@ export default class Cell extends React.Component<Props, State> {
 
     return (
       <circle
-        onClick={this.onPlanetClick}
+        onMouseUp={this.onPlanetClick}
+        onTouchEnd={this.onPlanetClick}
         r="20"
         fill={fill}
         className={css(styles.planet)}
@@ -87,7 +88,8 @@ export default class Cell extends React.Component<Props, State> {
             fill="url(#destination)"
             r="20"
             className={css(styles.destination)}
-            onClick={this.onDestinationClick}
+            onMouseUp={this.onDestinationClick}
+            onTouchEnd={this.onDestinationClick}
           />
         </g>
       )
@@ -96,10 +98,13 @@ export default class Cell extends React.Component<Props, State> {
   }
 
   renderUnits = (units: IUnitState[], idx: number) => {
+    const onClick = () => this.onUnitsClick(units)
+
     return (
       <g key={idx}>
         <path
-          onClick={() => this.onUnitsClick(units)}
+          onMouseUp={onClick}
+          onTouchEnd={onClick}
           className={css(styles.unit)}
           d="M16 48 L32 40 L48 48 L32 16 Z"
           fill={this.props.store.game.players[units[0].playerId].color}
