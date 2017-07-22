@@ -1,4 +1,4 @@
-import { StyleSheet } from 'aphrodite'
+import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
 import { compose, DefaultChildProps, gql, graphql } from 'react-apollo'
 import { Redirect, Route, RouteComponentProps, Switch } from 'react-router-dom'
@@ -10,6 +10,8 @@ import * as sx from 'sco-engine/lib/state'
 import { deepClone } from 'sco-engine/lib/utils'
 
 import Layout from '../components/layout'
+import Loading from '../components/loading'
+import RenderInBody from '../components/renderInBody'
 import { Game } from '../gqlTypes'
 import shortcircuit from '../shortcircuit'
 import { GameViewFragment } from './fragments'
@@ -20,6 +22,30 @@ import Store from './store'
 import TurnView from './turnView'
 
 const styles = StyleSheet.create({
+  backdropRoot: {
+    position: 'fixed',
+    top: '0',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 2000,
+  },
+  backdrop: {
+    background: 'black',
+    opacity: .2,
+    width: '100%',
+    height: '100%',
+  },
+  backdropLoading: {
+    position: 'absolute',
+    display: 'flex',
+    top: '0',
+    bottom: '0',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transform: 'scale(1.5)',
+  },
   root: {
     position: 'fixed',
     left: 0, top: 0, right: 0, bottom: 0,
@@ -34,6 +60,7 @@ export type State = {
   selectedUnits: string[],
   selectedDestinations?: { [idx: string]: true },
   selectedPath?: string[],
+  backdrop?: boolean,
 }
 
 type ComponentProps = RouteComponentProps<any>
@@ -122,6 +149,14 @@ export class GameView extends React.Component<Props, State> {
             />
           </Switch>
         </Layout>
+        {this.state.backdrop &&
+          <RenderInBody>
+            <div className={css(styles.backdropRoot)}>
+              <div className={css(styles.backdrop)} />
+              <Loading className={css(styles.backdropLoading)}/>
+            </div>
+          </RenderInBody>
+        }
       </Layout>
     )
   }

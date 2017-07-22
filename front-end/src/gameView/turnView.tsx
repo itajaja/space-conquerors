@@ -54,7 +54,7 @@ class TurnView extends React.Component<Props, never> {
     )
   }
 
-  removeAction = async (idx: number) => {
+  removeAction = (idx: number) => {
     const { game, myActions } = this.props.store
 
     const actions = myActions.slice()
@@ -65,12 +65,12 @@ class TurnView extends React.Component<Props, never> {
       gameId: game.id,
     }
 
-    await this.props.submitActions({
+    this.props.store.withBackdrop(() => this.props.submitActions!({
       variables: { input },
-    })
+    }))
   }
 
-  onChangeTurnReady = async () => {
+  onChangeTurnReady = () => {
     const { game } = this.props.store
 
     const input = {
@@ -78,9 +78,9 @@ class TurnView extends React.Component<Props, never> {
       turnReady: !game.turnReady,
     }
 
-    await this.props.setTurnReady!({
+    this.props.store.withBackdrop(() => this.props.setTurnReady!({
       variables: { input },
-    })
+    }))
   }
 
   render() {

@@ -39,7 +39,7 @@ type ComponentProps = {
 type Props = DefaultChildProps<ComponentProps, {}>
 
 class SidebarMenu extends React.Component<Props, never> {
-  onPurchase = async (item: dx.IItem & dx.PurchaseableItem) => {
+  onPurchase = (item: dx.IItem & dx.PurchaseableItem) => {
     const { game, state, myActions, myPlayer } = this.props.store
 
     const newAction: ax.IProduceAction = {
@@ -56,9 +56,9 @@ class SidebarMenu extends React.Component<Props, never> {
       gameId: game.id,
     }
 
-    await this.props.mutate!({
+    this.props.store.withBackdrop(() => this.props.mutate!({
       variables: { input },
-    })
+    }))
   }
 
   renderItem = (item: dx.IBuildingType | dx.IUnitType) => {

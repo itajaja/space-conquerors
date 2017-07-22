@@ -22,7 +22,7 @@ class SelectedUnitsSidebarMenu extends React.Component<Props, never> {
     store.selectUnits(selectedUnits.map(u => store.game.state.units[u]))
   }
 
-  onMove = async () => {
+  onMove = () => {
     const { state, game, myActions, myPlayer } = this.props.store
     const selectedUnits = state.selectedUnits!
     const indexedUnits = new Set(selectedUnits)
@@ -49,9 +49,9 @@ class SelectedUnitsSidebarMenu extends React.Component<Props, never> {
       gameId: game.id,
     }
 
-    await this.props.mutate!({
+    this.props.store.withBackdrop(() => this.props.mutate!({
       variables: { input },
-    })
+    }))
 
     this.props.store.emptySelection()
   }

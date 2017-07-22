@@ -101,4 +101,10 @@ export default class Store extends BaseStore<GameView> {
   emptySelection() {
     this.set(EMPTY_SELECTION)
   }
+
+  async withBackdrop(func: () => Promise<{}>) {
+    this.set({ backdrop: true })
+    await func()
+    this.set({ backdrop: false })
+  }
 }
