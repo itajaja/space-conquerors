@@ -33,24 +33,28 @@ const AdminGameViewFragment = gql`fragment AdminGameViewFragment on Game {
   meta
 }`
 
-const Mutation = gql`mutation MainPageMutation($input: AdvanceTurnInput!) {
-  advanceTurn(input: $input) {
-    game {
-      id
+const Mutation = gql`
+  mutation MainPageMutation($input: AdvanceTurnInput!) {
+    advanceTurn(input: $input) {
+      game {
+        id
+        ...AdminGameViewFragment
+      }
+    }
+  }
+
+  ${AdminGameViewFragment}
+`
+
+export const Query = gql`
+  query adminGameView($gameId: String!) {
+    game(gameId: $gameId) {
       ...AdminGameViewFragment
     }
   }
 
   ${AdminGameViewFragment}
-}`
-
-export const Query = gql`query adminGameView($gameId: String!) {
-  game(gameId: $gameId) {
-    ...AdminGameViewFragment
-  }
-
-  ${AdminGameViewFragment}
-}`
+`
 
 class AdminGameView extends React.Component<Props, never> {
   renderJson(data) {
