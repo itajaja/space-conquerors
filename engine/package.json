@@ -2,6 +2,9 @@
   "name": "sco-engine",
   "version": "0.0.1",
   "description": "",
+  "engines": {
+    "node": "8.x"
+  },
   "scripts": {
     "build": "tsc && ts-node ./validateAssets.ts",
     "lint": "tslint --project tsconfig.json",

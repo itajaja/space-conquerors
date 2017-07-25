@@ -2,6 +2,9 @@
   "name": "sco-server",
   "version": "0.0.1",
   "description": "",
+  "engines": {
+    "node": "8.x"
+  },
   "scripts": {
     "build": "tsc && apollo-codegen introspect-schema ./src/schema.gql --output schema.json",
     "lint": "tslint --project tsconfig.json",

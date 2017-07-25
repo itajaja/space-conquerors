@@ -2,6 +2,9 @@
   "name": "sco-front-end",
   "version": "0.0.1",
   "description": "",
+  "engines": {
+    "node": "8.x"
+  },
   "scripts": {
     "build": "npm run webpack",
     "dev-server": "DEV_SERVER=true webpack-dev-server --hot --inline --progress",

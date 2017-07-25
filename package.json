@@ -1,4 +1,7 @@
 {
+  "engines": {
+    "node": "8.x"
+  },
   "scripts": {
     "build-engine": "cd engine && npm install && npm run build",
     "build-front-end": "npm run build-engine && cd front-end && rm -rf node_modules/sco-engine && npm install && npm run build",
