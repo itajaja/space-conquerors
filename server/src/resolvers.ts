@@ -164,6 +164,7 @@ export default {
 
       const state = {
         players: _.keyBy(playerStates, 'id'),
+        gameOver: true,
         planets: indexedPlanetStates,
         units: {},
         buildings: {},
@@ -207,6 +208,13 @@ export default {
       validator.validateMovementActions(
         actions.filter(a => a.kind === 'move') as ax.IMovementAction[],
       )
+
+      if (game.state.players[ctx.user.id].status === sx.PlayerStatus.Dead) {
+        throw new Error('invalid_action.player_status')
+      }
+      if (game.state.gameOver) {
+        throw new Error('invalid_action.game_over')
+      }
 
       actions.forEach(action => {
         if (action.playerId !== ctx.user.id) {
@@ -260,9 +268,11 @@ export default {
       }
       game.meta.turnReady[ctx.user.id] = turnReady
 
-      const readys = _.values(game.meta.turnReady)
+      const areAllPlayersReady = _.values(game.state.players).every(p => (
+        p.status === sx.PlayerStatus.Dead || game.meta.turnReady[p.id]
+      ))
 
-      if (readys.length === game.players.length && readys.every(r => r)) {
+      if (areAllPlayersReady) {
         ctx.models.games.advanceTurn(game)
       }
 

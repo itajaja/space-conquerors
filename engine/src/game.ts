@@ -52,6 +52,9 @@ export function applyTurn(
   // update production queue
   engine.updateProduction()
 
+  // check if some players are dead, and check game over conditions
+  engine.updatePlayerStatus()
+
   return {
     state: newState,
     logs: engine.getLogs(),

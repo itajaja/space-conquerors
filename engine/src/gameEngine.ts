@@ -271,6 +271,29 @@ export default class GameEngine {
     })
   }
 
+  updatePlayerStatus() {
+    const unitsByPlayer = _.groupBy(_.values(this.state.units), u => u.playerId)
+    const planetsByPlayer = _.groupBy(_.values(this.state.planets), u => u.ownerPlayerId)
+
+    _.forOwn(this.state.players, p => {
+      if (
+        p.status === sx.PlayerStatus.Alive &&
+        !unitsByPlayer[p.id]
+        && !planetsByPlayer[p.id]
+      ) {
+        p.status = sx.PlayerStatus.Dead
+      }
+    })
+
+    const alivePlayers = _.values(this.state.players)
+      .filter(p => p.status === sx.PlayerStatus.Alive)
+      .length
+
+    if (alivePlayers <= 1) {
+      this.state.gameOver = true
+    }
+  }
+
   getLogs() {
     return this.logs
   }

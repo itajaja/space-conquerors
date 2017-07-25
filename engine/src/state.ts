@@ -51,6 +51,7 @@ export interface IPlanetState {
 
 export interface IGameState {
   players: { [idx: string]: IPlayerState }
+  gameOver: boolean,
 
   planets: { [idx: string]: IPlanetState }
 

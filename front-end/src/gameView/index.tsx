@@ -1,13 +1,14 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
 import { compose, DefaultChildProps, gql, graphql } from 'react-apollo'
-import { Redirect, Route, RouteComponentProps, Switch } from 'react-router-dom'
+import { NavLink, Redirect, Route, RouteComponentProps, Switch } from 'react-router-dom'
 import * as ax from 'sco-engine/lib/actions'
 import GameEngine from 'sco-engine/lib/gameEngine'
 import GameValidator from 'sco-engine/lib/gameValidator'
 import { ResourceCalculator } from 'sco-engine/lib/resources'
 import * as sx from 'sco-engine/lib/state'
 import { deepClone } from 'sco-engine/lib/utils'
+import { Header } from 'semantic-ui-react'
 
 import Layout from '../components/layout'
 import Loading from '../components/loading'
@@ -123,7 +124,31 @@ export class GameView extends React.Component<Props, State> {
   }
 
   render() {
-    const { viewer } = this.props.data!
+    const { game, viewer } = this.props.data!
+    if (this.store.myPlayer.status === sx.PlayerStatus.Dead) {
+      return (
+        <Layout classes={styles.root}>
+          <Header textAlign="center" as="h1" inverted>
+            YOU LOST
+            <Header.Subheader as={NavLink} to="/">
+              go back
+            </Header.Subheader>
+          </Header>
+        </Layout>
+      )
+    }
+    if (game.state.gameOver) {
+      return (
+        <Layout classes={styles.root}>
+          <Header textAlign="center" as="h1" inverted>
+            YOU WON
+            <Header.Subheader as={NavLink} to="/">
+              go back
+            </Header.Subheader>
+          </Header>
+        </Layout>
+      )
+    }
 
     return (
       <Layout classes={styles.root}>

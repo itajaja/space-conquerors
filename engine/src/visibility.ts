@@ -24,7 +24,7 @@ export function getStateforPlayer(
   }
 
   const players = _.mapValues(state.players, player => ({
-    status: sx.PlayerStatus.Alive,
+    status: player.status,
     id: player.id,
     productionStatuses: [],
     resourcesAmount: zeroResources(),
@@ -34,6 +34,7 @@ export function getStateforPlayer(
   players[playerId] = state.players[playerId]
 
   return {
+    ...state,
     buildings: filterVisibles(state.buildings),
     marketState: state.marketState,
     planets: filterVisibles(state.planets),
