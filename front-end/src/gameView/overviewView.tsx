@@ -248,7 +248,10 @@ class OverviewView extends React.Component<Props, never> {
                   <Layout direction="row" justify="space-between">
                     <List.Content>
                       <List.Header>
-                        {t.name}{' '}
+                        <AssetPopup itemId={t.id}>
+                          {t.name}
+                        </AssetPopup>
+                        {' '}
                         ({t.family} level {t.level})
                       </List.Header>
                       <List.Description>
