@@ -72,6 +72,13 @@ export class GameCache {
     _.groupBy(_.values(this.state.buildings), l => l.locationId)
   )
 
+  productionsByLocation = () => (
+    _.groupBy(
+      _.flatMap(_.values(this.state.players), p => p.productionStatuses).filter(p => p.locationId),
+      p => p.locationId,
+    )
+  )
+
   planetsByUser = () => this.padUsers(
     _.groupBy(_.values(this.state.planets), l => l.ownerPlayerId), () => [],
   )

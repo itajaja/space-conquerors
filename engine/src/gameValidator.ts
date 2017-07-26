@@ -1,6 +1,7 @@
 import * as _ from 'lodash'
 
 import * as ax from './actions'
+import buildingTypes from './buildings'
 import * as dx from './definitions'
 import { GameCache } from './game'
 import { items } from './gameEngine'
@@ -109,9 +110,14 @@ export default class GameValidator {
       const location = this.game.state.planets[action.locationId]
 
       this.validateUnitOrBuildingAvailability(item, player, location)
+      const existingProductions = this.game.productionsByLocation()[action.locationId] || []
       if (item.kind === 'building') {
         if (location.ownerPlayerId !== player.id) {
           throw new ValidationError('location not owned')
+        }
+
+        if (existingProductions.some(p => !!buildingTypes[p.itemId])) {
+          throw new ValidationError('already producing a building on this planet')
         }
 
         const existingPlayerBuilding = this.game.buildingsByUser()[player.id]
@@ -138,6 +144,10 @@ export default class GameValidator {
       // TODO add checks for max per system
 
       if (item.kind === 'unit') {
+        if (existingProductions.some(p => !!unitTypes[p.itemId])) {
+          throw new ValidationError('already producing a unit on this planet')
+        }
+
         const newConsumption = this.game.foodConsumption()[player.id] + item.foodConsumption
         if (newConsumption > this.game.foodProduction()[player.id]) {
           throw new ValidationError('not enough food')

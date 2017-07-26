@@ -7,6 +7,7 @@ import { GameCache } from 'sco-engine/lib/game'
 import GameEngine from 'sco-engine/lib/gameEngine'
 import GameValidator from 'sco-engine/lib/gameValidator'
 import { ResourceCalculator } from 'sco-engine/lib/resources'
+import * as sx from 'sco-engine/lib/state'
 import { deepClone } from 'sco-engine/lib/utils'
 import { Header } from 'semantic-ui-react'
 
