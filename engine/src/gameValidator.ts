@@ -100,6 +100,10 @@ export default class GameValidator {
       if (!!player.productionStatuses.find(p => p.itemId === item.id)) {
         throw new ValidationError('already scheduled')
       }
+
+      if (player.productionStatuses.some(p => !!technologyTypes[p.itemId])) {
+          throw new ValidationError('already researching a technology')
+        }
     }
 
     if (item.kind !== 'tech') {
