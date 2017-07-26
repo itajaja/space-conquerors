@@ -130,8 +130,8 @@ export default class GameValidator {
           throw new ValidationError('can\'t build more of this')
         }
 
-        const existingBuildingsOnPlanet = this.game
-          .buildingsByLocation()[location.locationId]
+        const buildingsByLocation = this.game.buildingsByLocation()
+        const existingBuildingsOnPlanet = (buildingsByLocation[location.locationId] || [])
           .filter(b => b.buildingTypeId === item.id)
         const producingBuildingsOnPlanets = producingBuildings
           .filter(p => p.locationId === location.locationId)
