@@ -165,7 +165,7 @@ export default {
 
       const state = {
         players: _.keyBy(playerStates, 'id'),
-        gameOver: true,
+        gameOver: false,
         planets: indexedPlanetStates,
         units: {},
         buildings: {},
