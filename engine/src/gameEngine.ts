@@ -298,14 +298,11 @@ export default class GameEngine {
   }
 
   updatePlayerStatus() {
-    const unitsByPlayer = _.groupBy(_.values(this.state.units), u => u.playerId)
-    const planetsByPlayer = _.groupBy(_.values(this.state.planets), u => u.ownerPlayerId)
-
     _.forOwn(this.state.players, p => {
       if (
-        p.status === sx.PlayerStatus.Alive &&
-        !unitsByPlayer[p.id]
-        && !planetsByPlayer[p.id]
+        p.status === sx.PlayerStatus.Alive
+        && !this.game.unitsByUser()[p.id].length
+        && !this.game.planetsByUser()[p.id].length
       ) {
         p.status = sx.PlayerStatus.Dead
       }

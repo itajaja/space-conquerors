@@ -57,34 +57,36 @@ export function applyTurn(
   }
 }
 
+// TODO this is not an actual cache, because we need to solve
+// consistency problems better
 export class GameCache {
-  buildingsByUser = _.once(() => this.padUsers(
-    _.groupBy(_.values(this.state.buildings), l => l.playerId), () => [],
-  ))
-
-  buildingsByLocation = _.once(() => (
-    _.groupBy(_.values(this.state.buildings), l => l.locationId)
-  ))
-
-  planetsByUser = _.once(() => this.padUsers(
-    _.groupBy(_.values(this.state.planets), l => l.ownerPlayerId), () => [],
-  ))
-
-  unitsByUser = _.once(() => this.padUsers(
-    _.groupBy(_.values(this.state.units), u => u.playerId), () => [],
-  ))
-
-  foodConsumption = _.once(() => this.padUsers(
-    this.resourceCalculator.calculateFoodConsumption(), () => 0,
-  ))
-
-  foodProduction = _.once(() => this.padUsers(
-    this.resourceCalculator.calculateFoodProduction(), () => 0,
-  ))
-
   resourceCalculator = new ResourceCalculator(this)
 
   constructor(public state: sx.IGameState, public map: IMap) { }
+
+  buildingsByUser = () => this.padUsers(
+    _.groupBy(_.values(this.state.buildings), l => l.playerId), () => [],
+  )
+
+  buildingsByLocation = () => (
+    _.groupBy(_.values(this.state.buildings), l => l.locationId)
+  )
+
+  planetsByUser = () => this.padUsers(
+    _.groupBy(_.values(this.state.planets), l => l.ownerPlayerId), () => [],
+  )
+
+  unitsByUser = () => this.padUsers(
+    _.groupBy(_.values(this.state.units), u => u.playerId), () => [],
+  )
+
+  foodConsumption = () => this.padUsers(
+    this.resourceCalculator.calculateFoodConsumption(), () => 0,
+  )
+
+  foodProduction = () => this.padUsers(
+    this.resourceCalculator.calculateFoodProduction(), () => 0,
+  )
 
   private padUsers<T>(obj: {[idx: string]: T}, defaultVal: () => T) {
     _.keys(this.state.players).forEach(p => {
