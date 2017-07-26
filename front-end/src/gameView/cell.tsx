@@ -29,6 +29,10 @@ const styles = StyleSheet.create({
     stroke: 'black',
     cursor: 'pointer',
   },
+  unitCounter: {
+    transform: 'translate(26px, -30px)',
+    fontSize: 10,
+  },
   noInteraction: {
     pointerEvents: 'none',
   },
@@ -100,14 +104,19 @@ export default class Cell extends React.Component<Props, State> {
   renderUnits = (units: IUnitState[], idx: number) => {
     const onClick = () => this.onUnitsClick(units)
 
+    const { color } = this.props.store.game.players[units[0].playerId]
+
     return (
       <g key={idx}>
+        <text fill={color} className={css(styles.unitCounter)}>
+          {units.length}
+        </text>
         <path
           onMouseUp={onClick}
           onTouchEnd={onClick}
           className={css(styles.unit)}
           d="M16 48 L32 40 L48 48 L32 16 Z"
-          fill={this.props.store.game.players[units[0].playerId].color}
+          fill={color}
         />
       </g>
     )
