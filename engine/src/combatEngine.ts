@@ -22,16 +22,14 @@ export default class CombatEngine {
 
   start() {
     let turns = 1
-    while (true) {
+    while (!this.isCombatOver()) {
       this.performTurn()
-
-      if (this.isCombatOver) {
-        return {
-          survivors: this.computeSurvivors(),
-          turns,
-        }
-      }
       turns++
+    }
+
+    return {
+      survivors: this.computeSurvivors(),
+      turns,
     }
   }
 
