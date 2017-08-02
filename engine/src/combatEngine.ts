@@ -14,7 +14,7 @@ const SURVIVE_THRESHOLD = .15
  * CombatEngine contains all the logic to handle combats
  */
 export default class CombatEngine {
-  private units: {[idx: string]: IUnit}
+  public units: {[idx: string]: IUnit}
 
   constructor(units: IUnit[]) {
     this.units = _.keyBy(units, u => u.id)
@@ -25,9 +25,7 @@ export default class CombatEngine {
     while (true) {
       this.performTurn()
 
-      const survivingPlayers = _.keys(_.keyBy(_.values(this.units), u => u.playerId))
-
-      if (survivingPlayers.length <= 1) {
+      if (this.isCombatOver) {
         return {
           survivors: this.computeSurvivors(),
           turns,
@@ -35,6 +33,11 @@ export default class CombatEngine {
       }
       turns++
     }
+  }
+
+  isCombatOver() {
+    const survivingPlayers = _.keys(_.keyBy(_.values(this.units), u => u.playerId))
+    return survivingPlayers.length <= 1
   }
 
   computeSurvivors() {

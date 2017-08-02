@@ -10,6 +10,7 @@ import DialogController from './dialogController'
 import GameView from './gameView'
 import MainView from './mainView'
 import style from './style'
+import TestCombatView from './testCombatView/index'
 
 const styles = StyleSheet.create({
   root: {
@@ -33,6 +34,7 @@ export default function App() {
                 <Switch>
                   <Route exact path="/" component={MainView} />
                   <Route path="/admin/:gameId" component={AdminGameView} />
+                  <Route path="/test-combat" component={TestCombatView} />
                   <Route path="/:gameId" component={GameView} />
                 </Switch>
               </CheckLogin>
