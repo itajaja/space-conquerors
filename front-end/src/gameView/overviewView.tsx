@@ -56,13 +56,12 @@ class OverviewView extends React.Component<Props, never> {
   }
 
   onPurchase(item: dx.IItem & dx.PurchaseableItem) {
-    const { game, state, myActions, myPlayer } = this.props.store
+    const { game, myActions, myPlayer } = this.props.store
 
     const newAction: ax.IProduceAction = {
       kind: 'produce',
       playerId: myPlayer.id,
       itemId: item.id,
-      locationId: state.selectedLocationId,
     }
 
     const actions = [...myActions, newAction]
