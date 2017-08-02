@@ -1,8 +1,10 @@
 import { css, StyleSheet } from 'aphrodite'
 import * as _ from 'lodash'
 import * as React from 'react'
+import buildingTypes from 'sco-engine/lib/buildings'
 import { ICell } from 'sco-engine/lib/map'
-import { IUnitState } from 'sco-engine/lib/state'
+import { IProductionStatus, IUnitState } from 'sco-engine/lib/state'
+import unitTypes from 'sco-engine/lib/units'
 
 import Store from './store'
 
@@ -10,6 +12,7 @@ type Props = {
   cell: ICell,
   store: Store,
   units: IUnitState[],
+  scheduledActions: IProductionStatus[] | undefined,
 }
 
 type State = {
@@ -123,8 +126,16 @@ export default class Cell extends React.Component<Props, State> {
   }
 
   render() {
-    const { cell, units } = this.props
+    const { cell, scheduledActions, units } = this.props
     const unitsByPlayer = _.groupBy(units, 'playerId')
+
+    let producing
+    if (scheduledActions) {
+      producing = [
+        scheduledActions.find(a => !!buildingTypes[a.itemId]) ? '⌂' : '',
+        scheduledActions.find(a => !!unitTypes[a.itemId]) ? '✈' : '',
+      ].join(' ')
+    }
 
     return (
       <g>
@@ -136,7 +147,8 @@ export default class Cell extends React.Component<Props, State> {
           fill="white"
           textAnchor="middle"
         >
-          {cell.name}
+          <tspan x="0">{cell.name}</tspan>
+          <tspan x="0" dy="10">{producing}</tspan>
         </text>
         {this.renderDestination()}
       </g>

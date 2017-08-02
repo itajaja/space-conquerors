@@ -71,7 +71,7 @@ export default class MapView extends React.Component<Props, State> {
     if (width === 0 || height === 0) {
       return null
     }
-    const { game, state, myActions } = this.props.store
+    const { game, state, myActions, scheduledGame } = this.props.store
     const unitsByPlanet = _.groupBy(_.values(game.state.units), 'locationId')
 
     const cellComponents = game.mapLayout.cells
@@ -81,6 +81,7 @@ export default class MapView extends React.Component<Props, State> {
             cell={game.map.cells[id]}
             store={this.props.store}
             units={unitsByPlanet[id] || []}
+            scheduledActions={scheduledGame.productionsByLocation()[id]}
           />
         </g>
       ))
