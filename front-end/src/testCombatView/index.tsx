@@ -95,7 +95,7 @@ export default class TestCombatView extends React.Component<Props, State> {
     const summary = units.map(u => (
       <div key={u.id}>
         {u.id}. {unitTypes[u.unitTypeId].name}
-        ({unitTypes[u.unitTypeId].endurance} / {u.hp.toFixed()})
+        ({u.hp.toFixed()} / {unitTypes[u.unitTypeId].endurance})
       </div>
     ))
 
