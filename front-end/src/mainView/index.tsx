@@ -2,12 +2,11 @@ import { css, StyleSheet } from 'aphrodite'
 import * as React from 'react'
 import { compose, DefaultChildProps, gql, graphql } from 'react-apollo'
 import { NavLink, RouteComponentProps } from 'react-router-dom'
-import { Button } from 'semantic-ui-react'
+import { Button, Loader } from 'semantic-ui-react'
 
 import Layout from '../components/layout'
 import { DialogContext } from '../dialogController'
 import { Game } from '../gqlTypes'
-import shortcircuit from '../shortcircuit'
 import StartGameModal from './startGameModal'
 
 const styles = StyleSheet.create({
@@ -117,6 +116,10 @@ class MainView extends React.Component<Props, {a: number}> {
   }
 
   render() {
+    if (this.props.data!.loading) {
+      return <Loader active size="big">Starting warp engines...</Loader>
+    }
+
     const { games } = this.props.data!.viewer
 
     return (
@@ -147,5 +150,4 @@ class MainView extends React.Component<Props, {a: number}> {
 export default compose(
   graphql<ResultProps, ComponentProps>(Query),
   graphql<ResultProps, ComponentProps>(Mutation),
-  shortcircuit(p => p.data.viewer),
 )(MainView)
